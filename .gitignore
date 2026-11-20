@@ -1,0 +1,46 @@
+# Build results
+bin/
+obj/
+publish/
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.vs/
+.vscode/
+*.sln.DotSettings.user
+*.user
+*.userosscache
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Node modules (for web projects)
+node_modules/
+
+# Logs
+*.log
+NLog*.txt
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Sensitive data
+*.key
+*.pem
+*.pfx
+appsettings.Development.json
+appsettings.Local.json
+
+# Session files
+.copilot/session-state/

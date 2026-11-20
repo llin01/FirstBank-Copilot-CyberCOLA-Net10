@@ -1,0 +1,15 @@
+{
+  "idleCompaction": false,
+  "agents": [
+    "cybercola-pci-reviewer",
+    "cybercola-log-analyzer",
+    "cybercola-tools-sync-checker",
+    "cybercola-config-auditor",
+    "cybercola-publish-checker",
+    "cybercola-iso8583-decoder",
+    "cybercola-sp-reader",
+    "cybercola-auth-test-runner",
+    "cybercola-stress-runner",
+    "cybercola-unit-test-runner"
+  ]
+}
