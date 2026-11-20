@@ -6,7 +6,7 @@
 # Claude Code: personal settings and temporary worktrees stay local; agents, skills and settings.json are shared
 .claude/settings.local.json
 .claude/worktrees/
-.copilot/
+# .copilot/ is tracked (agents, skills, settings.json are shared in Copilot)
 
 # User-specific files
 *.rsuser
