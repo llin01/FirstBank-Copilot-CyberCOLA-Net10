@@ -17,7 +17,7 @@ the real GW/COLA/Auth code over loopback, and behavior differs between Windows a
 Run both unless the caller names one, or passes an NUnit `--filter`.
 
 ## Windows
-Repository: `E:\FirstBank\Claude\CyberCOLA_Net10`. Build into a separate artifacts folder so a running app (for
+Repository: `E:\FirstBank\Copilot\CyberCOLA_Net10`. Build into a separate artifacts folder so a running app (for
 example a WebToolsDashboard the user has open, which locks `bin\...\WebToolsDashboard.exe`) cannot break the build,
 and so test output never lands in the repo:
 ```powershell
@@ -31,7 +31,7 @@ Only the `Ubuntu-24.04` distro has a .NET 10 SDK; the default distro (Ubuntu-20.
 remove the copy:
 ```bash
 wsl -d Ubuntu-24.04 -e bash -c 'set -e; D=$HOME/cybercola_unit_test; mkdir -p $D;
-  cd /mnt/e/FirstBank/Claude/CyberCOLA_Net10;
+  cd /mnt/e/FirstBank/Copilot/CyberCOLA_Net10;
   rsync -a --delete --exclude bin/ --exclude obj/ --exclude .git/ --exclude publish/ --exclude LogFiles/ \
     --exclude node_modules/ CyberCOLA.sln Directory.Build.props Directory.Packages.props DLL libs src tools $D/;
   cd $D; export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_CLI_UI_LANGUAGE=en;

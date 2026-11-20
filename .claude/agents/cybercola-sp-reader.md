@@ -19,7 +19,7 @@ does not, stop and report which objects you would read and why.
 
 ## Reading
 Write a temporary script in your scratch area (never in the repository) that:
-- dot-sources `E:\FirstBank\Claude\CyberCOLA_Net10\tools\CyberCOLA-Common.ps1` and gets the connection string with
+- dot-sources `E:\FirstBank\Copilot\CyberCOLA_Net10\tools\CyberCOLA-Common.ps1` and gets the connection string with
   `Get-CyberCOLADatabaseConnectionString` (it decrypts it; never print it),
 - loads `Microsoft.Data.SqlClient` from `publish\win-x64\CyberAuthNCCC\` (fallback `System.Data.SqlClient`, removing
   `Column Encryption Setting`), sets `ApplicationIntent=ReadOnly` and a short `Connect Timeout`,
