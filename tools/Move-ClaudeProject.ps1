@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     將 Claude Code 專案（含使用者設定與對話紀錄）打包搬移到另一台 Windows 電腦。
 
@@ -25,12 +25,12 @@
          → 產生 D:\CyberCOLA_Net10_ClaudeMove_yyyyMMdd_HHmm.zip，並複製一份本腳本到 D:\
          → 把輸出資料夾裡的「zip 檔」和「本腳本」一起複製到新電腦
 
-      ▶ 新電腦（匯入，還原到原路徑 E:\FirstBank\Claude\CyberCOLA_Net10）
+      ▶ 新電腦（匯入，還原到原路徑 E:\FirstBank\Copilot\CyberCOLA_Net10）
            powershell -ExecutionPolicy Bypass -File .\Move-ClaudeProject.ps1 -Mode Import -ZipPath D:\Tools\CyberCOLA_Net10_ClaudeMove_xxxx.zip
          ※ zip 與腳本放在同一個資料夾時，可省略 -ZipPath，會自動選用最新的 zip
 
     【匯入後】
-           cd E:\FirstBank\Claude\CyberCOLA_Net10
+           cd E:\FirstBank\Copilot\CyberCOLA_Net10
            dotnet restore
            dotnet build
            pwsh tools\Publish-CyberCOLAServices.ps1   # publish 輸出沒有打包，需重新發行
@@ -112,7 +112,7 @@ Set-StrictMode -Version Latest
 # the script on a new machine still has a sensible default.
 if (-not $ProjectPath) {
     $repo = Split-Path $PSScriptRoot -Parent
-    $ProjectPath = if ($repo -and (Test-Path (Join-Path $repo 'CyberCOLA.sln'))) { $repo } else { 'E:\FirstBank\Claude\CyberCOLA_Net10' }
+    $ProjectPath = if ($repo -and (Test-Path (Join-Path $repo 'CyberCOLA.sln'))) { $repo } else { 'E:\FirstBank\Copilot\CyberCOLA_Net10' }
 }
 
 # ---------- Shared settings ----------
@@ -135,7 +135,7 @@ function Write-Ok([string]$msg) { Write-Host "    [OK] $msg" -ForegroundColor Gr
 function Write-Warn2([string]$msg) { Write-Host "    [!] $msg" -ForegroundColor Yellow }
 
 # Claude Code names a project's history folder after its absolute path with every non-alphanumeric character as '-'
-#   E:\FirstBank\Claude\CyberCOLA_Net10 -> E--FirstBank-Claude-CyberCOLA-Net10
+#   E:\FirstBank\Copilot\CyberCOLA_Net10 -> E--FirstBank-Claude-CyberCOLA-Net10
 function Get-EncodedProjectName([string]$path) {
     $full = [IO.Path]::GetFullPath($path).TrimEnd('\')
     return ($full -replace '[^a-zA-Z0-9]', '-')

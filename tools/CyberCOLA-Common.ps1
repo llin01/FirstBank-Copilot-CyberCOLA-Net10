@@ -1704,7 +1704,7 @@ function Patch-CyberCOLANLog {
         $patched = $false
         $normalizedLogRoot = Get-CyberCOLALogRoot
         # Known placeholder some NLog.config files use literally; the actual dev-machine LogFiles
-        # root (e.g. E:/FirstBank/Claude/CyberCOLA_Net10/LogFiles), which is what most checked-in
+        # root (e.g. E:/FirstBank/Copilot/CyberCOLA_Net10/LogFiles), which is what most checked-in
         # NLog.config files actually contain; and /var/log, a previously-used Linux target root that
         # an already-published file may still have from before $logRoot was made configurable via
         # -LinuxDeployBasePath. All need recognizing as "old" so re-running this against a file

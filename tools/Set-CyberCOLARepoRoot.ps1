@@ -1,7 +1,7 @@
 <#
     Rewrites the repository root written into the config files (appsettings.json, NLog.config, *.xml, *.config)
     after the repository has been cloned or moved to another folder, so services and simulators run from the
-    new location. The checked-in files carry the original developer root (E:\FirstBank\Claude\CyberCOLA_Net10);
+    new location. The checked-in files carry the original developer root (E:\FirstBank\Copilot\CyberCOLA_Net10);
     every form of it is replaced: E:\...\..., E:\\...\\... (JSON) and E:/.../... (NLog).
 
     Default is a dry run that lists what would change. -Apply writes the files, keeping each file's encoding
@@ -15,7 +15,7 @@
       pwsh tools\Set-CyberCOLARepoRoot.ps1                       (dry run: old root -> this clone)
       pwsh tools\Set-CyberCOLARepoRoot.ps1 -Apply
       pwsh tools\Set-CyberCOLARepoRoot.ps1 -Apply -IncludePublished
-      pwsh tools\Set-CyberCOLARepoRoot.ps1 -OldRoot 'D:\Work\CyberCOLA' -NewRoot 'E:\FirstBank\Claude\CyberCOLA_Net10'
+      pwsh tools\Set-CyberCOLARepoRoot.ps1 -OldRoot 'D:\Work\CyberCOLA' -NewRoot 'E:\FirstBank\Copilot\CyberCOLA_Net10'
 
     Exit codes: 0 = done (or nothing to change), 1 = not run (not Windows, no git, roots invalid or identical).
 #>

@@ -1,4 +1,4 @@
-# E:\FirstBank\Claude\CyberCOLA_Net10\tools\Verify-Scripts.ps1
+# E:\FirstBank\Copilot\CyberCOLA_Net10\tools\Verify-Scripts.ps1
 # Script to verify syntax of all PowerShell scripts in tools/
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
