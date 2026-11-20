@@ -29,7 +29,7 @@ Get-NetAdapter | ? InterfaceDescription -match PANGP | Select Name,Status
   **不要用檔案修改時間判斷**：git 切換分支或合併時會改寫檔案時間，造成誤報。也**不能比對 DLL 雜湊值**：SDK 會把 commit hash 寫進版本資訊，每次 commit 後所有 DLL 都不同。正確做法是讀出 DLL 版本資訊裡的發行 commit（`1.0.0+<sha>`），再用 git 比對從那個 commit 到現在，相關原始碼有沒有變更：
 
   ```powershell
-  Set-Location 'E:\FirstBank\Claude\CyberCOLA_Net10'
+  Set-Location 'E:\FirstBank\Copilot\CyberCOLA_Net10'
   $head = git rev-parse HEAD
   foreach ($svc in 'CyberGW<NET>','CyberAuth<NET>','<模擬器>','ServiceRouter') {
     $dll = "publish\win-x64\$svc\$svc.dll"
@@ -71,7 +71,7 @@ pwsh -NoProfile -File tools\Invoke-AuthTestUnattended.ps1 -Network <NET>
 服務每次啟動都會**重建** log 檔，下一次測試會蓋掉這次的紀錄。
 
 ```powershell
-$root = 'E:\FirstBank\Claude\CyberCOLA_Net10'; $net = '<NET>'; $since = '[yyyy-MM-dd HH:mm:ss'   # transcript 的 Run start
+$root = 'E:\FirstBank\Copilot\CyberCOLA_Net10'; $net = '<NET>'; $since = '[yyyy-MM-dd HH:mm:ss'   # transcript 的 Run start
 $day = $since.Substring(1,10)
 $read = { param($dir) Get-ChildItem "$root\LogFiles\$net\$dir\$day" -Filter *.log -EA SilentlyContinue | % { [IO.File]::ReadLines($_.FullName) } | ? { $_ -ge $since } }
 $gw = @(& $read "CyberGW$net"); $auth = @(& $read "CyberAuth$net")
