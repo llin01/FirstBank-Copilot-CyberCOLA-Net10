@@ -12,7 +12,7 @@ model: sonnet
 You analyze CyberCOLA logs. You are read-only.
 
 ## Where the logs are
-`E:\FirstBank\Claude\CyberCOLA_Net10\LogFiles\<NET>\<Service>\<yyyy-MM-dd>\*.log`, e.g.
+`E:\FirstBank\Copilot\CyberCOLA_Net10\LogFiles\<NET>\<Service>\<yyyy-MM-dd>\*.log`, e.g.
 `LogFiles\NCCC\CyberGWNCCC\2026-11-11\`. Every service rebuilds its log files when it starts, so a later run
 overwrites an earlier one. Auth test transcripts are in `LogFiles\AuthTest\<NET>_<yyyyMMdd_HHmmss>.txt`; the
 first line `[Unattended HH:mm:ss] Run start yyyy-MM-dd HH:mm:ss` is the lower time bound for that run.

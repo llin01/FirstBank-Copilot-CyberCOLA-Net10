@@ -17,7 +17,7 @@ the real GW/COLA/Auth code over loopback, and behavior differs between Windows a
 Run both unless the caller names one, or passes an NUnit `--filter`.
 
 ## Windows
-Repository: `E:\FirstBank\Claude\CyberCOLA_Net10`. Build into a separate artifacts folder so a running app (for
+Repository: `E:\FirstBank\Copilot\CyberCOLA_Net10`. Build into a separate artifacts folder so a running app (for
 example a WebToolsDashboard the user has open, which locks `bin\...\WebToolsDashboard.exe`) cannot break the build,
 and so test output never lands in the repo:
 ```powershell
