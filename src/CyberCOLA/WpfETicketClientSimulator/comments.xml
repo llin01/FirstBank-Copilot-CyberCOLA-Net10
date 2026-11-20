@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>ServiceProvider</name>
+  </assembly>
+  <members>
+    <member name="N:Com.Cybersoft4u.ServiceProvider.EntryPoints.Cola" />
+    <member name="T:Com.Cybersoft4u.ServiceProvider.EntryPoints.Cola.ColaService" />
+  </members>
+</doc>

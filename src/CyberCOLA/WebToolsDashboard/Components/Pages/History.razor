@@ -1,0 +1,87 @@
+@page "/history"
+@page "/history/{FileName}"
+@inject TranscriptHistory Transcripts
+
+<div style="display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap;">
+    <div class="card" style="flex: 1; min-width: 520px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>授權測試歷史（LogFiles\AuthTest）</h3>
+            <button class="btn" style="padding: 2px 10px;" @onclick="Load">重新整理</button>
+        </div>
+        @if (_entries.Count == 0)
+        {
+            <div class="muted" style="font-size: 13px;">還沒有 transcript。</div>
+        }
+        else
+        {
+            <table class="data">
+                <tr><th>時間</th><th>網路</th><th class="num">請求</th><th class="num">成功率</th><th class="num">基準</th><th class="num">未回應</th><th>結果</th></tr>
+                @foreach (var e in _entries)
+                {
+                    var baseline = Baselines.For(e.Summary.Network);
+                    <tr style="cursor: pointer; @(e.FileName == FileName ? "background: rgba(56,189,248,0.06);" : "")" @onclick='() => Nav.NavigateTo($"history/{e.FileName}")'>
+                        <td>@TranscriptHistory.FormatTime(e)</td>
+                        <td>@e.Summary.Network</td>
+                        <td class="num">@e.Summary.TotalRequests</td>
+                        <td class="num @RateClass(e, baseline)">@(e.Summary.SuccessPercent?.ToString("0.0", CultureInfo.InvariantCulture))</td>
+                        <td class="num muted">@(baseline?.SuccessPercent.ToString("0.0", CultureInfo.InvariantCulture))</td>
+                        <td class="num @(e.Summary.TotalUnanswered > 0 ? "bad" : "")">@e.Summary.TotalUnanswered</td>
+                        <td class="@(e.ExitCode == 0 ? "ok" : "bad")">@ExitText(e.ExitCode)</td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+
+    @if (_selected is not null)
+    {
+        <div style="flex: 1.4; min-width: 520px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="card">
+                <h3>流程 — @_selected.FileName</h3>
+                <FlowView Stages="_selected.Stages" />
+            </div>
+            <div class="card">
+                <h3>結果</h3>
+                <SummaryView Summary="_selected.Summary" />
+            </div>
+            <div class="card">
+                <h3>transcript（@_lines.Count 行）</h3>
+                <div class="console">@((MarkupString)AnsiText.ToHtml(_lines))</div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private NavigationManager Nav { get; set; } = default!;
+
+    [Parameter]
+    public string? FileName { get; set; }
+
+    private IReadOnlyList<HistoryEntry> _entries = [];
+    private HistoryEntry? _selected;
+    private IReadOnlyList<string> _lines = [];
+
+    protected override void OnInitialized() => Load();
+
+    protected override void OnParametersSet()
+    {
+        _selected = FileName is null ? null : Transcripts.Get(FileName);
+        _lines = _selected is null ? [] : Transcripts.ReadLines(_selected);
+    }
+
+    private void Load() => _entries = Transcripts.List();
+
+    private static string ExitText(int code) => code switch
+    {
+        0 => "完成",
+        1 => "授權鏈未就緒",
+        2 => "沒有統計",
+        _ => "被強制結束",
+    };
+
+    private static string RateClass(HistoryEntry e, Baseline? baseline) =>
+        baseline is null || e.Summary.SuccessPercent is null ? string.Empty
+        : e.Summary.SuccessPercent >= baseline.SuccessPercent - 2 ? "ok" : "bad";
+}

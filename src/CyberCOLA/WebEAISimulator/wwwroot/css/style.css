@@ -1,0 +1,481 @@
+/* CSS Reset & Variable Definitions */
+:root {
+    --bg-dark: #f8fafc;
+    --bg-card: rgba(255, 255, 255, 0.75);
+    --bg-terminal: #f1f5f9;
+    --border-color: rgba(15, 23, 42, 0.1);
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --primary-color: #5d5bf4;
+    --primary-glow: rgba(93, 91, 244, 0.4);
+    --success-color: #00e676;
+    --success-glow: rgba(0, 230, 118, 0.35);
+    --error-color: #ff1744;
+    --error-glow: rgba(255, 23, 68, 0.35);
+    --font-outfit: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-outfit);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Glowing Orbs */
+.background-decor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.08;
+}
+
+.circle-1 {
+    width: 450px;
+    height: 450px;
+    background-color: var(--primary-color);
+    top: -10%;
+    right: 15%;
+}
+
+.circle-2 {
+    width: 500px;
+    height: 500px;
+    background-color: var(--success-color);
+    bottom: -15%;
+    left: 10%;
+}
+
+/* Container & Layout */
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2.5rem;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.logo-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-glow));
+}
+
+.header-logo h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.header-logo h1 span {
+    background: linear-gradient(135deg, var(--primary-color), #8a85ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Status Dot Indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(15, 23, 42, 0.04);
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-online {
+    background-color: var(--success-color);
+    box-shadow: 0 0 10px var(--success-glow);
+    animation: pulse 1.8s infinite;
+}
+
+.status-offline {
+    background-color: var(--error-color);
+    box-shadow: 0 0 10px var(--error-glow);
+}
+
+.status-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    flex-grow: 1;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card Styling (Glassmorphism) */
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.card h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+/* Info Group */
+.info-group {
+    background: rgba(15, 23, 42, 0.01);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 1.2rem;
+    margin-bottom: 2.5rem;
+}
+
+.info-item label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 0.4rem;
+}
+
+.info-item .value {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* Buttons */
+.control-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-outfit);
+}
+
+.btn svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.btn-start {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.btn-start:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(93, 91, 244, 0.6);
+}
+
+.btn-stop {
+    background-color: rgba(255, 23, 68, 0.1);
+    color: var(--error-color);
+    border: 1px solid rgba(255, 23, 68, 0.2);
+}
+
+.btn-stop:hover:not(:disabled) {
+    background-color: var(--error-color);
+    color: white;
+    box-shadow: 0 4px 15px var(--error-glow);
+    transform: translateY(-2px);
+}
+
+.btn-close-app {
+    background-color: rgba(255, 23, 68, 0.05);
+    color: var(--error-color);
+    border: 1px dashed rgba(255, 23, 68, 0.25);
+}
+
+.btn-close-app:hover:not(:disabled) {
+    background-color: var(--error-color);
+    color: white;
+    box-shadow: 0 4px 15px var(--error-glow);
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Log Card Header & Clear Button */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-clear {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-outfit);
+}
+
+.btn-clear:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* Terminal Design */
+.terminal-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-header {
+    background: #e2e8f0;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-dot.red { background-color: #ff5f56; }
+.terminal-dot.yellow { background-color: #ffbd2e; }
+.terminal-dot.green { background-color: #27c93f; }
+
+.terminal-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 0.8rem;
+}
+
+.terminal-body {
+    background-color: var(--bg-terminal);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 1.2rem;
+    flex-grow: 1;
+    overflow-y: auto;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    line-height: 1.45;
+}
+
+.terminal-body div {
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Log Colors */
+.system-line { color: #64748b; }
+.info-line { color: #0f172a; }
+.warn-line { color: #b45309; }
+.error-line { color: #b91c1c; }
+.success-line { color: #047857; }
+
+/* Footer */
+footer {
+    text-align: center;
+    padding-top: 2.5rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+}
+
+footer p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Shutdown Overlay */
+.shutdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(248, 250, 252, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.shutdown-content {
+    text-align: center;
+    background: rgba(15, 23, 42, 0.01);
+    border: 1px solid var(--border-color);
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    max-width: 450px;
+    width: 90%;
+}
+
+.shutdown-icon {
+    width: 4.5rem;
+    height: 4.5rem;
+    color: var(--error-color);
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 10px var(--error-glow));
+    animation: pulse 2s infinite;
+}
+
+.shutdown-content h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+}
+
+.shutdown-content p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* System Time Clock */
+.system-time {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.system-time .label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #000000;
+    letter-spacing: 1.5px;
+}
+
+.system-time .value {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+}
+
+/* Suppress Blazor Server SignalR reconnect overlay popup and error bars on process exit */
+#components-reconnect-modal,
+.components-reconnect-show,
+.components-reconnect-failed,
+.components-reconnect-refused,
+.components-reconnect-cannot-connect,
+#blazor-error-ui,
+.blazor-error-ui,
+[reconnect-modal] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

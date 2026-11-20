@@ -1,0 +1,17 @@
+{
+    "FMH": "",
+    "FN_CODE": "",
+    "RESPONSE_CODE": "T000",
+    "RESPONSE_DESCRIPTION": "成功",
+    "TERMINAL_ID": "13996187",
+    "USER_ID": "1234",
+    "BODY": {
+        "TxnDate": "20221225",
+        "TxnTime": "201010",
+        "CreditCardNo": "4910740038595106",
+        "MerPAN": "6619400169     ",
+        "QRTxnSeqNo": "123456",
+        "TxnAmtNTD": 12.22,
+        "AuthorizationCode": "123456"
+    },
+}

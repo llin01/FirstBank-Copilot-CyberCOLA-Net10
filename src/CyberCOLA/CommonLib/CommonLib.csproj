@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Com.Cybersoft4u.CommonLib</RootNamespace>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>annotations</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutputPath>bin\x64\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>CommonLib Shared Logic</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="MQ\SingletonOfMQServerInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\libs\CyberUtils\src\CyberUtils\CyberUtils.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter.NLog\LoggerAdapter.NLog.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter\LoggerAdapter.csproj" />
+    <ProjectReference Include="..\..\..\libs\TM\TM.csproj" />
+    <ProjectReference Include="..\..\..\libs\Yetty\src\Yetty\Yetty.csproj" />
+    <ProjectReference Include="..\Interchange\Interchange.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Experimental.System.Messaging" />
+    <PackageReference Include="IBMMQDotnetClient" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SocketClient">
+      <HintPath>..\..\..\DLL\SocketClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

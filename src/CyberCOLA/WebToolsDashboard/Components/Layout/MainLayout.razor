@@ -1,0 +1,67 @@
+@inherits LayoutComponentBase
+@inject IHostApplicationLifetime Lifetime
+@inject JobRunner Runner
+
+<div style="display: flex; flex-direction: column; min-height: 100vh; padding: 16px; gap: 14px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 20px; background: rgba(21, 28, 44, 0.65); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 12px;">
+        <div style="display: flex; align-items: center; gap: 24px;">
+            <div style="display: flex; align-items: baseline;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: var(--accent-blue); margin-left: 4px; opacity: 0.85;">ToolsDashboard</span>
+            </div>
+            <nav style="display: flex; gap: 16px; font-size: 14px;">
+                <NavLink href="" Match="NavLinkMatch.All">工具</NavLink>
+                <NavLink href="history">測試歷史</NavLink>
+            </nav>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <StatusBar />
+            @if (!_closed)
+            {
+                @if (!_confirming)
+                {
+                    <button class="btn btn-danger" style="padding: 4px 12px;" @onclick="() => _confirming = true">⏻ 關閉</button>
+                }
+                else
+                {
+                    var running = Runner.Jobs().Count(j => j.IsRunning);
+                    <span class="warn" style="font-size: 13px;">
+                        關閉 dashboard？@(running > 0 ? $"有 {running} 個工作執行中，會一起中止。" : "")
+                    </span>
+                    <button class="btn btn-danger" style="padding: 4px 12px;" @onclick="Shutdown">確定關閉</button>
+                    <button class="btn" style="padding: 4px 12px;" @onclick="() => _confirming = false">取消</button>
+                }
+            }
+        </div>
+    </div>
+
+    @if (_closed)
+    {
+        @* The server is gone on purpose: hide Blazor's "rejoining the server" box, which would cover this note. *@
+        <style>#components-reconnect-modal { display: none !important; }</style>
+        <div class="card">
+            <h3>Dashboard 已關閉</h3>
+            <div class="muted" style="font-size: 13px;">程式已結束，可以關掉這個分頁。要再使用時重新執行 <code>dotnet run --project src/CyberCOLA/WebToolsDashboard/WebToolsDashboard.csproj</code>。</div>
+        </div>
+    }
+    else
+    {
+        @Body
+    }
+</div>
+
+@code {
+    private bool _confirming;
+    private bool _closed;
+
+    private async Task Shutdown()
+    {
+        _closed = true;
+        StateHasChanged();
+
+        // Let the "closed" page reach the browser before the server and its circuit go away. Stopping the host
+        // disposes JobRunner, which kills any tool still running.
+        await Task.Delay(500);
+        Lifetime.StopApplication();
+    }
+}

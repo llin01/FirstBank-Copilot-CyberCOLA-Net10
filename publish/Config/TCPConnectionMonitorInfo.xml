@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<TCPConnectionMonitorInfo>
+  <TCPConnectionMonitorConfig>
+  <!-- Nccc To NcccService Information -->
+    <Nccc2NcccService Description="This Section Define Nccc to NcccService TCP EndPoint Information">
+    	<EndPoints>
+    		<EndPoint>192.168.78.1:13501,192.168.78.1</EndPoint>
+    	</EndPoints>
+    </Nccc2NcccService>
+  <!-- ColaService To ClientAuthService Information -->
+    <CloaServiceClientAuthService Description="This Section Define ColaService to ClientAuthService TCP EndPoint Information">
+    	<EndPoints>
+    		<EndPoint>192.168.78.1:10335,192.168.78.1</EndPoint>
+    	</EndPoints>
+    </CloaServiceClientAuthService>
+  <!-- RouterService To ClientMonitorService Information -->
+    <RouterService2ClientMonitorService Description="This Section Define RouterService to ClientMonitorService TCP EndPoint Information">
+    	<EndPoints>
+    		<EndPoint>192.168.78.1:9901,192.168.78.1</EndPoint>
+    	</EndPoints>
+    </RouterService2ClientMonitorService>
+  <!-- ClientAuthRouterService To TcpClient Information -->
+    <ClientAuthRouterService2TcpClient Description="This Section Define ClientAuthRouterService to TcpClient TCP EndPoint Information">
+    	<EndPoints>
+    		<EndPoint>192.168.78.1:9903,192.168.78.1</EndPoint>
+    	</EndPoints>
+    </ClientAuthRouterService2TcpClient>  
+  </TCPConnectionMonitorConfig>
+</TCPConnectionMonitorInfo>

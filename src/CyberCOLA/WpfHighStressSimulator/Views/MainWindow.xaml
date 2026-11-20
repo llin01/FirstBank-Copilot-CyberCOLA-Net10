@@ -1,0 +1,522 @@
+<Window x:Class="Com.Cybersoft4u.Simulator.Wpf.WpfHighStressSimulator.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="CyberCOLA - Ultra High-Performance TCP Simulator Dashboard" 
+        Height="850" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Background="#0D1117" Foreground="#F0F6FC"
+        FontFamily="Segoe UI, Microsoft JhengHei"
+        Closed="Window_Closed">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <!-- Title Bar & Header -->
+            <RowDefinition Height="Auto"/>
+            <!-- Real-Time Metrics Dashboard -->
+            <RowDefinition Height="Auto"/>
+            <!-- Main Content Area (Tab Control) -->
+            <RowDefinition Height="*"/>
+            <!-- Bottom Status Bar -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER TITLE -->
+        <Border Grid.Row="0" BorderBrush="#30363D" BorderThickness="0,0,0,1" Padding="0,0,0,12" Margin="0,0,0,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="CyberCOLA TCP Simulator" FontSize="22" FontWeight="Bold" Foreground="#58A6FF"/>
+                        <TextBlock Text="Zero-Allocation Pipelines &amp; Lock-Free In-Memory Channels Engine" FontSize="11" Foreground="#8B949E" Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <Border CornerRadius="6" BorderBrush="#58A6FF" BorderThickness="1.5" Background="#161B22" Padding="12,5" Margin="20,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="PROTOCOL: " FontSize="11" FontWeight="Bold" Foreground="#8B949E" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TransactionType}" FontSize="14" FontWeight="ExtraBold" Foreground="#39FF14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                <TextBlock Grid.Column="1" x:Name="TextBlockTime" Text="2026-06-01 12:00:00" 
+                           FontSize="14" Foreground="#8B949E" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            </Grid>
+        </Border>
+
+        <!-- 2. REAL-TIME METRICS DASHBOARD -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,20">
+            <!-- Active Connections -->
+            <Border Background="#161B22" BorderBrush="#1F6FEB" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,0,10,0">
+                <StackPanel>
+                    <TextBlock Text="ACTIVE CONNECTIONS" FontSize="11" FontWeight="Bold" Foreground="#8B949E"/>
+                    <TextBlock Text="{Binding ActiveConnections}" FontSize="28" FontWeight="ExtraBold" Foreground="#58A6FF" Margin="0,5,0,0"/>
+                    <TextBlock Text="Live client sockets" FontSize="10" Foreground="#8B949E" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Instant TPS -->
+            <Border Background="#161B22" BorderBrush="#238636" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,0,10,0">
+                <StackPanel>
+                    <TextBlock Text="INSTANT TRANSACTIONS/SEC" FontSize="11" FontWeight="Bold" Foreground="#8B949E"/>
+                    <TextBlock Text="{Binding Tps}" FontSize="28" FontWeight="ExtraBold" Foreground="#39FF14" Margin="0,5,0,0"/>
+                    <TextBlock Text="Dynamic throughput" FontSize="10" Foreground="#8B949E" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Success Count -->
+            <Border Background="#161B22" BorderBrush="#8B949E" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,0,10,0">
+                <StackPanel>
+                    <TextBlock Text="SUCCESS TRANSACTIONS" FontSize="11" FontWeight="Bold" Foreground="#8B949E"/>
+                    <TextBlock Text="{Binding SuccessCount}" FontSize="28" FontWeight="ExtraBold" Foreground="#F0F6FC" Margin="0,5,0,0"/>
+                    <TextBlock Text="Packets safely responded" FontSize="10" Foreground="#8B949E" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Error Count -->
+            <Border Background="#161B22" BorderBrush="#FF3131" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="TRANSMISSION ERRORS" FontSize="11" FontWeight="Bold" Foreground="#8B949E"/>
+                    <TextBlock Text="{Binding ErrorCount}" FontSize="28" FontWeight="ExtraBold" Foreground="#FF3131" Margin="0,5,0,0"/>
+                    <TextBlock Text="Socket dropped/timeouts" FontSize="10" Foreground="#8B949E" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- 3. MAIN TAB CONTROL -->
+        <TabControl Grid.Row="2" Background="Transparent" BorderBrush="#30363D" BorderThickness="0,1,0,0" Padding="0,15,0,0">
+            <TabControl.Resources>
+                <!-- Modern Minimalist TabItem Style -->
+                <Style TargetType="TabItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#8B949E"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Padding" Value="20,10"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Border" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="ContentSite" ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="#58A6FF"/>
+                                        <Setter Property="Foreground" Value="#58A6FF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#F0F6FC"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- TAB 1: DATA QUEUES MANAGEMENT -->
+            <TabItem Header="Payload Queues &amp; Ingestion">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Ingestion Configurations -->
+                    <Border Grid.Column="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,15,0">
+                        <StackPanel>
+                            <TextBlock Text="Payload Ingestion Setup" FontSize="15" FontWeight="Bold" Foreground="#58A6FF" Margin="0,0,0,15"/>
+
+                            <!-- Transaction Protocol Selection -->
+                            <TextBlock Text="Transaction Protocol:" FontSize="12" Foreground="#F0F6FC" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <ComboBox SelectedItem="{Binding TransactionType}" ItemsSource="{Binding TransactionTypes}" 
+                                      IsEnabled="{Binding IsIngestionEnabled}" Margin="0,0,0,15"/>
+
+                            <!-- Queue Engine Mode Selection -->
+                            <TextBlock Text="Payload Queue Engine:" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton Content="C# Channels (Lock-Free)" IsChecked="{Binding IsChannelsMode}" IsEnabled="{Binding IsIngestionEnabled}" Foreground="#F0F6FC" FontSize="12" Grid.Column="0" VerticalAlignment="Center"/>
+                                <RadioButton Content="Legacy MSMQ (System)" IsChecked="{Binding IsMsmqMode}" IsEnabled="{Binding IsIngestionEnabled}" Foreground="#F0F6FC" FontSize="12" Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- Folder Location Selector (Locked to appsettings.json) -->
+                            <TextBlock Text="Template Directory Path (Fixed from appsettings.json):" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding SelectedDirectory}" IsReadOnly="True" Background="#161B22" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6" Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,6,0">
+                                    <TextBlock Text="Repeat Ingestion Count:" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding RepeatCount}" Background="#0D1117" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                    <TextBlock Text="Session Count (Threads):" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding SessionCount}" IsEnabled="{Binding IsIngestionEnabled}" Background="#0D1117" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Queue Prefix Name:" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding PrefixQueueName}" IsEnabled="{Binding IsIngestionEnabled}" Background="#0D1117" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6"  Margin="0,0,0,20"/>
+
+                            <Grid Margin="0,0,0,20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Content="LOAD FILES" Command="{Binding LoadFilesCommand}"
+                                        Height="40" Background="#238636" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="13"
+                                        Grid.Column="0" Margin="0,0,6,0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button Content="INGEST PAYLOADS" Command="{Binding IngestPayloadsCommand}"
+                                        Height="40" Background="#1F6FEB" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="13"
+                                        Grid.Column="1" Margin="6,0,0,0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right: Session Queues Monitor -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Session Queues DataGrid -->
+                        <Border Grid.Row="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="10">
+                            <DataGrid ItemsSource="{Binding QueueList}" AutoGenerateColumns="False" 
+                                      Background="Transparent" BorderThickness="0" Foreground="#F0F6FC" RowBackground="Transparent"
+                                      CanUserAddRows="False" CanUserDeleteRows="False" GridLinesVisibility="None" HeadersVisibility="Column">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="#8B949E"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Padding" Value="8,5"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        <Setter Property="BorderBrush" Value="#30363D"/>
+                                    </Style>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Padding" Value="8,8"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Foreground" Value="#F0F6FC"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Session ID" Binding="{Binding SessionId}" Width="120" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Queue Virtual Path / Name" Binding="{Binding QueuePath}" Width="*" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Payload count" Binding="{Binding Count}" Width="150" IsReadOnly="True"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <!-- Auto retrieval console -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                            <TextBlock Text="Interval Sec:" VerticalAlignment="Center" Foreground="#8B949E" Margin="0,0,8,0" FontSize="12"/>
+                            <TextBox Text="{Binding RetrievalIntervalSeconds}" Background="#161B22" Foreground="#F0F6FC" BorderBrush="#30363D" 
+                                     Width="50" Padding="5"  VerticalAlignment="Center"/>
+                            <Button Content="Toggle Queue Monitor Refresh" Command="{Binding ToggleRetrievalCommand}" 
+                                    Width="220" Height="32" Background="#21262D" Foreground="#C9D1D9" BorderBrush="#30363D" Margin="10,0,0,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: TCP SIMULATOR SERVER CONFIGS -->
+            <TabItem Header="TCP Simulator Service">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Parameters -->
+                    <Border Grid.Column="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="TCP Simulator Parameter Settings" FontSize="15" FontWeight="Bold" Foreground="#58A6FF" Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,6,0">
+                                    <TextBlock Text="Transaction Protocol:" FontSize="12" Foreground="#F0F6FC" FontWeight="Bold" Margin="0,0,0,6"/>
+                                    <ComboBox SelectedItem="{Binding TransactionType}" ItemsSource="{Binding TransactionTypes}" IsEnabled="{Binding IsIngestionEnabled}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                    <TextBlock Text="Listener Port:" FontSize="12" Foreground="#F0F6FC" FontWeight="Bold" Margin="0,0,0,6"/>
+                                    <ComboBox SelectedItem="{Binding ListenPort}" ItemsSource="{Binding AvailablePorts}" IsEditable="True" IsEnabled="{Binding IsIngestionEnabled}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Server Active Push Interval (ms):" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding SendInterval}" Background="#0D1117" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6"  Margin="0,0,0,20"/>
+
+                            <TextBlock Text="General Parameters Configuration:" FontSize="12" Foreground="#8B949E" Margin="0,0,0,10"/>
+                            <UniformGrid Columns="2" Margin="0,0,0,20">
+                                <CheckBox IsChecked="{Binding IsAutoEcho}" Content="Auto Echo Response" Foreground="#F0F6FC" Margin="0,5" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding IsWaitingSignOn}" Content="Waiting Sign-On (Auth)" Foreground="#F0F6FC" Margin="0,5" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding IsReplaceCardNumber}" Content="Replace Card Number" Foreground="#F0F6FC" Margin="0,5" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding IsReplaceOriginalData}" Content="Replace Original Data" Foreground="#F0F6FC" Margin="0,5" VerticalAlignment="Center"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right: Execution Panel -->
+                    <Border Grid.Column="1" Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="15" Margin="10,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Simulator Orchestrator" FontSize="15" FontWeight="Bold" Foreground="#58A6FF" Margin="0,0,0,15"/>
+
+                            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                <!-- Big status icon -->
+                                <Border Background="#0D1117" Width="100" Height="100" CornerRadius="50" BorderThickness="2" HorizontalAlignment="Center" Margin="0,0,0,15">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderBrush" Value="#FF3131"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsServiceRunning}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#39FF14"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="⚡" FontSize="48" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#FF3131"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsServiceRunning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#39FF14"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                                <TextBlock Text="TCP ENGINE OFFLINE" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#FF3131"/>
+                                            <Setter Property="Text" Value="TCP ENGINE OFFLINE"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsServiceRunning}" Value="True">
+                                                    <Setter Property="Foreground" Value="#39FF14"/>
+                                                    <Setter Property="Text" Value="TCP SIMULATOR ONLINE"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <Grid Grid.Row="2" Margin="0,15,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Content="START SERVICE" Command="{Binding StartCommand}" Height="45" Margin="0,0,6,0"
+                                        Background="#238636" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="14">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button Content="STOP SERVICE" Command="{Binding StopCommand}" Height="45" Grid.Column="1" Margin="6,0,0,0"
+                                        Background="#DA3633" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="14">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: NEON TERMINAL CONSOLE -->
+            <TabItem Header="Terminal Console &amp; Trace Logs">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="System Event Log &amp; High-Throughput Packet Trace Terminal" 
+                                   FontSize="14" Foreground="#8B949E" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="Clear Logs" Click="ButtonCleanMessage_Click"
+                                    Width="120" Height="28" Background="#21262D" Foreground="#C9D1D9" BorderBrush="#30363D" Margin="0,0,8,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Content="Close Window" Click="ButtonClosed_Click"
+                                    Width="120" Height="28" Background="#DA3633" Foreground="White" BorderThickness="0" FontWeight="Bold" Margin="0,0,8,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Content="Shutdown" Click="ButtonShutdown_Click"
+                                    Width="120" Height="28" Background="#FF3131" Foreground="White" BorderThickness="0" FontWeight="Bold"
+                                    ToolTip="Stop all connections, release resources, and close the application">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- RichTextBox 1: System Console -->
+                        <Border Grid.Column="0" Background="#040D1A" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,8,0">
+                            <RichTextBox x:Name="RichTextBox1" IsReadOnly="True" Background="Transparent" BorderThickness="0" 
+                                         VerticalScrollBarVisibility="Auto" Foreground="#39FF14" FontFamily="Consolas, Courier New">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="[System Console Started] Listening for UDP log broadcast..."/>
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </Border>
+
+                        <!-- RichTextBox 2: Trace Logs -->
+                        <Border Grid.Column="1" Background="#040D1A" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="10" Margin="8,0,0,0">
+                            <RichTextBox x:Name="RichTextBox2" IsReadOnly="True" Background="Transparent" BorderThickness="0" 
+                                         VerticalScrollBarVisibility="Auto" Foreground="#58A6FF" FontFamily="Consolas, Courier New">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="[Payload Trace Console Active] Waiting for socket events..."/>
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 4: LOG ANALYZER -->
+            <TabItem Header="Log Analyzer">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Bar: Directory Input & Command Buttons -->
+                    <Border Grid.Row="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Log Directory:" VerticalAlignment="Center" Foreground="#F0F6FC" FontWeight="Bold" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" x:Name="TextBoxLogDir" Background="#0D1117" Foreground="#F0F6FC" BorderBrush="#30363D" Padding="6" VerticalAlignment="Center"/>
+                            <Button Grid.Column="2" Content="Browse..." Click="ButtonBrowseLogDir_Click" Width="80" Height="32" Background="#21262D" Foreground="#C9D1D9" BorderBrush="#30363D" Margin="10,0,0,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Grid.Column="3" x:Name="ButtonScanLogs" Content="Scan Logs" Click="ButtonScanLogs_Click" Width="120" Height="32" Background="#238636" Foreground="White" BorderThickness="0" FontWeight="Bold" Margin="10,0,0,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Grid.Column="4" Content="Clear Results" Click="ButtonClearScanResults_Click" Width="120" Height="32" Background="#21262D" Foreground="#C9D1D9" BorderBrush="#30363D" Margin="10,0,0,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- RichTextBox: Results Visualizer -->
+                    <Border Grid.Row="1" Background="#040D1A" BorderBrush="#30363D" BorderThickness="1" CornerRadius="8" Padding="10">
+                        <RichTextBox x:Name="RichTextBoxScanResults" IsReadOnly="True" Background="Transparent" BorderThickness="0" 
+                                     VerticalScrollBarVisibility="Auto" Foreground="#F0F6FC" FontFamily="Consolas, Courier New">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="[Log Analyzer Idle] Configure log directory above and click 'Scan Logs' to analyze WARN/ERROR/FATAL entries." Foreground="#8B949E"/>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 4. BOTTOM STATUS BAR -->
+        <Border Grid.Row="3" BorderBrush="#30363D" BorderThickness="0,1,0,0" Padding="0,8,0,0" Margin="0,15,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Status:" Foreground="#8B949E" FontSize="11"/>
+                    <TextBlock x:Name="TextBlockMessage" Text="{Binding StatusMessage}" Foreground="#58A6FF" FontSize="11" FontWeight="SemiBold" Margin="6,0,0,0"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="CyberCOLA.Simulator.WpfHighStressSimulator v10.0" Foreground="#8B949E" FontSize="11"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

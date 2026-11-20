@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XML>
+  <Header>
+    <TxID>OAOEARMK</TxID>
+    <SystemKey>FCB9G</SystemKey>
+    <TxSeqNo>20230220000021</TxSeqNo>
+    <MsgSeqNo>00001</MsgSeqNo>
+    <CltTimeStamp>2023/3/22 下午 04:09:05</CltTimeStamp>
+    <CustID>00000000</CustID>
+    <UserID>0000</UserID>
+    <AcctNo>00000000000</AcctNo>
+    <MsgDirection>RQ</MsgDirection>
+  </Header>
+  <TxRq>
+    <FunCode>UCT7</FunCode>
+    <ActionCode>1</ActionCode>
+    <AcctNbr>4563123456789012</AcctNbr>
+    <CardSeq>00000001</CardSeq>
+    <CardNbr>4563123456789012</CardNbr>
+    <AuthCode>123456</AuthCode>
+    <TxnAmt>1000.00</TxnAmt>
+  </TxRq>
+</XML>
+
+

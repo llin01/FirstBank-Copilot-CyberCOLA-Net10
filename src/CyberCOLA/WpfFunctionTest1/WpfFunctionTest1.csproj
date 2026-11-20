@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);UA0013_M</NoWarn>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>annotations</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <ApplicationIcon>test.ico</ApplicationIcon>
+    <RootNamespace>Com.Cybersoft4u.Test.Wpf.WpfFunctionTest1</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);UA0013_M</NoWarn>
+    <Copyright>Copyright (c) 2022</Copyright>
+    <Description>WpfApptest</Description>
+    <Product>WPF Function Testing Application</Product>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="NLog.config" />
+    <None Remove="test.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\libs\CyberUtils\src\CyberUtils\CyberUtils.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter.NLog\LoggerAdapter.NLog.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter\LoggerAdapter.csproj" />
+    <ProjectReference Include="..\..\..\libs\TM\TM.csproj" />
+    <ProjectReference Include="..\..\..\libs\Yetty\src\Yetty\Yetty.csproj" />
+    <ProjectReference Include="..\CommonLib\CommonLib.csproj" />
+    <ProjectReference Include="..\Interchange\Interchange.csproj" />
+    <ProjectReference Include="..\ServiceProvider\ServiceProvider.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
+
+
+

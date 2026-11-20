@@ -1,0 +1,102 @@
+<Window x:Class="Com.Cybersoft4u.Simulator.Wpf.WpfEAISimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="EAI Server Simulator" Height="500" Width="800" Icon="EAIServer.ico" Closed="Window_Closed"  >
+    <Window.Resources>
+        <Style TargetType="DataGridColumnHeader" x:Key="CenterGridHeaderStyle">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <ControlTemplate x:Key="ExampleButton" TargetType="{x:Type Button}">
+            <Border Background="LightGreen" BorderBrush="Black" BorderThickness="1" CornerRadius="5" x:Name="Border" Padding="10">
+                <ContentPresenter />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border" Property="Background" Value="Red" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <DockPanel MinHeight="50" MinWidth="50" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="0" Grid.ColumnSpan="1" Grid.Row="0" Grid.RowSpan="1" Margin="0,0,0,0" Width="NaN" Height="NaN" Name="dockPanel1">
+            <!--Definition-->
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem>
+                    <TextBlock Name="TextBlockMessage" Text="Ready" Foreground="Red"/>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="1">
+                    <TextBlock Name="TextBlockTime" Text="Time"  Foreground="Blue"/>
+                </StatusBarItem>
+            </StatusBar>
+            <Grid>
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="3*" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions >
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!--Panel-->
+                <Border Grid.Row="0" Grid.Column="0" Background="LightGreen" >
+                    <GroupBox x:Name="Message1" Header="Message1" Margin="0,0,-0.333,0" >
+                        <RichTextBox x:Name="RichTextBox1" HorizontalAlignment="Stretch" Margin="0,0,0,0"  VerticalAlignment="Stretch" VerticalContentAlignment="Top" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                    </GroupBox>
+                </Border>
+                <Grid ShowGridLines="false" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="LightGreen"  >
+                        <GroupBox x:Name="Message2" Header="Message2" Margin="0,0,-0.333,0" >
+                            <RichTextBox x:Name="RichTextBox2" HorizontalAlignment="Stretch" Margin="0,0,0,0"  VerticalAlignment="Stretch" VerticalContentAlignment="Top" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                        </GroupBox>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="LightSeaGreen">
+                    <Grid.RowDefinitions >
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label   x:Name="Label1"                Grid.Row="0" Grid.Column="0" Content="Listener Port Number :"  Foreground="Black" FontSize="10" />
+                    <TextBox x:Name="TextBoxListenerPort"   Grid.Row="0" Grid.Column="1" Text="12290" TextAlignment="Right" ToolTip="Listener Port Number" IsEnabled="False" />
+                    <Button x:Name="ButtonStart"            Content="Start Service"      Grid.Row="0" Grid.Column="2"      Click="ButtonStart_Click" FontWeight="Bold" />
+                    <Button x:Name="ButtonStop"             Content="Stop Service"       Grid.Row="1" Grid.Column="2"      Click="ButtonStop_Click"  FontWeight="Bold" />
+                    <Button x:Name="ButtonClosed"           Content="Close"              Grid.Row="0" Grid.Column="3"      Click="ButtonClosed_Click" FontWeight="Bold" />
+                    <Button x:Name="ButtonCleanMessage"     Content="Clean Message"      Grid.Row="1" Grid.Column="3"      Click="ButtonCleanMessage_Click" FontWeight="Bold"  />
+                </Grid>
+                <!--Splitter-->
+                <!--<GridSplitter Grid.Row="1" Grid.Column="0" Background="Transparent" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top"  Height="5" />-->
+                <!--<GridSplitter Grid.Row="0" Grid.Column="0"  Background="Transparent"    HorizontalAlignment="Stretch"   VerticalAlignment="Stretch"  Height="5" />-->
+                <GridSplitter Grid.Row="0" Grid.Column="0" Background="Transparent"                     HorizontalAlignment="Right"   VerticalAlignment="Stretch" Width="5"  />
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

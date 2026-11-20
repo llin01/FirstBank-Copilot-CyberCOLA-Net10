@@ -1,0 +1,355 @@
+<Window x:Name="MainWindows" Foreground="Black" Height="638.182" Icon="FirstBank_Logo.ico" Title="Client  Monitoring Service Application" Width="1179.829" WindowStartupLocation="CenterScreen" mc:Ignorable="d" x:Class="Com.Cybersoft4u.Test.Wpf.WpfMonitorService.WpfMonitorService" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Closed="Window_Closed">
+    <Window.Resources>
+        <Style TargetType="DataGridColumnHeader" x:Key="CenterGridHeaderStyle">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+    </Window.Resources>
+    <Border Background="Azure" BorderBrush="Black" BorderThickness="1" Padding="5" Margin="5,5,5,5">
+        <Grid>
+            <DockPanel Height="Auto" HorizontalAlignment="Stretch" LastChildFill="True" Margin="0,0,0,0" MinHeight="50" MinWidth="50" Name="DockPanel1" VerticalAlignment="Stretch" Width="Auto">
+                <!--Definition-->
+                <StatusBar DockPanel.Dock="Bottom">
+                    <StatusBar.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                        </ItemsPanelTemplate>
+                    </StatusBar.ItemsPanel>
+                    <StatusBarItem ToolTip="Message">
+                        <TextBlock Foreground="Red" Name="TextBlockMessage" Text="Ready" ToolTip=""/>
+                    </StatusBarItem>
+                    <StatusBarItem Grid.Column="1">
+                        <TextBlock Foreground="Blue" Name="TextBlockTime" Text="Time" ToolTip="Display Current DateTime"/>
+                    </StatusBarItem>
+                </StatusBar>
+                <Grid ShowGridLines="false">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"></RowDefinition>
+                        <RowDefinition Height="2*"></RowDefinition>
+                        <RowDefinition Height="2*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid ShowGridLines="False" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid ShowGridLines="false" Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Border Background="LightGreen" Grid.Column="0" Grid.Row="0" BorderThickness="1" Padding="5">
+                                    <GroupBox x:Name="GroupBoxRouterClient"    Foreground="Blue" Header="RouterClient Connection" Margin="0,0,0.0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="91*"/>
+                                                <ColumnDefinition Width="342*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Display Client Connection Information" x:Name="DataGridRouterClientConnectionInfo" Grid.ColumnSpan="2" IsReadOnly="True">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Binding="{Binding ClientType}" Header="ClientType" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="80">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding IPAddress}" Header="Client IPEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding Status}" Header="Status" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="90">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTemplateColumn Header="Action" Width="90">
+                                                        <DataGridTemplateColumn.HeaderStyle>
+                                                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                                <Setter Property="Foreground" Value="Blue"/>
+                                                            </Style>
+                                                        </DataGridTemplateColumn.HeaderStyle>
+                                                        <!--<DataGridTemplateColumn.HeaderTemplate><DataTemplate><CheckBox Margin="10,0" Name="CheckBoxSelectedAction" Foreground="Blue">Action/NoAction</CheckBox></DataTemplate></DataGridTemplateColumn.HeaderTemplate>-->
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <CheckBox Click="CheckBox_Click" HorizontalAlignment="Center" IsChecked="{Binding Action, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                                            </DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </GroupBox>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <Grid ShowGridLines="false" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid ShowGridLines="false" Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid  Grid.Row="0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label   x:Name="Label1"                  Content="Connect Port :"   Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="TextBoxConnectPort"      Text="0000"                Foreground="Blue" TextAlignment="Right"  Width="Auto" Height="Auto" Margin="0,3" ToolTip="Listener Port Number" IsEnabled="True" IsReadOnly="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        <Label   x:Name="Label2"                  Content="Query Interval :"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="TextBoxInterval"         Text="120"                 Foreground="Blue" TextAlignment="Right"  Width="Auto" Height="Auto"  Margin="0,3" ToolTip="Retrieval Time Interval Of Get Connection Information"  VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                        <Label   x:Name="Label3"                  Content="Sec"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid  Grid.Row="1">
+                                    <DockPanel  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                                        <Label   x:Name="Label4"                  Content="Router Client Query Interval :"   Foreground="Blue"   Width="Auto" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="TextBoxRouterClientQueryInterval"      Text="120"                   Foreground="Blue"   TextAlignment="Right"  Width="Auto" Height="Auto" ToolTip="Router Client Query Interval" IsEnabled="false" IsReadOnly="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        <Label   x:Name="Label5"                  Content="Sec"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <Label   x:Name="Label6"                  Content="Command :"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <ComboBox Foreground="Blue"  HorizontalContentAlignment="Left" ToolTip="Select Command Item" x:Name="ComboBoxSelectCommand" Width="119">
+                                            <ComboBox.ItemContainerStyle>
+                                                <Style TargetType="{x:Type ComboBoxItem}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </ComboBox.ItemContainerStyle>
+                                        </ComboBox>
+                                        <Button  x:Name="BtnAutoRouterClientQuery" Content="Start Auto Query" Style="{StaticResource Btn-Primary}" ToolTip="Auto Router Client Query" Width="Auto" Height="Auto" FontWeight="Bold" Click="BtnAutoRouterClientQuery_Click" />
+                                    </DockPanel>
+                                </Grid>
+                                <Grid  Grid.Row="2" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="1.5*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <RadioButton Name="RaBtnGateway"    GroupName="ClientType" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White" Foreground="Blue" IsChecked="true" Checked="RaBtnGateway_Checked">Gateway Client</RadioButton>
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <RadioButton Name="RaBtnClientAuth" GroupName="ClientType" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White" Foreground="Blue" Checked="RaBtnClientAuth_Checked">ClientAuth Client</RadioButton>
+                                    </Grid>
+                                    <Grid  Grid.Column="2" >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid  Grid.Column="0" >
+                                            <StackPanel Orientation="Horizontal" >
+                                                <Label       x:Name="Label"      Content="Connection Status :"  Foreground="Blue" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                                <Image       x:Name="ImageConnectionStatus"     Width="Auto" Height="Auto"  VerticalAlignment="Center" HorizontalAlignment="Center" Source="disconnect.ico"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                <Grid  Grid.Row="3" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <Button Content="UDPStart"       Style="{StaticResource Btn-Primary}" ToolTip="UDPStart Service" x:Name="BtnStartUDPService"   Width="Auto" Height="Auto" Click="BtnStartUDPService_Click" FontWeight="Bold" />
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <Button Content="UDPStop"        Style="{StaticResource Btn-Danger}"  ToolTip="UDPStop Service" x:Name="BtnStopUDPService"     Width="Auto" Height="Auto" Click="BtnStopUDPService_Click" FontWeight="Bold" />
+                                    </Grid>
+                                </Grid>
+                                <Grid  Grid.Row="4" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <Button Content="Router Client Info" Style="{StaticResource Btn-Primary}" ToolTip="Get Router Client Connection Information" x:Name="BtnRouterClientConnectionInfo" Width="Auto" Height="Auto" FontWeight="Bold" Click="BtnRouterClientConnectionInfo_Click" />
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <Button Content="Get Information"    Style="{StaticResource Btn-Primary}"  ToolTip="Get select connection Information" x:Name="BtnGetRouterClientInfo"   Width="Auto" Height="Auto" FontWeight="Bold" Click="BtnGetRouterClientInfo_Click" />
+                                    </Grid>
+                                    <Grid  Grid.Column="2" >
+                                        <Button Content="Start Router Client"    Style="{StaticResource Btn-Primary}"  ToolTip="Get select connection Information" x:Name="BtnStartRouterClient"   Width="Auto" Height="Auto" FontWeight="Bold" IsEnabled="False" Click="BtnStartRouterClient_Click" />
+                                    </Grid>
+                                </Grid>
+                                <Grid  Grid.Row="5" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <Button Content="Clean Message"  Style="{StaticResource Btn-Primary}" ToolTip="Clean Message" x:Name="BtnCleanMessage"        Width="Auto" Height="Auto" Click="BtnCleanMessage_Click" FontWeight="Bold" />
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <Button Content="Close"          Style="{StaticResource Btn-Primary}" ToolTip="Close Window" x:Name="BtnClose"         Width="Auto" Height="Auto" Click="BtnClose_Click" FontWeight="Bold" />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid ShowGridLines="False" Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid ShowGridLines="false" Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Border Background="LightGreen" Grid.Column="0" Grid.Row="0"  BorderThickness="1" Padding="5">
+                                    <GroupBox x:Name="GroupBoxGatewayRouterClientInfo" Foreground="Blue" Header="GatewayRouterClient Information" Margin="0,0,0,0">
+                                        <Grid>
+                                            <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Display Router Client Information" x:Name="DataGridGatewayRouterClientInfo" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" IsReadOnly="True">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Binding="{Binding ClientIPEndPoint}" Header="ClientIPEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding LocalEndPoint}" Header="LocalEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding RemoteEndPoint}" Header="RemoteEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding InitialCreateDateTime}" Header="InitialCreateDateTime" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding CumulativeToDate}" Header="CumulativeToDate" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding NowProcessDateTime}" Header="NowProcessDateTime" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding NowProcessTransactionType}" Header="NowProcessTransactionType" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding DailyTotalCount}" Header="DailyTotalCount" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding TotalCount}" Header="TotalCount" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </GroupBox>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid ShowGridLines="False" Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid ShowGridLines="false" Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Border Background="LightGreen" Grid.Column="0" Grid.Row="0"  BorderThickness="1" Padding="5">
+                                    <GroupBox x:Name="GroupBoxClientAuthRouterClientInfo" Foreground="Blue" Header="ClientAuthRouterClient Information" Margin="0,0,0,0">
+                                        <Grid>
+                                            <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Display Router Client Information" x:Name="DataGridClientAuthRouterClientInfo" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Binding="{Binding ClientIPEndPoint}" Header="ClientIPEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding Column1}" Header="Column1" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="200">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Binding="{Binding Column2}" Header="Column2" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="200">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style>
+                                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </GroupBox>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Row="3">
+                        <GroupBox x:Name="GroupBoxLogMessage"  Foreground="Blue" Header="Log Message" Margin="0,0,0.0,0">
+                            <Border Background="LightGreen">
+                                <RichTextBox HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="0,0,0,0" ToolTip="Display Log Message" VerticalAlignment="Stretch" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" x:Name="RichTextBoxLogMessage"/>
+                            </Border>
+                        </GroupBox>
+                    </Grid>
+                    <Grid Grid.Row="4">
+                        <GroupBox x:Name="GroupBoxSystemMessage"    Foreground="Blue" Header="System Log" Margin="0,0,0.0,0">
+                            <Border Background="LightGreen">
+                                <RichTextBox HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="0,0,0,0" ToolTip="Display Operatuin Message" VerticalAlignment="Stretch" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" x:Name="RichTextBoxSystemMessage"/>
+                            </Border>
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

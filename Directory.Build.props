@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <!-- Unified Target Framework and compiler settings -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Unified Build Target Platform -->
+    <Platform>x64</Platform>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+
+    <!-- Unified Assembly Information -->
+    <Company>經貿聯網科技</Company>
+    <Copyright>版權所有 © 經貿聯網科技 2026</Copyright>
+    <Product>CyberCOLA System</Product>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+</Project>

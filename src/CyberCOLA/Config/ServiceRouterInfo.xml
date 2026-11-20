@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ServiceRouterInfo>
+  <ServerServiceInfo>
+    <ServerLocalIP>CFLin-NB-Test</ServerLocalIP>
+    <ListenerPort>9901</ListenerPort>
+    <BackLog>1204</BackLog>
+    <!-- Node 1 CyberAuthNCCC(10011), CyberAuthFISC(10012), CyberAuthTWIN(10013), CyberAuthSVCS_4500(10014), CyberAuthSVCS_4700(10114), CyberAuthSVCS_4900(10214), CyberAuthICASH_6700(10015), CyberAuthICASH_6900(10115), CyberAuthIPASS_5504(10016), CyberAuthIPASS_5504(10116)     --> 
+    <!-- Node 1 CyberGWNCCC  (10001), CyberGWFISC  (10002), CyberGWTWIN  (10003), CyberGWSVCS_4500  (10004), CyberGWSVCS_4700  (10104), CyberGWSVCS_4900  (10204), CyberGWICASH_6700  (10005), CyberGWICASH_6900  (10105), CyberGWUIPASS_5504 (10006), CyberGWUIPASS_5504 (10106), CyberGWNCCCQRCode (10007),  CyberGWFISCIDVerify (10008)     -->
+    <!-- Node 2 CyberAuthNCCC(11011), CyberAuthFISC(11012), CyberAuthTWIN(11013), CyberAuthSVCS_4500(11014), CyberAuthSVCS_4700(11114), CyberAuthSVCS_4900(11214), CyberAuthICASH_6700(11015), CyberAuthICASH_6900(11115), CyberAuthIPASS_5504(11016), CyberAuthIPASS_5504(11116)     -->
+    <!-- Node 2 CyberGWNCCC  (11001), CyberGWFISC  (11002), CyberGWTWIN  (11003), CyberGWSVCS_4500  (11004), CyberGWSVCS_4700  (11104), CyberGWSVCS_4900  (11204), CyberGWICASH_6700  (11005), CyberGWICASH_6900  (11105), CyberGWIPASS_5504  (11006), CyberGWIPASS_5504  (11106), CyberGWNCCCQRCode (11007),  CyberGWFISCIDVerify (11008)     -->
+    
+    <ClientAuthServiceRemotePorts>10011,11011,10012,11012,10013,11013,10014,11014,10114,11114,10214,11214,10015,11015,10115,11115,10016,11016,10116,11116</ClientAuthServiceRemotePorts>
+    <AutoStartFlag>true</AutoStartFlag>
+  </ServerServiceInfo>
+  <ClientServiceInfo>
+    <ServerLocalIP>CFLin-NB-Test</ServerLocalIP>
+    <ListenerPort>9902</ListenerPort>
+    <BackLog>1204</BackLog>
+    <AutoStartFlag>true</AutoStartFlag>
+  </ClientServiceInfo>
+  <DatabaseInfo>
+    <!--
+    <ConnectionString>Data Source=DBServer,1433\MSSQLSERVER;TrustServerCertificate=True;Initial Catalog=NCARD;Connect Timeout=10;User id=CyberCArd;Password=cybersoft1qaz@WSX!; </ConnectionString>
+    -->
+    <ConnectionString>oHp3vdTNt9ycq2LU2m2b5igSKNdToto0+lIH1XtBj/1fwoDUcZ+Gsm06DY6CxaI2mpKn3clmByYo8JH+/ZaQzxQZVYkX56aqMxqMLr/KTUDFuBiRkmluzaIpeNct3xgnBv1+NgyrgvO8PfO/kRIcc01jGpIGKTZPQCLlFwuhuiNp2r5JZy+AQLwI9A03U8GPUSKcfMtxDTBeGvVJYpWXwwpqygW+ZoG/ItkzvyPCHRk1jH9LBdQFFUlOCduy008KRILcfRgtkdtRubE=</ConnectionString>
+    <IsEncrypted>true</IsEncrypted>
+    <EncryptedKey>12345678</EncryptedKey>
+  </DatabaseInfo>
+</ServiceRouterInfo>

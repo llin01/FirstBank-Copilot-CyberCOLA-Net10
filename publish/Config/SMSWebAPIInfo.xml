@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SMSWebAPIInfo>
+  <SMSWebAPI>
+    <Urls>
+      <Url>https://localhost:7293/api/</Url>
+      <Url>https://localhost:7293/api/</Url>
+    </Urls>
+    <TimeoutMilliseconds>2000</TimeoutMilliseconds>
+    <RetryTimes>10000</RetryTimes>
+    <SmsProvider>EVERY8D</SmsProvider>
+  </SMSWebAPI>
+  <DataInfo>
+    <SystemId>CyberCOLA</SystemId>
+    <SourceId>#11</SourceId>
+  </DataInfo>
+</SMSWebAPIInfo>

@@ -1,0 +1,465 @@
+@page "/"
+@implements IDisposable
+@inject TCPConnectionMonitorManager Manager
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="logo-section">
+            <img src="images/connect.ico" alt="Monitor" style="height: 32px; width: 32px; object-fit: contain; filter: drop-shadow(0 0 8px var(--primary-glow));" />
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-transform: uppercase; font-family: var(--font-sans); display: inline-block; line-height: 1;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: #64748b; font-family: var(--font-sans); display: inline-block; line-height: 1;">TCP Connection Monitor</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="status-badge" style="border-color: @(Manager.IsPollingActive ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)");">
+                <span class="status-pulse @(Manager.IsPollingActive ? "active" : "stopped")"></span>
+                <span>@(Manager.IsPollingActive ? "POLLING RUNNING" : "POLLING STOPPED")</span>
+            </div>
+            <div class="status-badge" style="border-color: @(Manager.IsUdpActive ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)");">
+                <span class="status-pulse @(Manager.IsUdpActive ? "active" : "stopped")"></span>
+                <span>@(Manager.IsUdpActive ? "UDP ACTIVE" : "UDP STOPPED")</span>
+            </div>
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color); font-family: var(--font-mono); font-weight: 600;">SYSTEM TIME: @_currentTime</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Dashboard Grid ===== -->
+    <div class="dashboard-grid" style="grid-template-columns: 320px 1fr;">
+        
+        <!-- ===== Left: Parameters Panel ===== -->
+        <aside class="panel">
+            <div class="panel-title">Monitor Settings</div>
+
+            <!-- Polling Interval -->
+            <div class="form-group">
+                <label>Polling Interval (sec)</label>
+                <input type="number" class="form-control" @bind="_timeIntervalSeconds" disabled="@(Manager.IsPollingActive || _isStarting || _isStopping)" />
+            </div>
+
+            <!-- Action Buttons for Polling -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px;">
+                <button class="btn btn-primary" disabled="@(Manager.IsPollingActive || _isStarting || _isStopping)" @onclick="StartPolling">Start Poll</button>
+                <button class="btn btn-danger" disabled="@(!Manager.IsPollingActive || _isStarting || _isStopping)" @onclick="StopPolling">Stop Poll</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;" />
+
+            <!-- UDP Port -->
+            <div class="form-group">
+                <label>UDP Listener Port</label>
+                <input type="number" class="form-control" @bind="_udpPort" disabled="@(Manager.IsUdpActive || _isUdpStarting || _isUdpStopping)" />
+            </div>
+
+            <!-- Action Buttons for UDP -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px;">
+                <button class="btn btn-success" disabled="@(Manager.IsUdpActive || _isUdpStarting || _isUdpStopping)" @onclick="StartUdp">Start UDP</button>
+                <button class="btn btn-danger" disabled="@(!Manager.IsUdpActive || _isUdpStarting || _isUdpStopping)" @onclick="StopUdp">Stop UDP</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;" />
+
+            <!-- System Info -->
+            <div class="form-group" style="flex-grow: 1;">
+                <label>Connection Info Target</label>
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--text-muted); line-height: 1.6; font-family: var(--font-mono); height: 160px; overflow-y: auto;">
+                    UDP Target Host: @Manager.UdpServerName<br/>
+                    UDP Listener Port: @Manager.UdpServerListenerPort<br/>
+                    NCCC Service: @Manager.Transaction2GatewayServiceDescription<br/>
+                    ClientAuth Service: @Manager.ColaService2ClientAuthServiceDescription
+                </div>
+            </div>
+
+            <!-- Auxiliary Controls -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                <button class="btn btn-secondary" disabled="@(_isStarting || _isStopping || _isUdpStarting || _isUdpStopping)" @onclick="CleanLogs">Clean</button>
+                <!-- Standard danger button without inline gradients -->
+                <button class="btn btn-danger" disabled="@(_isStarting || _isStopping || _isUdpStarting || _isUdpStopping)" @onclick="CloseApp">Close</button>
+            </div>
+        </aside>
+
+        <!-- ===== Right: Tables & Consoles Layout ===== -->
+        <main class="logger-panel-layout" style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- First Grid: NCCC and ColaService tables -->
+            <div class="logger-half-grid">
+                <!-- Group 1: Nccc2NcccService -->
+                <section class="panel">
+                    <div class="panel-title">@Manager.Transaction2GatewayServiceDescription</div>
+                    <div class="grid-container">
+                        <div class="table-wrapper" style="height: 160px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Seq</th>
+                                        <th style="width: 35%;">Local EndPoint</th>
+                                        <th style="width: 35%;">Remote EndPoint</th>
+                                        <th style="width: 15%;">State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @lock (Manager.Nccc2NcccServiceList)
+                                    {
+                                        if (Manager.Nccc2NcccServiceList.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No active connections retrieved.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Manager.Nccc2NcccServiceList)
+                                            {
+                                                <tr>
+                                                    <td>@item.Sequence</td>
+                                                    <td>@item.LocalEndPoint</td>
+                                                    <td>@item.RemoteEndPoint</td>
+                                                    <td>@item.State</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Group 2: ColaService2ClientAuthService -->
+                <section class="panel">
+                    <div class="panel-title">@Manager.ColaService2ClientAuthServiceDescription</div>
+                    <div class="grid-container">
+                        <div class="table-wrapper" style="height: 160px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Seq</th>
+                                        <th style="width: 35%;">Local EndPoint</th>
+                                        <th style="width: 35%;">Remote EndPoint</th>
+                                        <th style="width: 15%;">State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @lock (Manager.ColaService2ClientAuthServiceList)
+                                    {
+                                        if (Manager.ColaService2ClientAuthServiceList.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No active connections retrieved.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Manager.ColaService2ClientAuthServiceList)
+                                            {
+                                                <tr>
+                                                    <td>@item.Sequence</td>
+                                                    <td>@item.LocalEndPoint</td>
+                                                    <td>@item.RemoteEndPoint</td>
+                                                    <td>@item.State</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Second Grid: RouterService and ClientAuthRouterService tables -->
+            <div class="logger-half-grid">
+                <!-- Group 3: RouterService2ClientMonitorService -->
+                <section class="panel">
+                    <div class="panel-title">@Manager.ServerRouterService2ClientMonitorServiceDescription</div>
+                    <div class="grid-container">
+                        <div class="table-wrapper" style="height: 160px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Seq</th>
+                                        <th style="width: 35%;">Local EndPoint</th>
+                                        <th style="width: 35%;">Remote EndPoint</th>
+                                        <th style="width: 15%;">State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @lock (Manager.RouterService2ClientMonitorServiceList)
+                                    {
+                                        if (Manager.RouterService2ClientMonitorServiceList.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No active connections retrieved.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Manager.RouterService2ClientMonitorServiceList)
+                                            {
+                                                <tr>
+                                                    <td>@item.Sequence</td>
+                                                    <td>@item.LocalEndPoint</td>
+                                                    <td>@item.RemoteEndPoint</td>
+                                                    <td>@item.State</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Group 4: ClientAuthRouterService2TcpClient -->
+                <section class="panel">
+                    <div class="panel-title">@Manager.ClientAuthRouterService2TcpClientDescription</div>
+                    <div class="grid-container">
+                        <div class="table-wrapper" style="height: 160px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Seq</th>
+                                        <th style="width: 35%;">Local EndPoint</th>
+                                        <th style="width: 35%;">Remote EndPoint</th>
+                                        <th style="width: 15%;">State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @lock (Manager.ClientAuthRouterService2TcpClientList)
+                                    {
+                                        if (Manager.ClientAuthRouterService2TcpClientList.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No active connections retrieved.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Manager.ClientAuthRouterService2TcpClientList)
+                                            {
+                                                <tr>
+                                                    <td>@item.Sequence</td>
+                                                    <td>@item.LocalEndPoint</td>
+                                                    <td>@item.RemoteEndPoint</td>
+                                                    <td>@item.State</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Third Grid: Dual Console Logs -->
+            <div class="logger-half-grid" style="flex-grow: 1; min-height: 250px;">
+                <!-- System Connection Status Logs -->
+                <section class="panel" style="flex-grow: 1;">
+                    <div class="panel-title">System Status Log Messages</div>
+                    <div id="system-console" class="console-box" style="height: 220px;">
+                        @foreach (var log in _systemLogs)
+                        {
+                            <div class="console-line">@log</div>
+                        }
+                    </div>
+                </section>
+
+                <!-- UDP Fatal Messages Logs -->
+                <section class="panel" style="flex-grow: 1;">
+                    <div class="panel-title">UDP Log Fatal Messages</div>
+                    <div id="fatal-console" class="console-box" style="height: 220px;">
+                        @foreach (var log in _fatalLogs)
+                        {
+                            <div class="console-line error">@log</div>
+                        }
+                    </div>
+                </section>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private Timer? _clockTimer;
+
+    private int _timeIntervalSeconds = 30;
+    private int _udpPort = 9910;
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+    private bool _isUdpStarting = false;
+    private bool _isUdpStopping = false;
+
+    private readonly List<string> _systemLogs = new();
+    private readonly List<string> _fatalLogs = new();
+
+    protected override void OnInitialized()
+    {
+        _udpPort = Manager.UdpServerListenerPort;
+
+        // Hook log broadcasters
+        TCPConnectionLogBroadcaster.OnSystemLogAdded += HandleSystemLog;
+        TCPConnectionLogBroadcaster.OnFatalLogAdded += HandleFatalLog;
+
+        // Hook status update renderer trigger
+        Manager.OnStatusUpdated += HandleStatusUpdated;
+
+        // Fetch histories
+        _systemLogs.AddRange(TCPConnectionLogBroadcaster.GetSystemHistory());
+        _fatalLogs.AddRange(TCPConnectionLogBroadcaster.GetFatalHistory());
+
+        // Setup clock timer
+        _clockTimer = new Timer(_ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private async Task StartPolling()
+    {
+        if (_isStarting || Manager.IsPollingActive) return;
+
+        if (_timeIntervalSeconds < 30)
+        {
+            TCPConnectionLogBroadcaster.LogSystem("Input time interval must be greater than 30Sec");
+            return;
+        }
+
+        _isStarting = true;
+        TCPConnectionLogBroadcaster.LogSystem("Start Poll button clicked.");
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            await Task.Run(() => Manager.StartPolling(_timeIntervalSeconds));
+        }
+        finally
+        {
+            _isStarting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task StopPolling()
+    {
+        if (_isStopping || !Manager.IsPollingActive) return;
+
+        _isStopping = true;
+        TCPConnectionLogBroadcaster.LogSystem("Stop Poll button clicked.");
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            await Task.Run(() => Manager.StopPolling());
+        }
+        finally
+        {
+            _isStopping = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task StartUdp()
+    {
+        if (_isUdpStarting || Manager.IsUdpActive) return;
+
+        _isUdpStarting = true;
+        TCPConnectionLogBroadcaster.LogSystem("Start UDP button clicked.");
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            await Task.Run(() => Manager.StartUdpService());
+        }
+        finally
+        {
+            _isUdpStarting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task StopUdp()
+    {
+        if (_isUdpStopping || !Manager.IsUdpActive) return;
+
+        _isUdpStopping = true;
+        TCPConnectionLogBroadcaster.LogSystem("Stop UDP button clicked.");
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            await Task.Run(() => Manager.StopUdpService());
+        }
+        finally
+        {
+            _isUdpStopping = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void CleanLogs()
+    {
+        _systemLogs.Clear();
+        _fatalLogs.Clear();
+        TCPConnectionLogBroadcaster.Clear();
+        TCPConnectionLogBroadcaster.LogSystem("Clean button clicked.");
+        StateHasChanged();
+    }
+
+    private void CloseApp()
+    {
+        TCPConnectionLogBroadcaster.LogSystem("Close button clicked.");
+        Manager.Dispose();
+        Lifetime.StopApplication();
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+    }
+
+    private void HandleStatusUpdated()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleSystemLog(string msg)
+    {
+        InvokeAsync(() =>
+        {
+            _systemLogs.Add(msg);
+            if (_systemLogs.Count > 150) _systemLogs.RemoveAt(0);
+            StateHasChanged();
+        });
+    }
+
+    private void HandleFatalLog(string msg)
+    {
+        InvokeAsync(() =>
+        {
+            _fatalLogs.Add(msg);
+            if (_fatalLogs.Count > 200) _fatalLogs.RemoveAt(0);
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        TCPConnectionLogBroadcaster.OnSystemLogAdded -= HandleSystemLog;
+        TCPConnectionLogBroadcaster.OnFatalLogAdded -= HandleFatalLog;
+        Manager.OnStatusUpdated -= HandleStatusUpdated;
+        _clockTimer?.Dispose();
+    }
+}

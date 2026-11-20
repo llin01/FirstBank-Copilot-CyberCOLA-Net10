@@ -1,0 +1,55 @@
+<Window x:Class="Com.Cybersoft4u.Test.Wpf.WpfSMSWebApiServer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WPF SMS Web API Server" Height="450" Width="800" Background="#1E1E1E"
+        Icon="sms_web_api_server_icon.png">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header Panel -->
+        <Border Grid.Row="0" Background="#2D2D2D" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Web API Base URL:" Foreground="#DCDCDC" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBox x:Name="TextBoxUrl" Grid.Column="1" Text="https://localhost:7293/api/" Background="#3E3E3E" Foreground="#FFFFFF" BorderBrush="#555555" Padding="5" VerticalAlignment="Center" IsReadOnly="True"/>
+                <Button x:Name="ButtonStart" Content="Start Server" Grid.Column="2" Width="100" Margin="10,0,0,0" Padding="5" Click="ButtonStart_Click" Background="#4E4E4E" Foreground="#FFFFFF" FontWeight="Bold"/>
+                <Button x:Name="ButtonStop" Content="Stop Server" Grid.Column="3" Width="100" Margin="10,0,0,0" Padding="5" Click="ButtonStop_Click" Background="#4E4E4E" Foreground="#FFFFFF" FontWeight="Bold" IsEnabled="False"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Workspace -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Header="Received SMS Requests" Grid.Column="0" Foreground="#DCDCDC" BorderBrush="#444444">
+                <RichTextBox x:Name="RichTextBoxRequests" Background="#121212" Foreground="#39FF14" BorderThickness="0" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+            </GroupBox>
+            
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent"/>
+            
+            <GroupBox Header="Server Operations Log" Grid.Column="2" Foreground="#DCDCDC" BorderBrush="#444444">
+                <RichTextBox x:Name="RichTextBoxLogs" Background="#121212" Foreground="#58A6FF" BorderThickness="0" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+            </GroupBox>
+        </Grid>
+
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="2" Background="#2D2D2D" Foreground="#888888" Margin="0,10,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="TextBlockStatus" Text="Ready"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

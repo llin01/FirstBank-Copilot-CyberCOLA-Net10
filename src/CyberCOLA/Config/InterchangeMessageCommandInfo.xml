@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<InterchangeMessageCommandInfo>
+  <CommandItemsInfo>
+    <Gateway Description="For Gateway Service Use">
+      <VISAService Description="VISA Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 0071)</Command>
+          <Command>SSI--STIN Sign On(F70 = 0078)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 0072)</Command>
+          <Command>SSO--STIN Sign Off(F70 = 0079)</Command>
+          <Command>SEHO--Switch Auto Echo Flag(true, false)</Command>
+          <Command>DISP--Display VISA CONNECT Information(Include Ip, Port, Station ID, Sign Status)</Command>
+          <Command>START--Start Service , Start service if it's not running</Command>
+          <Command>STOP--Stop Service , Stop service if it's running</Command>
+        </Commands>
+      </VISAService>
+      <MASTERCARDService Description="MASTERCARD Service Use">
+        <Commands>
+          <Command>GSI--Group Sign On(F70 = 061, P2=03382)</Command>
+          <Command>GSO--Group Sign Off(F70 = 062, P2=03382)</Command>
+          <Command>S1SI--Stage1 Sign On(F70 = 001, P2=[524095, 540836, 543371, 55200300, 55200315, 55200317, 55200356, 55200357, 55200359, 55200361, 55200398])</Command>
+          <Command>S1SO--Stage1 Sign Off(F70 = 001, P2=[524095, 540836, 543371, 55200300, 55200315, 55200317, 55200356, 55200357, 55200359, 55200361, 55200398])
+          </Command>
+          <Command>S2SI--Stage2 Sign On(F70 = 001, P2=[51491400, 51491456, 51491457, 51491459, 51491461, 51572103, 540641, 543382, 55233500, 55233515, 55233517, 5523354, 543782, 5442280, 5442286])</Command>
+          <Command>S2SO--Stage2 Sign Off(F70 = 001, P2=[51491400, 51491456, 51491457, 51491459, 51491461, 51572103, 540641, 543382, 55233500, 55233515, 55233517, 5523354, 543782, 5442280, 5442286])</Command>
+          <Command>CGSI--Switch Group Sign Flag(true, false)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </MASTERCARDService>
+      <MASTERCARDANRService Description="MASTERCARD ANR Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </MASTERCARDANRService>
+      <NCCCCOLAService Description="NCCCCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </NCCCCOLAService>
+      <NCCCService Description="NCCC Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </NCCCService>
+      <NCPSCOLAService Description="NCPSCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </NCPSCOLAService>
+      <NCPSService Description="NCPS Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </NCPSService>
+      <TWMPCOLAService Description="TWMPCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </TWMPCOLAService>
+      <TWMPService Description="TWMP Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </TWMPService>
+      <STINCOLAService Description="STINCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </STINCOLAService>
+      <STINService Description="STIN Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </STINService>
+      <FISCCOLAService Description="FISCCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </FISCCOLAService>
+      <FISCService Description="FISC Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </FISCService>
+      <TWINCOLAService Description="TWINCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </TWINCOLAService>
+      <TWINService Description="TWIN Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </TWINService>
+      <SVCSCOLAService Description="SVCSCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </SVCSCOLAService>
+      <SVCSService Description="SVCS Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </SVCSService>
+      <ICASHCOLAService Description="ICASHCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </ICASHCOLAService>
+      <ICASHService Description="ICASH Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </ICASHService>
+      <IPASSCOLAService Description="IPASSCOLA Service Use">
+        <Commands>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </IPASSCOLAService>
+      <IPASSService Description="IPASS Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </IPASSService>
+      <GatewayServiceCommand Description="Gateway Service For System Level Use">
+        <Commands>
+          <Command>01--Get Connection Status</Command>
+          <Command>02--Get Gateway Channels Information</Command>
+        </Commands>
+      </GatewayServiceCommand>
+    </Gateway>
+    <ClientAuth Description="For Client Authorization Service Use">
+      <VISAClient Description="VISA Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 0071)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 0072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </VISAClient>
+      <MASTERCARDClient Description="MASTERCARD Client Authorization Use">
+        <Commands>
+          <Command>GSI--Group Sign On(F70 = 061, P2=03382)</Command>
+          <Command>GSO--Group Sign Off(F70 = 062, P2=03382)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </MASTERCARDClient>
+      <NCCCClient Description="NCCC Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </NCCCClient>
+      <NCPSClient Description="NCPS Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>NKEY--New    Key(F70 =  162)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </NCPSClient>
+      <STINClient Description="STIN Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+        </Commands>
+      </STINClient>
+      <FISCClient Description="FISC Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+          <Command>0302--File Maintenance Update</Command>
+        </Commands>
+      </FISCClient>
+      <TWINClient Description="TWIN Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </TWINClient>
+      <SVCSClient Description="SVCS Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0302--File Maintenance Update</Command>
+        </Commands>
+      </SVCSClient>
+      <ICASHClient Description="ICASH Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0302--File Maintenance Update</Command>
+        </Commands>
+      </ICASHClient>
+      <IPASSClient Description="IPASS Client Authorization Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 071)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  072)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0302--File Maintenance Update</Command>
+        </Commands>
+      </IPASSClient>
+      <ClientAuthServiceCommand Description="ClientAuth Service For System Level Use">
+        <Commands>
+          <Command>01--Get Connection Status</Command>
+          <Command>02--Get ColaPasys Information</Command>
+          <Command>03--List ReservedKeyData Information</Command>
+          <Command>04--Delete ReservedKeyData Information</Command>
+          <Command>05--List ReservedHCEKeyData Information</Command>
+          <Command>06--Delete ReservedHCEKeyData Information</Command>
+          <Command>07--List ReservedANRKeyData Information</Command>
+          <Command>08--Delete ReservedANRKeyData Information</Command>
+          <Command>10--Sync. ColaPasysInfo</Command>
+        </Commands>
+      </ClientAuthServiceCommand>
+    </ClientAuth>
+    <Router Description="For Router Service Use">
+      <RouterServiceCommand Description="Router Service For System Level Use">
+        <Commands>
+          <Command>01--Get Connection Status</Command>
+        </Commands>
+      </RouterServiceCommand>
+    </Router>
+  </CommandItemsInfo>
+</InterchangeMessageCommandInfo>

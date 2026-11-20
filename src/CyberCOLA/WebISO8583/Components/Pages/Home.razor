@@ -1,0 +1,415 @@
+@page "/"
+@implements IDisposable
+@inject Com.Cybersoft4u.Test.Web.WebISO8583.ISO8583Manager Manager
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="logo-section">
+            <img src="images/8583.ico" alt="ISO8583" style="height: 32px; width: 32px; object-fit: contain; filter: drop-shadow(0 0 8px var(--primary-glow));" />
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-transform: uppercase; font-family: var(--font-sans); display: inline-block; line-height: 1;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: #64748b; font-family: var(--font-sans); display: inline-block; line-height: 1;">ISO8583 Utility</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color);">WORK MODE:</span>
+                <span style="margin-left: 5px; font-weight: 600; color: var(--text-main);">@_currentTab.ToString().ToUpper()</span>
+            </div>
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color); font-family: var(--font-mono); font-weight: 600;">SYSTEM TIME: @_currentTime</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Dashboard Grid ===== -->
+    <div class="dashboard-grid" style="grid-template-columns: 260px 1fr;">
+        
+        <!-- ===== Left: Parameters Panel ===== -->
+        <aside class="panel">
+            <div class="panel-title">Utility Console</div>
+
+            <!-- Tab Selection -->
+            <div class="form-group">
+                <label>Select Tool Tab</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <button class="btn @(_currentTab == TabMode.Builder ? "btn-primary" : "btn-secondary")" @onclick="() => SwitchTab(TabMode.Builder)">
+                        8583 Message Builder
+                    </button>
+                    <button class="btn @(_currentTab == TabMode.Parser ? "btn-primary" : "btn-secondary")" @onclick="() => SwitchTab(TabMode.Parser)">
+                        8583 Message Parser
+                    </button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;" />
+
+            <!-- Info Box -->
+            <div class="form-group" style="flex-grow: 1;">
+                <label>Protocol Help</label>
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--text-muted); line-height: 1.6; font-family: var(--font-mono); height: 200px; overflow-y: auto;">
+                    <strong>FISC:</strong> Financial Information Service Co.<br/>
+                    └─ MTI examples: 0200, 0800<br/>
+                    <strong>NCCC:</strong> National Credit Card Center<br/>
+                    └─ Tokens: C5, CE, QR, etc.<br/>
+                    <strong>TWIN:</strong> Twin-Net Protocol<br/>
+                    └─ ISO Header default format.
+                </div>
+            </div>
+
+            <!-- Auxiliary Controls -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto;">
+                <button class="btn btn-secondary" disabled="@(_isExecuting)" @onclick="CleanConsole">Clean</button>
+                <!-- Standard danger button without inline gradients -->
+                <button class="btn btn-danger" disabled="@(_isExecuting)" @onclick="CloseApp">Close</button>
+            </div>
+        </aside>
+
+        <!-- ===== Right: Tool Content Area ===== -->
+        <main class="logger-panel-layout" style="flex-grow: 1; display: flex; flex-direction: column;">
+            
+            @if (_currentTab == TabMode.Builder)
+            {
+                <!-- ==================== TAB 1: BUILDER ==================== -->
+                <section class="panel" style="flex-grow: 1; display: flex; flex-direction: column; gap: 15px;">
+                    <div class="panel-title">ISO8583 Message Builder</div>
+
+                    <!-- Builder Config Header Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Protocol Type</label>
+                            <select class="form-control" @onchange="OnProtocolChanged" style="background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-color);">
+                                <option value="FISC">FISC</option>
+                                <option value="NCCC">NCCC</option>
+                                <option value="TWIN">TWIN</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Message MTI</label>
+                            <select class="form-control" @onchange="OnMtiChanged" style="background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-color);">
+                                @foreach (var mti in _availableMtis)
+                                {
+                                    <option value="@mti">@mti</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>ISO Header</label>
+                            <input type="text" class="form-control" @bind="_txtIsoHeader" style="font-family: var(--font-mono); font-size: 12px;" />
+                        </div>
+
+                        <div style="display: flex; align-items: flex-end;">
+                            <button class="btn btn-secondary" style="width: 100%; font-size: 11px; padding: 8px;" @onclick="SimulatePresets">Simulate Presets</button>
+                        </div>
+                    </div>
+
+                    <!-- Builder Main Working Area -->
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; flex-grow: 1; min-height: 420px;">
+                        <!-- Left: Editable Fields List Grid -->
+                        <div style="display: flex; flex-direction: column; gap: 6px; height: 420px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Fields Entry Grid (Fields Count: @_builderFields.Count)</label>
+                            <div class="grid-container" style="flex-grow: 1; overflow-y: auto; background: rgba(10, 15, 26, 0.4); border: 1px solid var(--border-color); border-radius: 8px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 1;">
+                                        <tr>
+                                            <th style="width: 10%; text-align: left; padding: 8px;">Bit</th>
+                                            <th style="width: 35%; text-align: left; padding: 8px;">Name</th>
+                                            <th style="width: 15%; text-align: left; padding: 8px;">Length</th>
+                                            <th style="width: 10%; text-align: left; padding: 8px;">Cond</th>
+                                            <th style="width: 30%; text-align: left; padding: 8px;">Entry Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (_builderFields.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="5" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 12px;">No fields defined for selected MTI.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var field in _builderFields)
+                                            {
+                                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                                    <td style="font-family: var(--font-mono); padding: 6px 8px;">@field.BitNum</td>
+                                                    <td style="font-size: 11px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 6px 8px;" title="@field.FieldName">@field.FieldName</td>
+                                                    <td style="font-size: 11px; font-family: var(--font-mono); padding: 6px 8px;">@field.Length (@field.FieldDataFormat.Substring(0, Math.Min(3, field.FieldDataFormat.Length)))</td>
+                                                    <td style="font-family: var(--font-mono); color: @(field.Condition == "M" ? "var(--accent-color)" : "var(--text-muted)"); padding: 6px 8px;">@field.Condition</td>
+                                                    <td style="padding: 6px 8px;">
+                                                        <input type="text" class="form-control" @bind="field.EntryData" placeholder="@field.FieldDataType" style="font-size: 11px; font-family: var(--font-mono); padding: 2px 6px; height: 24px; width: 100%;" />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right: Output Hex Results & Details Breakdown -->
+                        <div style="display: flex; flex-direction: column; gap: 6px; overflow: hidden;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Builder Logs & Output Breakdown</label>
+                            <div class="console-box" style="flex-grow: 1; white-space: pre-wrap; font-size: 11px; font-family: var(--font-mono);">@_builderResponse</div>
+                        </div>
+                    </div>
+
+                    <!-- Builder Action Row -->
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+                        <button class="btn btn-success" style="min-width: 180px;" disabled="@(_isExecuting)" @onclick="BuildIso8583Message">
+                            Create ISO8583 Data
+                        </button>
+                    </div>
+                </section>
+            }
+            else
+            {
+                <!-- ==================== TAB 2: PARSER ==================== -->
+                <section class="panel" style="flex-grow: 1; display: flex; flex-direction: column; gap: 15px;">
+                    <div class="panel-title">ISO8583 Message Parser</div>
+
+                    <!-- Parser Config Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Protocol Type</label>
+                            <select class="form-control" @bind="_parserProtocol" style="background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-color);">
+                                <option value="FISC">FISC</option>
+                                <option value="NCCC">NCCC</option>
+                                <option value="TWIN">TWIN</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: flex-end; color: var(--text-muted); font-size: 11px; font-family: var(--font-mono); line-height: 1.4;">
+                            * Supports pasting Raw HEX String (e.g. 49534f3038...) or Plain ASCII ISO Message block.
+                        </div>
+                    </div>
+
+                    <!-- Parser Main Working Area -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; height: 420px;">
+                        <!-- Left: Paste Source Area -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Paste Raw ISO Message</label>
+                            <textarea class="form-control" @bind="_txtParserInput" style="font-family: var(--font-mono); font-size: 11px; flex-grow: 1; background: rgba(10, 15, 26, 0.5); color: var(--text-main);" placeholder="Paste Hex payload or ASCII string here..."></textarea>
+                        </div>
+
+                        <!-- Right: Dual Consoles for Fields breakdown and Token details -->
+                        <div style="display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; overflow: hidden;">
+                                <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Fields breakdown</label>
+                                <div class="console-box" style="flex-grow: 1; font-size: 11px; font-family: var(--font-mono); white-space: pre-wrap;">@_parserResponse</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; overflow: hidden;">
+                                <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">NCCC Token Details</label>
+                                <div class="console-box" style="flex-grow: 1; font-size: 11px; font-family: var(--font-mono); white-space: pre-wrap; color: var(--primary-color);">@_parserTokenResponse</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parser Action Row -->
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+                        <button class="btn btn-primary" style="min-width: 180px;" disabled="@(_isExecuting)" @onclick="ParseIso8583Message">
+                            Parse Message
+                        </button>
+                    </div>
+                </section>
+            }
+
+        </main>
+    </div>
+</div>
+
+@code {
+    private enum TabMode
+    {
+        Builder,
+        Parser
+    }
+
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private Timer? _clockTimer;
+
+    private TabMode _currentTab = TabMode.Builder;
+
+    // --- Builder Variables ---
+    private string _selectedProtocol = "FISC";
+    private List<string> _availableMtis = new();
+    private string _selectedMti = string.Empty;
+    private string _txtIsoHeader = string.Empty;
+    private List<ISOFieldInfo> _builderFields = new();
+    private string _builderResponse = "Configure settings and click 'Create ISO8583 Data' to build.";
+
+    // --- Parser Variables ---
+    private string _parserProtocol = "FISC";
+    private string _txtParserInput = string.Empty;
+    private string _parserResponse = "Pasted message results will breakdown here.";
+    private string _parserTokenResponse = "NCCC sub-tokens (C5, CE, QR) will display here.";
+
+    private bool _isExecuting = false;
+
+    protected override void OnInitialized()
+    {
+        // Load initial protocol settings
+        LoadProtocol("FISC");
+
+        // Setup clock timer
+        _clockTimer = new Timer(_ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void SwitchTab(TabMode mode)
+    {
+        _currentTab = mode;
+        StateHasChanged();
+    }
+
+    private void LoadProtocol(string protocol)
+    {
+        _selectedProtocol = protocol;
+        _availableMtis = Manager.GetAvailableMessageTypes(_selectedProtocol);
+        
+        if (_availableMtis.Count > 0)
+        {
+            _selectedMti = _availableMtis[0];
+            LoadMti(_selectedMti);
+        }
+        else
+        {
+            _selectedMti = string.Empty;
+            _builderFields.Clear();
+            _txtIsoHeader = string.Empty;
+        }
+    }
+
+    private void LoadMti(string mti)
+    {
+        _selectedMti = mti;
+
+        // Header Formatting Parity with WPF
+        if (!string.IsNullOrEmpty(_selectedMti))
+        {
+            var flagChar = _selectedMti.Substring(1, 1);
+            if (flagChar == "3")
+            {
+                _txtIsoHeader = "ISO0800600000005010";
+            }
+            else if (flagChar == "8")
+            {
+                _txtIsoHeader = "ISO0000600000006000";
+            }
+            else
+            {
+                _txtIsoHeader = "ISO0000600000006000";
+            }
+
+            _builderFields = Manager.LoadProtocolFields(_selectedProtocol, _selectedMti);
+        }
+    }
+
+    private void OnProtocolChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString() ?? "FISC";
+        LoadProtocol(val);
+    }
+
+    private void OnMtiChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString() ?? string.Empty;
+        LoadMti(val);
+    }
+
+    private void SimulatePresets()
+    {
+        // Re-load to trigger random default card values and preset configurations
+        LoadMti(_selectedMti);
+        _builderResponse = "Simulated card track and default numeric amount fields successfully.";
+    }
+
+    private async Task BuildIso8583Message()
+    {
+        if (_isExecuting) return;
+
+        _isExecuting = true;
+        _builderResponse = "Executing ISO8583 Encoding & Validation...";
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            string parseLog = string.Empty;
+            var rawHexResult = Manager.BuildISO8583Message(_selectedProtocol, _selectedMti, _txtIsoHeader, _builderFields, ref parseLog);
+            
+            _builderResponse = parseLog;
+        }
+        catch (Exception ex)
+        {
+            _builderResponse = $"Critical Builder Error: {ex.Message}";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ParseIso8583Message()
+    {
+        if (_isExecuting || string.IsNullOrEmpty(_txtParserInput)) return;
+
+        _isExecuting = true;
+        _parserResponse = "Decoding ISO8583 Message Payload...";
+        _parserTokenResponse = "Parsing sub-token definition maps...";
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            string tokenLog = string.Empty;
+            var fieldsLog = Manager.ParseISO8583Message(_parserProtocol, _txtParserInput, ref tokenLog);
+
+            _parserResponse = fieldsLog;
+            _parserTokenResponse = tokenLog;
+        }
+        catch (Exception ex)
+        {
+            _parserResponse = $"Parsing Exception: {ex.Message}";
+            _parserTokenResponse = $"Token Decode Error: {ex.Message}";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void CleanConsole()
+    {
+        if (_currentTab == TabMode.Builder)
+        {
+            _builderResponse = "Cleaned builder log.";
+        }
+        else
+        {
+            _txtParserInput = string.Empty;
+            _parserResponse = "Cleaned parse log.";
+            _parserTokenResponse = "Cleaned sub-token log.";
+        }
+        StateHasChanged();
+    }
+
+    private void CloseApp()
+    {
+        Lifetime.StopApplication();
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+    }
+
+    public void Dispose()
+    {
+        _clockTimer?.Dispose();
+    }
+}

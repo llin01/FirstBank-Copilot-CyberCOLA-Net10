@@ -1,0 +1,321 @@
+@page "/"
+@implements IDisposable
+@inject Com.Cybersoft4u.Test.Web.WebMaintGatewayTester.SimulationService SimService
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="logo-section">
+            <img src="images/api.ico" alt="API" style="height: 32px; width: 32px; object-fit: contain; filter: drop-shadow(0 0 8px var(--primary-glow));" />
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-transform: uppercase; font-family: var(--font-sans); display: inline-block; line-height: 1;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: #64748b; font-family: var(--font-sans); display: inline-block; line-height: 1;">Maint Gateway Tester</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color);">CURRENT MODE:</span>
+                <span style="margin-left: 5px; font-weight: 600; color: var(--text-main);">@_currentMode.ToString().ToUpper()</span>
+            </div>
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color); font-family: var(--font-mono); font-weight: 600;">SYSTEM TIME: @_currentTime</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Dashboard Grid ===== -->
+    <div class="dashboard-grid" style="grid-template-columns: 300px 1fr;">
+        
+        <!-- ===== Left: Parameters Panel ===== -->
+        <aside class="panel">
+            <div class="panel-title">Navigation & Presets</div>
+
+            <!-- Mode Selection Buttons -->
+            <div class="form-group">
+                <label>Select Test Mode</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <button class="btn @(_currentMode == SimulationMode.Basic ? "btn-primary" : "btn-secondary")" @onclick="() => SwitchMode(SimulationMode.Basic)">
+                        HTTP Basic Tester
+                    </button>
+                    <button class="btn @(_currentMode == SimulationMode.Https ? "btn-primary" : "btn-secondary")" @onclick="() => SwitchMode(SimulationMode.Https)">
+                        HTTPS Secure Tester
+                    </button>
+                    <button class="btn @(_currentMode == SimulationMode.Jwt ? "btn-primary" : "btn-secondary")" @onclick="() => SwitchMode(SimulationMode.Jwt)">
+                        JWT Bearer Auth Tester
+                    </button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;" />
+
+            <!-- Preset Settings (Simulate WPF Auto Configuration load) -->
+            <div class="form-group">
+                <label>Auto-Load Configuration</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <button class="btn btn-secondary" @onclick="() => LoadPreset(SimulationMode.Basic)" style="font-size: 11px; padding: 6px;">Preset: Basic Gateway URL</button>
+                    <button class="btn btn-secondary" @onclick="() => LoadPreset(SimulationMode.Https)" style="font-size: 11px; padding: 6px;">Preset: HTTPS Gateway URL</button>
+                    <button class="btn btn-secondary" @onclick="() => LoadPreset(SimulationMode.Jwt)" style="font-size: 11px; padding: 6px;">Preset: JWT Gateway URL</button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;" />
+
+            <!-- Auxiliary Controls -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto;">
+                <button class="btn btn-secondary" disabled="@(_isExecuting)" @onclick="CleanResults">Clean</button>
+                <!-- Standard danger button without inline gradients -->
+                <button class="btn btn-danger" disabled="@(_isExecuting)" @onclick="CloseApp">Close</button>
+            </div>
+        </aside>
+
+        <!-- ===== Right: API Client Console Layout ===== -->
+        <main class="logger-panel-layout" style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px;">
+            
+            <section class="panel" style="flex-grow: 1; display: flex; flex-direction: column; gap: 15px;">
+                <div class="panel-title">
+                    API Request Configuration (@_currentMode.ToString() Mode)
+                </div>
+
+                <!-- URL input -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Target Gateway URL</label>
+                    <input type="text" class="form-control" @bind="_txtUrl" placeholder="Enter endpoint URL (e.g. http://localhost:5000/api/interchange)" style="font-family: var(--font-mono); font-size: 13px;" />
+                </div>
+
+                <!-- JWT Bearer Token (Visible in JWT mode only) -->
+                @if (_currentMode == SimulationMode.Jwt)
+                {
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Acquired Bearer JWT Token</label>
+                        <textarea class="form-control" readonly placeholder="Token will be acquired automatically on SEND POST request" style="font-family: var(--font-mono); font-size: 11px; height: 60px; resize: none; background: rgba(15, 23, 42, 0.4); color: var(--primary-color);">@_acquiredToken</textarea>
+                    </div>
+                }
+
+                <!-- Request Payload & Response Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1;">
+                    <!-- Request Payload -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Request Payload (JSON Body)</label>
+                        <textarea class="form-control" @bind="_txtRequest" style="font-family: var(--font-mono); font-size: 11px; flex-grow: 1; min-height: 250px; background: rgba(10, 15, 26, 0.5); color: var(--text-main);" placeholder="Enter request JSON body..."></textarea>
+                    </div>
+
+                    <!-- Response Display -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Response Details</label>
+                        <div id="response-console" class="console-box" style="flex-grow: 1; min-height: 250px; white-space: pre-wrap; font-size: 11px; font-family: var(--font-mono);">@_txtResponse</div>
+                    </div>
+                </div>
+
+                <!-- Exec Actions -->
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+                    <button class="btn btn-primary" style="min-width: 140px;" disabled="@(_isExecuting)" @onclick="ExecuteTriggerGet">
+                        Trigger (GET)
+                    </button>
+                    <button class="btn btn-success" style="min-width: 140px;" disabled="@(_isExecuting)" @onclick="ExecuteSendPost">
+                        Send (POST)
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private Timer? _clockTimer;
+
+    private SimulationMode _currentMode = SimulationMode.Basic;
+
+    private string _txtUrl = string.Empty;
+    private string _txtRequest = string.Empty;
+    private string _txtResponse = "Waiting for request execution...";
+    private string _acquiredToken = string.Empty;
+
+    private bool _isExecuting = false;
+
+    private static readonly HttpClient client = new HttpClient(new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    });
+
+    protected override void OnInitialized()
+    {
+        // Load initial settings (Basic Mode default)
+        SwitchMode(SimulationMode.Basic);
+
+        // Setup clock timer
+        _clockTimer = new Timer(_ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void SwitchMode(SimulationMode mode)
+    {
+        _currentMode = mode;
+        _acquiredToken = string.Empty;
+
+        // Load default URL based on configuration
+        string configKey = _currentMode switch
+        {
+            SimulationMode.Basic => "TesterSettings:HttpProxyUrl",
+            SimulationMode.Https => "TesterSettings:HttpsProxyUrl",
+            SimulationMode.Jwt => "TesterSettings:JwtProxyUrl",
+            _ => string.Empty
+        };
+
+        _txtUrl = Config[configKey] ?? string.Empty;
+
+        // Load payload
+        _txtRequest = Com.Cybersoft4u.Test.Web.WebMaintGatewayTester.ConfigHelper.GetXmlTestDataAsJson();
+        _txtResponse = $"Switched to {_currentMode} mode.\nLoaded default request configuration.";
+    }
+
+    private void LoadPreset(SimulationMode presetMode)
+    {
+        string configKey = presetMode switch
+        {
+            SimulationMode.Basic => "GatewaySettings:BasicUrl",
+            SimulationMode.Https => "GatewaySettings:HttpsUrl",
+            SimulationMode.Jwt => "GatewaySettings:JwtUrl",
+            _ => string.Empty
+        };
+
+        _txtUrl = Config[configKey] ?? string.Empty;
+        _txtResponse = $"Loaded preset URL for {presetMode} configuration.";
+    }
+
+    private async Task ExecuteTriggerGet()
+    {
+        if (_isExecuting || string.IsNullOrEmpty(_txtUrl)) return;
+
+        _isExecuting = true;
+        _txtResponse = $"Sending HTTP GET Trigger request to {_txtUrl}...";
+        StateHasChanged();
+        await Task.Delay(1); // Force immediate render of executing state
+
+        try
+        {
+            var response = await client.GetAsync(_txtUrl);
+            var responseString = await response.Content.ReadAsStringAsync();
+            _txtResponse = $"Trigger Status: {response.StatusCode}\n\n{responseString}";
+        }
+        catch (Exception ex)
+        {
+            _txtResponse = $"Trigger Error: {ex.Message}";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ExecuteSendPost()
+    {
+        if (_isExecuting || string.IsNullOrEmpty(_txtUrl)) return;
+
+        _isExecuting = true;
+        _acquiredToken = string.Empty;
+        _txtResponse = "Initializing POST request execution...";
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            string body = _txtRequest;
+            string token = string.Empty;
+
+            if (_currentMode == SimulationMode.Jwt)
+            {
+                _txtResponse = "Step 1: Acquiring Bearer JWT Token via Proxy...";
+                StateHasChanged();
+                await Task.Delay(1);
+
+                string proxyUrl = Config["TesterSettings:JwtProxyUrl"] ?? "http://localhost:5005/api/test/send-xml";
+                var tokenResult = await GetJwtTokenViaProxyAsync(proxyUrl);
+                
+                if (tokenResult == null)
+                {
+                    _acquiredToken = "TOKEN_ERROR";
+                    _txtResponse = "Step 1 Failed: Could not acquire Bearer JWT Token via Proxy.";
+                    return;
+                }
+
+                _acquiredToken = tokenResult;
+                token = tokenResult;
+                _txtResponse = $"Step 1 Success! Token acquired.\nStep 2: Sending request to {_txtUrl}...";
+                StateHasChanged();
+                await Task.Delay(1);
+            }
+
+            // Run simulation send via SimulationService
+            var simResult = await SimService.RunSimulationAsync(_currentMode, _txtUrl, body, token);
+            
+            if (simResult.Success)
+            {
+                _txtResponse = $"[Success] Status: {simResult.StatusCode}\n\n{simResult.ResponseBody}";
+            }
+            else
+            {
+                _txtResponse = $"[Failed] Status: {simResult.StatusCode}\n\n{simResult.ResponseBody}\n\nMessage: {simResult.Message}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _txtResponse = $"Critical Execution Error: {ex.Message}";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task<string?> GetJwtTokenViaProxyAsync(string proxyUrl)
+    {
+        try
+        {
+            var response = await client.GetAsync(proxyUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = Newtonsoft.Json.Linq.JObject.Parse(responseString);
+                string? token = json["token"]?.ToString();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    return token;
+                }
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Proxy Token acquisition failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    private void CleanResults()
+    {
+        _txtResponse = "Cleared console.";
+        _acquiredToken = string.Empty;
+        StateHasChanged();
+    }
+
+    private void CloseApp()
+    {
+        Lifetime.StopApplication();
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+    }
+
+    public void Dispose()
+    {
+        _clockTimer?.Dispose();
+    }
+}

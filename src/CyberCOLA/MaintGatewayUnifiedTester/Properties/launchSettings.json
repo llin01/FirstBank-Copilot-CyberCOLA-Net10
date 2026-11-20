@@ -1,0 +1,28 @@
+{
+  "profiles": {
+    "MaintGatewayUnifiedTester (Http)": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5005"
+    },
+    "MaintGatewayUnifiedTester (Https)": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Https"
+      },
+      "applicationUrl": "http://localhost:5006"
+    },
+    "MaintGatewayUnifiedTester (Jwt)": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Jwt"
+      },
+      "applicationUrl": "http://localhost:5007"
+    }
+  }
+}

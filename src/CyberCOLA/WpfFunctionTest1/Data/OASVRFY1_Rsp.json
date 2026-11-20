@@ -1,0 +1,20 @@
+{
+    "FMH": "",
+    "FN_CODE": "",
+    "RESPONSE_CODE": "T000",
+    "RESPONSE_DESCRIPTION": "成功",
+    "TERMINAL_ID": "13996187",
+    "USER_ID": "1234",
+    "BODY": {
+         "CARD_NBR":"5199397100576677",
+         "EXP_DTE":"0230",
+         "CARD_CVV2":"503",
+         "ID":"T107915341",
+         "MCC_CODE":"0000",
+         "CELL_PHONE":"0912345671",
+         "CUST_BIRTHDAY":"1976-04-05T00:00:00",
+         "RTN_CODE":"00",
+         "AUTH_CODE":"123456",
+         "ERRORS":"No Message"
+    },
+}

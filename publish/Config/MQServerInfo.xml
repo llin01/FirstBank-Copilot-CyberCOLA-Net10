@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<MQServerInfo>
+  <MQServers>
+    <MQServer>
+      <MQUserName></MQUserName>
+      <MQQueueManagerListener>ESBQM2</MQQueueManagerListener>
+      <MQChannelInfoListener>forcbcard/TCP/PATSB03(1415)</MQChannelInfoListener>
+      <MQPutQueueName>CBCARD.ESB.RQ1</MQPutQueueName>
+      <MQGetQueueName>CBCARD.ESB.RS1</MQGetQueueName>
+      <MQServerCCSID>1208</MQServerCCSID>
+      <MQClientCCSID>950</MQClientCCSID>
+      <MQWaitIntervalMilliSec>100</MQWaitIntervalMilliSec>
+      <MQDeleteFlag>N</MQDeleteFlag>
+      <MQRetryMaxCount>10</MQRetryMaxCount>
+    </MQServer>
+   <MQServer>
+      <MQUserName></MQUserName>
+      <MQQueueManagerListener>ESBQM2</MQQueueManagerListener>
+      <MQChannelInfoListener>forcbcard/TCP/PATSB03(1415)</MQChannelInfoListener>
+      <MQPutQueueName>CBCARD.ESB.RQ1</MQPutQueueName>
+      <MQGetQueueName>CBCARD.ESB.RS1</MQGetQueueName>
+      <MQServerCCSID>1208</MQServerCCSID>
+      <MQClientCCSID>950</MQClientCCSID>
+      <MQWaitIntervalMilliSec>100</MQWaitIntervalMilliSec>
+      <MQDeleteFlag>N</MQDeleteFlag>
+      <MQRetryMaxCount>10</MQRetryMaxCount>
+    </MQServer>
+  </MQServers>
+  <AppDataInfo   ThreadSleepTimeByMiliSec="1000"
+  	             HaveNotice="false"
+  	             MaxProcessCount="100"
+  	             MaxParallelTaskCount="5"
+  	             StartKey="00000000000000"
+  	             HaveChangedStartKey="false">
+  </AppDataInfo>
+</MQServerInfo>

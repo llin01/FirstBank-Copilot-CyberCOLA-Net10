@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WpfETicketClientSimulator": {
+      "commandName": "Project",
+      "commandLineArgs": "1 AUTO SVCS"
+    }
+  }
+}

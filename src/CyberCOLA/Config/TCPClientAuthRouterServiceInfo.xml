@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<TCPClientAuthRouterServiceInfo>
+  <BankInfo>
+    <BankName>第一銀行</BankName>
+    <Description>This Is Main Windows For ClientAuth Router Service Client Program</Description>
+  </BankInfo>
+  <ClientAuthRouterServiceConfig>
+    <Servers>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>NCCC</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9903</RemotePort>
+      </Server>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>FISC</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9913</RemotePort>
+      </Server>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>TWIN</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9923</RemotePort>
+      </Server>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>SVCS</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9933</RemotePort>
+      </Server>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>ICASH</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9943</RemotePort>
+      </Server>
+      <Server>
+        <!-- ClientAuthRouterService Remote Server Information -->
+        <GatewayType>IPASS</GatewayType>
+        <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+        <RemoteIP>CFLin-NB-Test</RemoteIP>
+        <RemotePort>9953</RemotePort>
+      </Server>
+    </Servers>
+    <Client>
+    <!-- ClientAuthRouterService Local Client Information -->
+      <LocalHostName>CFLin-NB-Test</LocalHostName>
+      <LocalIP>CFLin-NB-Test</LocalIP>
+      <LocalPort>20001</LocalPort>
+      <DefaultServerIndex>0</DefaultServerIndex>
+      <AutoStartFlag>true</AutoStartFlag>
+      <AutoEchoFlag>false</AutoEchoFlag>
+      <ClientRetrievalTimeIntervalSec>120</ClientRetrievalTimeIntervalSec>
+    </Client>
+    <UDPServer>
+    <!-- TCPClientAuthRouterService UDP Server Information -->
+      <UDPServerName>CFLin-NB-Test</UDPServerName>
+      <UDPListenerPort>9501</UDPListenerPort>
+      <UDPAutoStartFlag>true</UDPAutoStartFlag>
+    </UDPServer>
+  </ClientAuthRouterServiceConfig>
+  <DatabaseInfo>
+    <!--
+    <ConnectionString>Data Source=DBServer,1433\MSSQLSERVER;TrustServerCertificate=True;Initial Catalog=NCARD;Connect Timeout=10;User id=CyberCArd;Password=cybersoft1qaz@WSX!; </ConnectionString>
+    -->
+    <ConnectionString>oHp3vdTNt9ycq2LU2m2b5igSKNdToto0+lIH1XtBj/1fwoDUcZ+Gsm06DY6CxaI2mpKn3clmByYo8JH+/ZaQzxQZVYkX56aqMxqMLr/KTUDFuBiRkmluzaIpeNct3xgnBv1+NgyrgvO8PfO/kRIcc01jGpIGKTZPQCLlFwuhuiNp2r5JZy+AQLwI9A03U8GPUSKcfMtxDTBeGvVJYpWXwwpqygW+ZoG/ItkzvyPCHRk1jH9LBdQFFUlOCduy008KRILcfRgtkdtRubE=</ConnectionString>
+    <IsEncrypted>true</IsEncrypted>
+    <EncryptedKey>12345678</EncryptedKey>
+  </DatabaseInfo>
+</TCPClientAuthRouterServiceInfo>

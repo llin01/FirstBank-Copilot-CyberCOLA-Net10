@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TwinMessageTypeInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageType>
+    <RequestMessage>0100</RequestMessage>
+    <RequestField>
+        <Field Number="001"	DataCondition="C"/>
+        <Field Number="003"	DataCondition="M"/>
+        <Field Number="004"	DataCondition="M"/>
+		<Field Number="006"	DataCondition="C"/>
+        <Field Number="007"	DataCondition="M"/>
+        <Field Number="011"	DataCondition="M"/>
+        <Field Number="012"	DataCondition="M"/>
+        <Field Number="013"	DataCondition="C"/>
+	    <Field Number="014"	DataCondition="M"/>
+		<Field Number="015"	DataCondition="C"/>
+        <Field Number="017"	DataCondition="M"/>
+        <Field Number="018"	DataCondition="M"/>
+		<Field Number="019"	DataCondition="C"/>
+        <Field Number="022"	DataCondition="M"/>
+		<Field Number="024"	DataCondition="C"/>
+        <Field Number="025"	DataCondition="M"/>
+		<Field Number="028"	DataCondition="C"/>
+        <Field Number="032"	DataCondition="M"/>
+        <Field Number="035"	DataCondition="M"/>
+        <Field Number="037"	DataCondition="M"/>
+		<Field Number="038"	DataCondition="C"/>
+        <Field Number="041"	DataCondition="M"/>
+        <Field Number="042"	DataCondition="C"/>
+        <Field Number="043"	DataCondition="M"/>
+		<Field Number="044"	DataCondition="C"/>
+        <Field Number="048"	DataCondition="M"/>
+        <Field Number="049"	DataCondition="M"/>
+		<Field Number="051"	DataCondition="C"/>
+		<Field Number="052"	DataCondition="C"/>
+		<Field Number="053"	DataCondition="C"/>
+		<Field Number="055"	DataCondition="C"/>
+        <Field Number="057" DataCondition="C"/>
+        <Field Number="061"	DataCondition="M"/>
+        <Field Number="062"	DataCondition="C"/>
+        <Field Number="063"	DataCondition="C"/>
+		<Field Number="070"	DataCondition="C"/>
+	    <Field Number="090"	DataCondition="C"/>
+		<Field Number="091"	DataCondition="C"/>
+	    <Field Number="095"	DataCondition="C"/>
+		<Field Number="101"	DataCondition="C"/>
+	    <Field Number="120"	DataCondition="C"/>
+		<Field Number="123"	DataCondition="C"/>
+        <Field Number="126"	DataCondition="C"/>
+        <Field Number="127"	DataCondition="C"/>
+    </RequestField>
+    <ResponseMessage>0110</ResponseMessage>
+    <ResponseField>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="044"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="055"    DataCondition="C"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0120</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="C"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="006"    DataCondition="C"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="014"    DataCondition="C"/>
+        <Field Number="017"    DataCondition="M"/>
+        <Field Number="018"    DataCondition="M"/>
+        <Field Number="019"    DataCondition="C"/>
+        <Field Number="022"    DataCondition="M"/>
+        <Field Number="023"    DataCondition="C"/>
+        <Field Number="024"    DataCondition="M"/>
+        <Field Number="025"    DataCondition="C"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="044"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="051"    DataCondition="C"/>
+        <Field Number="055"    DataCondition="C"/>
+        <Field Number="061"    DataCondition="M"/>
+    </RequestField>
+    <ResponseMessage>0130</ResponseMessage>
+    <ResponseField>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0200</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="C"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="006"    DataCondition="C"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="014"    DataCondition="C"/>
+        <Field Number="017"    DataCondition="M"/>
+        <Field Number="018"    DataCondition="M"/>
+        <Field Number="019"    DataCondition="C"/>
+        <Field Number="022"    DataCondition="M"/>
+        <Field Number="023"    DataCondition="C"/>
+        <Field Number="024"    DataCondition="M"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="035"    DataCondition="C"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="044"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="051"    DataCondition="C"/>
+        <Field Number="052"    DataCondition="C"/>
+        <Field Number="055"    DataCondition="C"/>
+        <Field Number="061"    DataCondition="M"/>
+        <Field Number="063"    DataCondition="C"/>
+    </RequestField>
+    <ResponseMessage>0210</ResponseMessage>
+    <ResponseField>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="044"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="055"    DataCondition="C"/>
+        <Field Number="063"    DataCondition="C"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0220</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="C"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="006"    DataCondition="C"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="014"    DataCondition="C"/>
+        <Field Number="017"    DataCondition="M"/>
+        <Field Number="018"    DataCondition="M"/>
+        <Field Number="019"    DataCondition="C"/>
+        <Field Number="022"    DataCondition="M"/>
+        <Field Number="023"    DataCondition="C"/>
+        <Field Number="024"    DataCondition="M"/>
+        <Field Number="025"    DataCondition="C"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="044"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="051"    DataCondition="C"/>
+        <Field Number="055"    DataCondition="C"/>
+        <Field Number="061"    DataCondition="M"/>
+        <Field Number="063"    DataCondition="C"/>
+        <Field Number="095"    DataCondition="C"/>
+    </RequestField>
+    <ResponseMessage>0230</ResponseMessage>
+    <ResponseField>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="035"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="057"    DataCondition="C"/>
+        <Field Number="063"    DataCondition="C"/>
+        <Field Number="126"    DataCondition="C"/>
+        <Field Number="127"    DataCondition="C"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0300</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="091"    DataCondition="M"/>
+        <Field Number="101"    DataCondition="M"/>
+        <Field Number="120"    DataCondition="C"/>
+    </RequestField>
+    <ResponseMessage>0310</ResponseMessage>
+    <ResponseField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="091"    DataCondition="M"/>
+        <Field Number="101"    DataCondition="M"/>
+        <Field Number="120"    DataCondition="C"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0420</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="006"    DataCondition="C"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="014"    DataCondition="C"/>
+        <Field Number="017"    DataCondition="M"/>
+        <Field Number="018"    DataCondition="C"/>
+        <Field Number="019"    DataCondition="C"/>
+        <Field Number="022"    DataCondition="C"/>
+        <Field Number="023"    DataCondition="C"/>
+        <Field Number="024"    DataCondition="M"/>
+        <Field Number="025"    DataCondition="C"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="035"    DataCondition="C"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="M"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="C"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+        <Field Number="051"    DataCondition="C"/>
+        <Field Number="055"    DataCondition="C"/>
+        <Field Number="061"    DataCondition="M"/>
+        <Field Number="090"    DataCondition="M"/>
+        <Field Number="095"    DataCondition="M"/>
+    </RequestField>
+    <ResponseMessage>0430</ResponseMessage>
+    <ResponseField>
+        <Field Number="002"    DataCondition="M"/>
+        <Field Number="003"    DataCondition="M"/>
+        <Field Number="004"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="012"    DataCondition="M"/>
+        <Field Number="013"    DataCondition="M"/>
+        <Field Number="014"    DataCondition="C"/>
+        <Field Number="022"    DataCondition="C"/>
+        <Field Number="028"    DataCondition="C"/>
+        <Field Number="032"    DataCondition="M"/>
+        <Field Number="037"    DataCondition="M"/>
+        <Field Number="038"    DataCondition="M"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="041"    DataCondition="C"/>
+        <Field Number="042"    DataCondition="M"/>
+        <Field Number="043"    DataCondition="M"/>
+        <Field Number="048"    DataCondition="M"/>
+        <Field Number="049"    DataCondition="M"/>
+    </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0800</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="053"    DataCondition="C"/>
+        <Field Number="070"    DataCondition="M"/>
+        <Field Number="123"    DataCondition="C"/>
+    </RequestField>
+    <ResponseMessage>0810</ResponseMessage>
+    <ResponseField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="015"    DataCondition="C"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="053"    DataCondition="C"/>
+        <Field Number="070"    DataCondition="M"/>
+        <Field Number="123"    DataCondition="C"/>
+     </ResponseField>
+  </MessageType>
+  <MessageType>
+    <RequestMessage>0820</RequestMessage>
+    <RequestField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="015"    DataCondition="M"/>
+        <Field Number="070"    DataCondition="M"/>
+    </RequestField>
+    <ResponseMessage>0830</ResponseMessage>
+    <ResponseField>
+        <Field Number="001"    DataCondition="M"/>
+        <Field Number="007"    DataCondition="M"/>
+        <Field Number="011"    DataCondition="M"/>
+        <Field Number="015"    DataCondition="M"/>
+        <Field Number="039"    DataCondition="M"/>
+        <Field Number="070"    DataCondition="M"/>
+     </ResponseField>
+  </MessageType>
+</TwinMessageTypeInfo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FileMaintDataXml DataType="Fixed">
+   <TxKeySeq Length="22" Changed="Y">20170206081840Df9VIkM9</TxKeySeq>
+   <IsoP2CardNbr Length="16" Changed="N">4563010010002000</IsoP2CardNbr>
+   <IsoP3ProcessCde Length="6" Changed="N">000030</IsoP3ProcessCde>
+   <IsoP7TxDteTime Length="10" Changed="Y">0401101010</IsoP7TxDteTime>
+   <IsoP11TraceNo Length="6" Changed="Y">000011</IsoP11TraceNo>
+   <IsoP13TransYear Length="4" Changed="Y">0101</IsoP13TransYear>
+   <IsoP14ExpirDte Length="4" Changed="N">1225</IsoP14ExpirDte>
+   <IsoP33FwdIICode Length="6" Changed="N">000000</IsoP33FwdIICode>
+   <IsoP36NTID Length="48" Changed="N">123456789012345678901234567890123456789012345678</IsoP36NTID>
+   <IsoP37RefNbr Length="12" Changed="N">000000000012</IsoP37RefNbr>
+   <IsoP39Rsp Length="2" Changed="N">00</IsoP39Rsp>
+   <IsoP48AdditionalData Length="76" Changed="N">0123456789012345678901234567890123456789012345678901234567890123456789012345</IsoP48AdditionalData>
+   <IsoP49TranCurCode Length="3" Changed="N">901</IsoP49TranCurCode>
+   <IsoP58T05TxDte Length="14" Changed="N">20210101000000</IsoP58T05TxDte>
+   <IsoP60FromHostMaintData Length="58" Changed="N">0123456789012345678901234567890123456789012345678901234567</IsoP60FromHostMaintData>
+   <IsoP63SystemID  Length="2" Changed="N">01</IsoP63SystemID>
+   <IsoS73ActDte Length="6" Changed="N">111111</IsoS73ActDte>
+   <IsoS91FileUpdCode Length="1" Changed="N">1</IsoS91FileUpdCode>
+   <IsoS92FileSecurityCode Length="2" Changed="N">01</IsoS92FileSecurityCode>
+   <IsoS96MessageSecurity Length="16" Changed="N">00000000        </IsoS96MessageSecurity>
+   <IsoS101FileName Length="2" Changed="N">NF</IsoS101FileName>
+   <IsoS115AdditionalTraceData  Length="3" Changed="N">Y</IsoS115AdditionalTraceData>
+   <IsoS120FileUpd Length="50" Changed="N">01234567890123456789012345678901234567890123456789</IsoS120FileUpd>
+   <IsoS122HostMaint Length="17" Changed="N">R2017010120170102</IsoS122HostMaint>
+   <IsoS124TokenData Length="433" Changed="N">1</IsoS124TokenData>
+</FileMaintDataXml>

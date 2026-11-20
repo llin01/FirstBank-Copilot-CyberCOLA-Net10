@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<TCPClientServiceInfo>
+  <BankInfo>
+    <BankName>第一銀行</BankName>
+    <Description>This Is Main Windows For Service Monitor</Description>
+  </BankInfo>
+  <TCPClientServiceConfig>
+  <!-- TCPClientService Remote Server Information -->
+    <RemoteHostName>CFLin-NB-Test</RemoteHostName>
+    <RemoteIP>CFLin-NB-Test</RemoteIP>
+    <RemotePort>9902</RemotePort>
+    <!-- TCPClientService TCP Local Client Information -->
+    <LocalIP>CFLin-NB-Test</LocalIP>
+    <LocalPort>31001</LocalPort>
+    <AutoStartFlag>true</AutoStartFlag>
+    <AutoEchoFlag>false</AutoEchoFlag>
+    <ClientRetrievalTimeIntervalSec>120</ClientRetrievalTimeIntervalSec>
+    <!-- TCPClientService UDP Server Information -->
+    <UDPServerName>CFLin-NB-Test</UDPServerName>
+    <UDPListenerPort>9601</UDPListenerPort>
+    <UDPAutoStartFlag>true</UDPAutoStartFlag>
+  </TCPClientServiceConfig>
+  <DatabaseInfo>
+    <!--
+    <ConnectionString>Data Source=DBServer,1433\MSSQLSERVER;TrustServerCertificate=True;Initial Catalog=NCARD;Connect Timeout=10;User id=CyberCArd;Password=cybersoft1qaz@WSX!; </ConnectionString>
+    -->
+    <ConnectionString>oHp3vdTNt9ycq2LU2m2b5igSKNdToto0+lIH1XtBj/1fwoDUcZ+Gsm06DY6CxaI2mpKn3clmByYo8JH+/ZaQzxQZVYkX56aqMxqMLr/KTUDFuBiRkmluzaIpeNct3xgnBv1+NgyrgvO8PfO/kRIcc01jGpIGKTZPQCLlFwuhuiNp2r5JZy+AQLwI9A03U8GPUSKcfMtxDTBeGvVJYpWXwwpqygW+ZoG/ItkzvyPCHRk1jH9LBdQFFUlOCduy008KRILcfRgtkdtRubE=</ConnectionString>
+    <IsEncrypted>true</IsEncrypted>
+    <EncryptedKey>12345678</EncryptedKey>
+  </DatabaseInfo>
+</TCPClientServiceInfo>

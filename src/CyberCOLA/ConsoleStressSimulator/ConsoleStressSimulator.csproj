@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Com.Cybersoft4u.Simulator.Console.ConsoleStressSimulator</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Config\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\libs\CyberUtils\src\CyberUtils\CyberUtils.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter.NLog\LoggerAdapter.NLog.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter\LoggerAdapter.csproj" />
+    <ProjectReference Include="..\..\..\libs\TM\TM.csproj" />
+    <ProjectReference Include="..\..\..\libs\Yetty\src\Yetty\Yetty.csproj" />
+    <ProjectReference Include="..\CommonLib\CommonLib.csproj" />
+  </ItemGroup>
+</Project>

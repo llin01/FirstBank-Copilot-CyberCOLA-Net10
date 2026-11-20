@@ -1,0 +1,31 @@
+@implements IDisposable
+@inject EnvironmentStatusService Status
+
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 13px;">
+    @if (Status.Current is { } s)
+    {
+        <span title="GlobalProtect 網卡狀態；VPN 是否真的可用以 DB 連線埠為準">
+            VPN <span class="@(s.Vpn == "Up" ? "ok" : "bad")">@(s.Vpn ?? "無網卡")</span>
+        </span>
+        @foreach (var db in s.Databases)
+        {
+            <span>@db.Host:@db.Port <span class="@(db.Open ? "ok" : "bad")">@(db.Open ? "通" : "不通")</span></span>
+        }
+        <span title="@string.Join(", ", s.Processes.Select(p => $"{p.Name}({p.Id})"))">
+            CyberCOLA 程序 <span class="@(s.Processes.Count == 0 ? "muted" : "warn")">@s.Processes.Count</span>
+        </span>
+        <span class="muted">@s.At.ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
+    }
+    else
+    {
+        <span class="muted">檢查環境中…</span>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized() => Status.Changed += OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Status.Changed -= OnChanged;
+}

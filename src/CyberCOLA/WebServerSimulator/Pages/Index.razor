@@ -1,0 +1,286 @@
+@page "/"
+@implements IDisposable
+@inject ServerSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<div class="background-decor">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+</div>
+
+<div class="app-container">
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem;">
+        <div class="logo-area" style="display: flex; align-items: center; gap: 0.8rem;">
+            <div class="logo-box">
+                <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <circle cx="12" cy="11" r="2" />
+                    <path d="M12 13v3" />
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; color: var(--text-primary);">Web<span style="font-size: 1.1rem; font-weight: 400; color: var(--text-secondary); margin-left: 2px;">ServerSimulator</span></h1>
+                <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">HSM Host Server Simulator</span>
+            </div>
+        </div>
+        <div class="status-indicator">
+            <span class="status-dot @(Manager.IsRunning ? "status-online" : "status-offline")" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block;"></span>
+            <span class="status-text" style="font-weight: 600; font-size: 0.9rem;">@(Manager.IsRunning ? "Running" : "Stopped")</span>
+        </div>
+        <div class="system-time">
+            <span class="label" style="font-size: 0.75rem; color: var(--text-secondary); display: block; text-align: right;">SYSTEM TIME</span>
+            <span class="value" style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700;">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-grid" style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; flex-grow: 1;">
+        <!-- Control Panel Card -->
+        <section class="card control-card">
+            <h2>System Control Panel</h2>
+            <p class="subtitle">Manage Simulated HSM Listener Services</p>
+
+            <div class="config-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Listener Port</label>
+                    <select class="form-control" style="padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); font-family: var(--font-mono); background: white; cursor: pointer;" 
+                            @bind="_ports" disabled="@Manager.IsRunning">
+                        <option value="12119">12119</option>
+                        <option value="12120">12120</option>
+                        <option value="12121">12121</option>
+                        <option value="12122">12122</option>
+                        <option value="12123">12123</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Max Sessions</label>
+                    <input type="number" class="form-control" style="padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                           @bind="_sessions" placeholder="e.g. 20" disabled="@Manager.IsRunning" />
+                </div>
+
+                <div class="control-actions" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-primary" @onclick="StartService" disabled="@(Manager.IsRunning || _isStarting)">
+                        <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        Start Service
+                    </button>
+                    <button class="btn btn-danger" @onclick="StopService" disabled="@(!Manager.IsRunning || _isStopping)">
+                        <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" />
+                        </svg>
+                        Stop Service
+                    </button>
+                    <button class="btn btn-close-app" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.08); color: var(--text-primary); border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1rem;" 
+                            @onclick="CloseApp">
+                        <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                            <line x1="12" y1="2" x2="12" y2="12" />
+                        </svg>
+                        Close Simulator
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Console Log Card -->
+        <section class="card log-card" style="display: flex; flex-direction: column;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>Real-time Transaction Logs (Live Logs)</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">
+                        UDP Server: <span style="color: @(Manager.IsUdpRunning ? "var(--success-color)" : "var(--error-color)"); font-weight: 700;">@(Manager.IsUdpRunning ? "CONNECTED" : "DISCONNECTED")</span>
+                    </span>
+                    <button class="btn-clear" style="background: rgba(93, 91, 244, 0.1); color: var(--primary-color); border: 1px solid rgba(93, 91, 244, 0.25); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" 
+                            @onclick="ClearLogs">Clear Logs</button>
+                </div>
+            </div>
+            <div class="terminal-wrapper" style="display: flex; flex-direction: column; background: var(--bg-terminal); border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; flex-grow: 1;">
+                <div class="terminal-header" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.03); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-color);">
+                    <span class="terminal-dot red" style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></span>
+                    <span class="terminal-dot yellow" style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></span>
+                    <span class="terminal-dot green" style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></span>
+                    <span class="terminal-title" style="margin-left: 0.5rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);">Log Message</span>
+                </div>
+                <div class="terminal-body" id="logConsole" style="padding: 1.2rem; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.6; overflow-y: auto; height: 400px; display: flex; flex-direction: column; gap: 0.4rem; background: #0f172a; color: #f8fafc;">
+                    @if (_logs.Count == 0)
+                    {
+                        <div class="system-line" style="color: #64748b;">[SYSTEM] Welcome to WebServerSimulator. Configure ports and click "Start Service" to begin.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _logs)
+                        {
+                            <div class="log-line" style="@GetLogStyle(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: auto; padding-top: 2.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+        <p>CyberCOLA Payment Gateway Simulator System © 2026</p>
+    </footer>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+    private readonly List<string> _logs = new();
+    private bool _shouldScroll = false;
+
+    // Config form bindings
+    private string _ports = "12119";
+    private int? _sessions = 20;
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+
+    protected override void OnInitialized()
+    {
+        // Load initial configurations (ensure we bind to one of the dropdown ports; fallback to first number 12119)
+        var validPorts = new[] { "12119", "12120", "12121", "12122", "12123" };
+        _ports = string.IsNullOrWhiteSpace(Manager.Ports) || !validPorts.Contains(Manager.Ports) ? "12119" : Manager.Ports;
+        _sessions = Manager.SessionCount == 0 ? 20 : Manager.SessionCount;
+
+        // Subscribe to logs via manager callback
+        Manager.RegisterLogCallback(OnLogAdded);
+
+        // Initialize clock timer
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogAdded(string message)
+    {
+        InvokeAsync(() =>
+        {
+            _logs.Add(message);
+            // Limit log count
+            if (_logs.Count > 1000)
+            {
+                _logs.RemoveAt(0);
+            }
+            _shouldScroll = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScroll)
+        {
+            _shouldScroll = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "var el = document.getElementById('logConsole'); if(el) el.scrollTop = el.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private async Task StartService()
+    {
+        _isStarting = true;
+        _logs.Add($"[SYSTEM] Starting simulated HSM Server on ports [{_ports}]...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StartService(_ports, _sessions));
+            _logs.Add($"[SYSTEM] Simulated HSM Server started successfully on ports [{_ports}].");
+        }
+        catch (Exception ex)
+        {
+            Manager.StopService();
+            _logs.Add($"[ERROR] Start Service failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopService()
+    {
+        _isStopping = true;
+        _logs.Add($"[SYSTEM] Stopping simulated HSM Server...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StopService());
+            _logs.Add($"[SYSTEM] Simulated HSM Server stopped.");
+        }
+        catch (Exception ex)
+        {
+            _logs.Add($"[ERROR] Stop Service failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.StopService();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearLogs()
+    {
+        _logs.Clear();
+        StateHasChanged();
+    }
+
+    private string GetLogStyle(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "color: #ff1744;";
+        if (log.Contains("[SYSTEM]", StringComparison.OrdinalIgnoreCase)) return "color: #00e676;";
+        return "color: #f8fafc;";
+    }
+
+    public void Dispose()
+    {
+        Manager.UnregisterLogCallback(OnLogAdded);
+        _clockTimer?.Dispose();
+    }
+}

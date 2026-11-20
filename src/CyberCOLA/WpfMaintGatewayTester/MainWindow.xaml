@@ -1,0 +1,96 @@
+<Window x:Class="Com.Cybersoft4u.Test.Wpf.WpfMaintGatewayTester.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MaintGateWayTester" Height="600" Width="950" Background="#2D2D30">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#252526" BorderBrush="#3F3F46" BorderThickness="0,0,1,0">
+            <DockPanel Margin="15">
+                <TextBlock Text="WebAPI Testers" DockPanel.Dock="Top" 
+                           Foreground="White" FontSize="18" FontWeight="Bold" 
+                           Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0">
+                    <Button Content="Exit Application" Height="40" Margin="0,0,0,10"
+                            Click="BtnExit_Click" 
+                            Background="#B95050" Foreground="White" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <TextBlock Text="v1.1.0 (Sim Enabled)" Foreground="#666666" FontSize="10" HorizontalAlignment="Right"/>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Page Navigation" Foreground="#AAAAAA" FontSize="12" Margin="0,0,0,10" FontWeight="SemiBold"/>
+                    <Button Content="Maint Gateway" Margin="0,0,0,10" Height="40"
+                            Click="BtnMaint_Click" 
+                            Background="#3E3E42" Foreground="White" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Content="Secure Gateway (HTTPS)" Margin="0,0,0,10" Height="40" 
+                            Click="BtnMaintHttps_Click" 
+                            Background="#3E3E42" Foreground="White" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Content="JWT Auth Gateway" Margin="0,0,0,10" Height="40" 
+                            Click="BtnMaintJwt_Click" 
+                            Background="#3E3E42" Foreground="White" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Separator Margin="0,20,0,20" Background="#3F3F46"/>
+
+                    <TextBlock Text="Quick Simulation" Foreground="#AAAAAA" FontSize="12" Margin="0,0,0,10" FontWeight="SemiBold"/>
+                    <Button x:Name="BtnSimBasic" Content="Sim Basic Flow" Margin="0,0,0,10" Height="40" 
+                            Click="BtnSimBasic_Click" 
+                            Background="#4A4A4E" Foreground="#FFD700" BorderThickness="0" Cursor="Hand" FontWeight="Bold">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button x:Name="BtnSimHttps" Content="Sim HTTPS Flow" Margin="0,0,0,10" Height="40" 
+                            Click="BtnSimHttps_Click" 
+                            Background="#4A4A4E" Foreground="#FFD700" BorderThickness="0" Cursor="Hand" FontWeight="Bold">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button x:Name="BtnSimJwt" Content="Sim JWT Flow" Margin="0,0,0,10" Height="40" 
+                            Click="BtnSimJwt_Click" 
+                            Background="#4A4A4E" Foreground="#FFD700" BorderThickness="0" Cursor="Hand" FontWeight="Bold">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Frame Name="MainFrame" Grid.Column="1" />
+    </Grid>
+</Window>

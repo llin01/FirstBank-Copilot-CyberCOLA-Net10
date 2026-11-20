@@ -1,0 +1,1027 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfBicField xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BicField>
+    <BitNum>1</BitNum>
+    <FieldName>SecondaryBitMap</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Secondary Bit Map</Description>
+  </BicField>
+  <BicField>
+    <BitNum>2</BitNum>
+    <FieldName>PriAcctNum</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>19</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Primary Account Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>3</BitNum>
+    <FieldName>ProcessCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>6</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Process Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>4</BitNum>
+    <FieldName>TranAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>5</BitNum>
+    <FieldName>SettlementAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>6</BitNum>
+    <FieldName>BillAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Cardholder Billing Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>7</BitNum>
+    <FieldName>TranDateTime</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>MMDDHHMMSS</FieldDataFormat>
+    <Description>Transmission Date And Time</Description>
+  </BicField>
+  <BicField>
+    <BitNum>8</BitNum>
+    <FieldName>BillFeeAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Cardholder Billing Fee Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>9</BitNum>
+    <FieldName>SettlementConvRate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Conversion Rate</Description>
+  </BicField>
+  <BicField>
+    <BitNum>10</BitNum>
+    <FieldName>BillConvRate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Billing Conversion Rate</Description>
+  </BicField>
+  <BicField>
+    <BitNum>11</BitNum>
+    <FieldName>SystemTraceAuditNum</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>6</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Systems Trace Audit Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>12</BitNum>
+    <FieldName>TranLocalTime</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>6</Length>
+    <FieldDataFormat>HHMMSS</FieldDataFormat>
+    <Description>Transcation Local Time</Description>
+  </BicField>
+  <BicField>
+    <BitNum>13</BitNum>
+    <FieldName>TranLocalDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>MMDD</FieldDataFormat>
+    <Description>Transaction Local Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>14</BitNum>
+    <FieldName>ExpiredDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>YYMM</FieldDataFormat>
+    <Description>Expired Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>15</BitNum>
+    <FieldName>SettlementDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>MMDD</FieldDataFormat>
+    <Description>Settlement Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>16</BitNum>
+    <FieldName>ConvDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>MMDD</FieldDataFormat>
+    <Description>Conversion Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>17</BitNum>
+    <FieldName>CaptureDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>MMDD</FieldDataFormat>
+    <Description>Capture Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>18</BitNum>
+    <FieldName>MccCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>MCC Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>19</BitNum>
+    <FieldName>AcqInstCountryCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Acquiring Institution Country Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>20</BitNum>
+    <FieldName>CountryCodePriAcctNumExtended</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Country Code Primary Account Number Extended</Description>
+  </BicField>
+  <BicField>
+    <BitNum>21</BitNum>
+    <FieldName>ForwardInstCountryCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Forwarding Institution Country Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>22</BitNum>
+    <FieldName>PosEntryMode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Point Of Service Entry Mode</Description>
+  </BicField>
+  <BicField>
+    <BitNum>23</BitNum>
+    <FieldName>CardSeqNum</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Card Sequence Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>24</BitNum>
+    <FieldName>FunctionCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Function Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>25</BitNum>
+    <FieldName>MessageReasonCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>2</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Reason Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>26</BitNum>
+    <FieldName>PosPinCaptureCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>2</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Point Of Service PIN Capture Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>27</BitNum>
+    <FieldName>AuthIDRespLength</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>1</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Authorization Identification Response Length</Description>
+  </BicField>
+  <BicField>
+    <BitNum>28</BitNum>
+    <FieldName>TranFeeAmount</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>9</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Fee Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>29</BitNum>
+    <FieldName>SettlementFeeAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Fee Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>30</BitNum>
+    <FieldName>TranProcFeeAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Processing Fee Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>31</BitNum>
+    <FieldName>SettlementProcFeeAmount</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Processing Fee Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>32</BitNum>
+    <FieldName>AcqInstIDCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>11</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Acquiring Institution Identification Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>33</BitNum>
+    <FieldName>ForwardInstIDCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>13</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Forwarding Institution Identification Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>34</BitNum>
+    <FieldName>ExtendedPrimaryAcctNum</FieldName>
+    <FieldDataType>NS</FieldDataType>
+    <Length>28</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Extended Primary Account Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>35</BitNum>
+    <FieldName>Track2Data</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>37</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Track 2 Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>36</BitNum>
+    <FieldName>Track3Data</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>104</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Track 3 Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>37</BitNum>
+    <FieldName>RetrievalRefNum</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Retrieval Reference Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>38</BitNum>
+    <FieldName>AuthCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>6</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Authorization Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>39</BitNum>
+    <FieldName>RespCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>2</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Response Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>40</BitNum>
+    <FieldName>ServiceRestrictionCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Service Restriction Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>41</BitNum>
+    <FieldName>TerminalID</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>8</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Card Acceptor Terminal Identification</Description>
+  </BicField>
+  <BicField>
+    <BitNum>42</BitNum>
+    <FieldName>CardAcceptorIDCode</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>15</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Card Acceptor Identification Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>43</BitNum>
+    <FieldName>CardAcceptorNameLocation</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>40</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Card Acceptor Name/Location</Description>
+  </BicField>
+  <BicField>
+    <BitNum>44</BitNum>
+    <FieldName>AdditionalRespData</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>25</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Additional Response Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>45</BitNum>
+    <FieldName>Track1Data</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>76</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Track 1 Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>46</BitNum>
+    <FieldName>ISOAdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Additional Data - ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>47</BitNum>
+    <FieldName>NationalAdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Additional Data - National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>48</BitNum>
+    <FieldName>BASE24AdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 Additional Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>49</BitNum>
+    <FieldName>TranCurrencyCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Currency Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>50</BitNum>
+    <FieldName>SettlementCurrencyCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Currency Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>51</BitNum>
+    <FieldName>CardholderBillingCurrencyCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Cardholder Billing Currency Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>52</BitNum>
+    <FieldName>PinData</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Personal Identification Number(PIN)Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>53</BitNum>
+    <FieldName>SecurityRelatedControlInfo</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Security Related Control Information</Description>
+  </BicField>
+  <BicField>
+    <BitNum>54</BitNum>
+    <FieldName>AdditionalAmounts</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Additional Amounts</Description>
+  </BicField>
+  <BicField>
+    <BitNum>55</BitNum>
+    <FieldName>ReservedISO_55</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>56</BitNum>
+    <FieldName>ReservedISO_56</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>57</BitNum>
+    <FieldName>BASE24POSAdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>2500</Length>
+    <FieldDataFormat>LLLLVAR</FieldDataFormat>
+    <Description>BASE24POSAdditionalData</Description>
+  </BicField>
+  <BicField>
+    <BitNum>58</BitNum>
+    <FieldName>ReservedISO_58</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>59</BitNum>
+    <FieldName>ReservedISO_59</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>60</BitNum>
+    <FieldName>TermData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>58</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24-POS Terminal Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>61</BitNum>
+    <FieldName>CardIssuerCategoryRespCode</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>19</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24-POS Card Issuer-Category-Response Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>62</BitNum>
+    <FieldName>PostalCode</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 Postal Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>63</BitNum>
+    <FieldName>BASE24POSAdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 POS Additional Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>64</BitNum>
+    <FieldName>MessageAuthenticationCodeField</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Authentication Code Field</Description>
+  </BicField>
+  <BicField>
+    <BitNum>65</BitNum>
+    <FieldName>ExtendedBitMap</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Extended Bit Map</Description>
+  </BicField>
+  <BicField>
+    <BitNum>66</BitNum>
+    <FieldName>SettlementCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>1</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>67</BitNum>
+    <FieldName>ExtendedPaymentCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>2</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Extended Payment Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>68</BitNum>
+    <FieldName>ReceivingInstCountryCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Receiving Institution Country Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>69</BitNum>
+    <FieldName>SettlementInstCountryCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Settlement Institution Country Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>70</BitNum>
+    <FieldName>NetworkManagInfoCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>3</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Network Management Information Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>71</BitNum>
+    <FieldName>MessageNum</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>72</BitNum>
+    <FieldName>MessageNumLast</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>4</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Number Last</Description>
+  </BicField>
+  <BicField>
+    <BitNum>73</BitNum>
+    <FieldName>ActionDate</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>6</Length>
+    <FieldDataFormat>YYMMDD</FieldDataFormat>
+    <Description>Action Date</Description>
+  </BicField>
+  <BicField>
+    <BitNum>74</BitNum>
+    <FieldName>NumCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Number Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>75</BitNum>
+    <FieldName>ReversalNumCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Reversal Number Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>76</BitNum>
+    <FieldName>NumDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Number Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>77</BitNum>
+    <FieldName>ReversalNumDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Reversal Number Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>78</BitNum>
+    <FieldName>NumTransfer</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Number Transfer</Description>
+  </BicField>
+  <BicField>
+    <BitNum>79</BitNum>
+    <FieldName>ReversalNumTransfer</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Reversal Number Transfer</Description>
+  </BicField>
+  <BicField>
+    <BitNum>80</BitNum>
+    <FieldName>NumInquiries</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Number Inquiries</Description>
+  </BicField>
+  <BicField>
+    <BitNum>81</BitNum>
+    <FieldName>NumAuth</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>10</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Number Authorizations</Description>
+  </BicField>
+  <BicField>
+    <BitNum>82</BitNum>
+    <FieldName>ProcessingFeeAmountCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Processing Fee Amount Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>83</BitNum>
+    <FieldName>TranFeeAmountCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Fee Amount Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>84</BitNum>
+    <FieldName>ProcessingFeeAmountDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Processing Fee Amount Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>85</BitNum>
+    <FieldName>TranFeeAmountDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>12</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Transaction Fee Amount Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>86</BitNum>
+    <FieldName>AmountCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Amount Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>87</BitNum>
+    <FieldName>ReversalAmountCredits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Reversal Amount Credits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>88</BitNum>
+    <FieldName>AmountDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Amount Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>89</BitNum>
+    <FieldName>ReversalAmountDebits</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Reversal Amount Debits</Description>
+  </BicField>
+  <BicField>
+    <BitNum>90</BitNum>
+    <FieldName>OriginalDataElements</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>42</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Original Data Elements</Description>
+  </BicField>
+  <BicField>
+    <BitNum>91</BitNum>
+    <FieldName>FileUpdateCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>1</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>File Update Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>92</BitNum>
+    <FieldName>FileSecurityCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>2</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>File Security Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>93</BitNum>
+    <FieldName>RespIndicator</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>5</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Response Indicator</Description>
+  </BicField>
+  <BicField>
+    <BitNum>94</BitNum>
+    <FieldName>ServiceIndicator</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>7</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Service Indicator</Description>
+  </BicField>
+  <BicField>
+    <BitNum>95</BitNum>
+    <FieldName>ReplacementAmounts</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>42</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Replacement Amounts</Description>
+  </BicField>
+  <BicField>
+    <BitNum>96</BitNum>
+    <FieldName>MessageSecurityCode</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Security Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>97</BitNum>
+    <FieldName>NetSettlementCreditDebitAmount</FieldName>
+    <FieldDataType>AN</FieldDataType>
+    <Length>17</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Net settlement Credit (or Debit) Amount</Description>
+  </BicField>
+  <BicField>
+    <BitNum>98</BitNum>
+    <FieldName>Payee</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>25</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Payee</Description>
+  </BicField>
+  <BicField>
+    <BitNum>99</BitNum>
+    <FieldName>SettlementInstIDCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>11</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Settlement Institution Identification Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>100</BitNum>
+    <FieldName>ReceivingInstIDCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>11</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Receiving Institution Identification Code</Description>
+  </BicField>
+  <BicField>
+    <BitNum>101</BitNum>
+    <FieldName>FileName</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>19</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>File Name</Description>
+  </BicField>
+  <BicField>
+    <BitNum>102</BitNum>
+    <FieldName>AcctID1</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>28</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Account Identification 1</Description>
+  </BicField>
+  <BicField>
+    <BitNum>103</BitNum>
+    <FieldName>AcctID2</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>28</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Account Identification 2</Description>
+  </BicField>
+  <BicField>
+    <BitNum>104</BitNum>
+    <FieldName>TranDescription</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Transaction Description</Description>
+  </BicField>
+  <BicField>
+    <BitNum>105</BitNum>
+    <FieldName>ReservedISO_105</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>106</BitNum>
+    <FieldName>ReservedISO_106</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>107</BitNum>
+    <FieldName>ReservedISO_107</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>108</BitNum>
+    <FieldName>ReservedISO_108</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>109</BitNum>
+    <FieldName>ReservedISO_109</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>110</BitNum>
+    <FieldName>ReservedISO_110</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>111</BitNum>
+    <FieldName>ReservedISO_111</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved ISO</Description>
+  </BicField>
+  <BicField>
+    <BitNum>112</BitNum>
+    <FieldName>ReservedNational_112</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>113</BitNum>
+    <FieldName>ReservedNational_113</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>114</BitNum>
+    <FieldName>ReservedNational_114</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>115</BitNum>
+    <FieldName>ReservedNational_115</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>116</BitNum>
+    <FieldName>ReservedNational_116</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>117</BitNum>
+    <FieldName>ReservedNational_117</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>118</BitNum>
+    <FieldName>ReservedNational_118</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>119</BitNum>
+    <FieldName>ReservedNational_119</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Reserved National</Description>
+  </BicField>
+  <BicField>
+    <BitNum>120</BitNum>
+    <FieldName>KeyManagement</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 Key Management</Description>
+  </BicField>
+  <BicField>
+    <BitNum>121</BitNum>
+    <FieldName>HostMaintenanceATMSegmentInfo</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 - From Host Maintenance ATM Segment Information</Description>
+  </BicField>
+  <BicField>
+    <BitNum>122</BitNum>
+    <FieldName>FromHostMaintenancePOSSegmentInfo</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 - From Host Maintenance POS Segment Information</Description>
+  </BicField>
+  <BicField>
+    <BitNum>123</BitNum>
+    <FieldName>CryptographicServiceMessage</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Message Type 0800 (Network Management)Cryptographic Service Message</Description>
+  </BicField>
+  <BicField>
+    <BitNum>124</BitNum>
+    <FieldName>BatchSequenceNum</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>9</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Batch Sequence Number</Description>
+  </BicField>
+  <BicField>
+    <BitNum>125</BitNum>
+    <FieldName>SettlementData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>50</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>Settlement Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>126</BitNum>
+    <FieldName>BASE24ATMAdditionalData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 ATM Additional Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>127</BitNum>
+    <FieldName>BASE24PreAuthAndChargebackData</FieldName>
+    <FieldDataType>ANS</FieldDataType>
+    <Length>999</Length>
+    <FieldDataFormat>LLLVAR</FieldDataFormat>
+    <Description>BASE24 Pre-Auth And Chargeback Data</Description>
+  </BicField>
+  <BicField>
+    <BitNum>128</BitNum>
+    <FieldName>MessageAuthenticationCode</FieldName>
+    <FieldDataType>N</FieldDataType>
+    <Length>16</Length>
+    <FieldDataFormat>Fixed</FieldDataFormat>
+    <Description>Message Authentication Code</Description>
+  </BicField>
+</ArrayOfBicField>

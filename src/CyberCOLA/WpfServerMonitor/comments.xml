@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>WpfTCPClientService</name>
+  </assembly>
+  <members>
+    <member name="N:Com.Cybersoft4u.WpfTCPClientService" />
+    <member name="T:Com.Cybersoft4u.WpfTCPClientService.TCPClientServiceConsole.ConnectionInfo" />
+  </members>
+</doc>

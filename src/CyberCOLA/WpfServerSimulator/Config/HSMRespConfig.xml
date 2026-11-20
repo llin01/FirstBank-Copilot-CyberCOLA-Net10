@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Legacy reply layouts (rsnCode 4 digits) for WpfServerSimulator / WebServerSimulator, which no current client
+  uses. The layouts of the HSM interface spec V2.5 and of the deployed DLL\SocketClient.dll are in
+  src/CyberCOLA/WpfHSMSimulator/Config/HSMRespConfig.xml.
+-->
+<HSMRespConfig>
+	<FuncList>
+	<SuipFunc Function-ID="01" RespCode="xx-xxxx-xxx" />
+    <SuipFunc Function-ID="02" RespCode="xx-xxxx" />
+    <SuipFunc Function-ID="03" RespCode="xx-xxxx-xxxx-xxxx" />
+    <SuipFunc Function-ID="04" RespCode="xx-xxxx-xxxxxxxxxxxxxxxx-xxxx-xxxx" />
+    <SuipFunc Function-ID="05" RespCode="xx-xxxx-xxxx" />
+    <SuipFunc Function-ID="06" RespCode="xx-xxxx-*" />
+    <SuipFunc Function-ID="07" RespCode="xx-xxxx-*" />
+    <SuipFunc Function-ID="08" RespCode="xx-xxxx-xxxxxxxx" />
+    <SuipFunc Function-ID="09" RespCode="xx-xxxx-xxxx-xxxxxxxxxxxxxxxx" />
+    <SuipFunc Function-ID="10" RespCode="xx-xxxx" />
+    <SuipFunc Function-ID="11" RespCode="xx-xxxx" />
+    <SuipFunc Function-ID="12" RespCode="xx-xxxx-xxxxxxxxxxxxxxxx" />
+    <SuipFunc Function-ID="13" RespCode="xx-xxxx-xxxxxxxxxxxxxxxx" />
+    <SuipFunc Function-ID="14" RespCode="xx-xxxx" />
+    <SuipFunc Function-ID="15" RespCode="xx-xxxx-xxx" />
+    <SuipFunc Function-ID="16" RespCode="xx-xxxx" />
+    <SuipFunc Function-ID="17" RespCode="xx-xxxx-xxxx" />
+    <SuipFunc Function-ID="18" RespCode="xx-xxxx-xxxxxxxxxxxxxxxx" />
+    <SuipFunc Function-ID="19" RespCode="xx-xxxx-xxxxxxxxxxxxxxxx" />
+    <SuipFunc Function-ID="20" RespCode="xx-xxxx-xxxx-xxx-xxx-xxx" />
+  </FuncList>
+</HSMRespConfig>

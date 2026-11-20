@@ -1,0 +1,733 @@
+@page "/"
+@implements IDisposable
+@inject StressSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<!-- Background decorative orbs -->
+<div class="glass-bg"></div>
+<div class="glow-orb" id="orb-1"></div>
+<div class="glow-orb" id="orb-2"></div>
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+        <div class="logo-area">
+            <div class="logo-box">
+                <!-- Dynamic Transaction Icon -->
+                <img class="logo-img" src="@GetLogoIcon(_transactionType)" alt="Logo" style="width: 26px; height: 26px; object-fit: contain;" />
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; background: linear-gradient(to right, #0f172a, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Web<span style="font-size: 1.1rem; font-weight: 400; color: #64748b; margin-left: 2px; -webkit-text-fill-color: #64748b;">HighStressSimulator</span></h1>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">High Stress Payload Generator</span>
+            </div>
+        </div>
+
+        <div class="status-indicator">
+            <span class="status-pulse @(Manager.IsRunning ? "running" : "stopped")"></span>
+            <span class="status-text" style="color: @(Manager.IsRunning ? "#10b981" : "#ef4444"); font-weight: 800; font-size: 0.88rem; letter-spacing: 0.3px;">
+                @(Manager.IsRunning ? "RUNNING" : "STOPPED")
+            </span>
+        </div>
+
+        <div class="system-time">
+            <span class="label">SYSTEM TIME</span>
+            <span class="value">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- ===== Real-Time Metrics Dashboard (WPF Feature parity) ===== -->
+    <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+        <!-- Active Connections -->
+        <div class="glass-card" style="padding: 15px; border-left: 4px solid var(--neon-blue); display: flex; flex-direction: column; justify-content: space-between; hover: transform: translateY(-2px);">
+            <div>
+                <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;">Active Connections</span>
+                <div style="font-size: 24px; font-weight: 800; color: var(--neon-blue); margin-top: 5px; font-family: var(--font-mono);">@Manager.ActiveConnections</div>
+            </div>
+            <span style="font-size: 9px; color: var(--text-muted); margin-top: 5px;">Live client sockets</span>
+        </div>
+
+        <!-- Instant TPS -->
+        <div class="glass-card" style="padding: 15px; border-left: 4px solid var(--neon-green); display: flex; flex-direction: column; justify-content: space-between; hover: transform: translateY(-2px);">
+            <div>
+                <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;">Instant TPS</span>
+                <div style="font-size: 24px; font-weight: 800; color: var(--neon-green); margin-top: 5px; font-family: var(--font-mono);">@Manager.Tps</div>
+            </div>
+            <span style="font-size: 9px; color: var(--text-muted); margin-top: 5px;">Throughput rate</span>
+        </div>
+
+        <!-- Success Transactions -->
+        <div class="glass-card" style="padding: 15px; border-left: 4px solid var(--text-main); display: flex; flex-direction: column; justify-content: space-between; hover: transform: translateY(-2px);">
+            <div>
+                <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;">Success Transactions</span>
+                <div style="font-size: 24px; font-weight: 800; color: var(--text-main); margin-top: 5px; font-family: var(--font-mono);">@Manager.SuccessCount</div>
+            </div>
+            <span style="font-size: 9px; color: var(--text-muted); margin-top: 5px;">Packets responded</span>
+        </div>
+
+        <!-- Transmission Errors -->
+        <div class="glass-card" style="padding: 15px; border-left: 4px solid var(--neon-red); display: flex; flex-direction: column; justify-content: space-between; hover: transform: translateY(-2px);">
+            <div>
+                <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;">Transmission Errors</span>
+                <div style="font-size: 24px; font-weight: 800; color: var(--neon-red); margin-top: 5px; font-family: var(--font-mono);">@Manager.ErrorCount</div>
+            </div>
+            <span style="font-size: 9px; color: var(--text-muted); margin-top: 5px;">Dropped / timeouts</span>
+        </div>
+    </div>
+
+    <!-- ===== Main Dashboard ===== -->
+    <main class="dashboard-grid">
+        <!-- Left Side: Control panel -->
+        <section class="glass-card control-side" style="display: flex; flex-direction: column; gap: 1.2rem; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header" style="margin-bottom: 0;">
+                <span class="card-title">Stress Generator Configuration</span>
+            </div>
+
+            <!-- Transaction settings -->
+            <div class="form-group">
+                <label style="color: #1e293b; font-weight: 700;">Transaction Type</label>
+                <select class="form-control" @value="_transactionType" @onchange="OnTransactionTypeChanged" disabled="@(Manager.IsRunning ? "disabled" : null)">
+                    <option value="ItemNccc">NCCC</option>
+                    <option value="FISC">FISC</option>
+                    <option value="TWIN">TWIN</option>
+                    <option value="VISA">VISA</option>
+                    <option value="MASTERCARD">MasterCard</option>
+                </select>
+            </div>
+
+            <div class="btn-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="color: #1e293b; font-weight: 700;">Sessions</label>
+                    <input type="number" class="form-control" @bind="_sessionCount" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="color: #1e293b; font-weight: 700;">Queue Mode</label>
+                    <select class="form-control" @bind="_isChannelsMode" disabled="@(Manager.IsRunning ? "disabled" : null)">
+                        <option value="@true">Channels (C#)</option>
+                        <option value="@false">Legacy MSMQ</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Template File Selector -->
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="color: #1e293b; font-weight: 700;">Templates (@_availableTemplates.Count Available)</label>
+                    <button class="btn-sub-action" style="padding: 2px 8px; font-size: 10px;" @onclick="ToggleSelectAllTemplates" disabled="@(Manager.IsRunning ? "disabled" : null)">
+                        @(_selectedTemplates.Count == _availableTemplates.Count ? "Deselect All" : "Select All")
+                    </button>
+                </div>
+                <div class="scroll-list" style="height: 120px; border: 1px solid var(--border-color); border-radius: 9px; overflow-y: auto; background: rgba(15,23,42,0.02); padding: 8px; display: flex; flex-direction: column; gap: 6px;">
+                    @if (_availableTemplates.Count == 0)
+                    {
+                        <span style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin: auto;">No templates found.</span>
+                    }
+                    else
+                    {
+                        @foreach (var file in _availableTemplates)
+                        {
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; text-transform: none; font-weight: normal; cursor: pointer; color: var(--text-main); margin-bottom: 0;">
+                                <input type="checkbox" checked="@_selectedTemplates.Contains(file)" @onchange="@((e) => ToggleTemplateSelection(file, e))" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                                <span class="text-truncate" title="@file">@file</span>
+                            </label>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Ingest payload configuration (WPF split LOAD & INGEST action) -->
+            <div class="btn-grid" style="grid-template-columns: 1fr 1fr; align-items: flex-end; gap: 10px;">
+                <button class="btn btn-secondary" style="height: 38px; border-radius: 9px; font-size: 11px; font-weight: 700;" @onclick="LoadTemplates" disabled="@(Manager.IsRunning || _isIngesting ? "disabled" : null)">
+                    <span>LOAD FILES</span>
+                </button>
+                <button class="btn btn-primary" style="height: 38px; border-radius: 9px; font-size: 11px; font-weight: 700; background: #3b82f6;" @onclick="IngestPayloads" disabled="@(Manager.IsRunning || _isIngesting || !_isLoaded || _selectedTemplates.Count == 0 ? "disabled" : null)">
+                    <span>INGEST PAYLOADS</span>
+                </button>
+            </div>
+
+            <div class="form-group" style="margin-top: -0.2rem;">
+                <label style="color: #1e293b; font-weight: 700;">Repeat Count</label>
+                <input type="number" class="form-control" @bind="_repeatCount" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+            </div>
+
+            <!-- Listen Port & Send Interval -->
+            <div class="btn-grid" style="grid-template-columns: 1.15fr 0.85fr;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="color: #1e293b; font-weight: 700;">Listen Port</label>
+                    <select class="form-control" @bind="_port" disabled="@(Manager.IsRunning ? "disabled" : null)">
+                        @foreach (var p in _listenPorts)
+                        {
+                            <option value="@p">@p</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="color: #1e293b; font-weight: 700;">Interval (ms)</label>
+                    <input type="number" class="form-control" @bind="_sendInterval" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                </div>
+            </div>
+
+            <!-- General Parameters Configuration Checkboxes (WPF Feature parity) -->
+            <div style="background: rgba(15,23,42,0.02); border: 1px solid var(--border-color); border-radius: 9px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <label style="color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: 0.5px;">GENERAL CONFIGURATIONS</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: normal; cursor: pointer; text-transform: none; margin-bottom: 0; color: var(--text-main);">
+                        <input type="checkbox" @bind="_isAutoEcho" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                        <span>Auto Echo</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: normal; cursor: pointer; text-transform: none; margin-bottom: 0; color: var(--text-main);">
+                        <input type="checkbox" @bind="_isWaitingSignOn" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                        <span>Wait Sign-On</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: normal; cursor: pointer; text-transform: none; margin-bottom: 0; color: var(--text-main);">
+                        <input type="checkbox" @bind="_isReplaceCardNumber" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                        <span>Replace Card</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: normal; cursor: pointer; text-transform: none; margin-bottom: 0; color: var(--text-main);">
+                        <input type="checkbox" @bind="_isReplaceOriginalData" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                        <span>Replace Orig</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Service controls -->
+            <div class="btn-grid" style="margin-top: 0.2rem;">
+                <button class="btn btn-primary" @onclick="StartService"
+                        disabled="@(Manager.IsRunning || _isStarting || !_isLoaded ? "disabled" : null)"
+                        style="background: #3b82f6; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    <span>@(_isStarting ? "Starting..." : "Start Service")</span>
+                </button>
+                <button class="btn btn-danger" @onclick="StopService"
+                        disabled="@(!Manager.IsRunning || _isStopping ? "disabled" : null)"
+                        style="background: #ef4444; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="4" width="16" height="16" rx="2" />
+                    </svg>
+                    <span>@(_isStopping ? "Stopping..." : "Stop Service")</span>
+                </button>
+            </div>
+
+            <!-- Utility controls -->
+            <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top: -0.4rem;">
+                <button class="btn btn-secondary" style="height: 38px; border-radius: 9px; font-size: 11px;" @onclick="PurgeQueues" disabled="@(Manager.IsRunning ? "disabled" : null)">
+                    <span>Purge Queues</span>
+                </button>
+                <button class="btn btn-secondary" style="height: 38px; border-radius: 9px; font-size: 11px;" @onclick="ResetMetrics">
+                    <span>Reset Metrics</span>
+                </button>
+            </div>
+
+            <button @onclick="CloseApp"
+                    style="width: 100%; background: rgba(15,23,42,0.07); color: #0f172a; border: none; padding: 0.65rem; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease; font-size: 12px; margin-top: -0.2rem;">
+                <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                    <line x1="12" y1="2" x2="12" y2="12" />
+                </svg>
+                <span>Close Simulator</span>
+            </button>
+        </section>
+
+        <!-- Right Side: Session Queues Monitor & Dual Log Panels -->
+        <section class="console-side" style="display: flex; flex-direction: column; gap: 1.2rem; max-height: 90vh;">
+            
+            <!-- ===== Real-Time Session Queues Monitor (WPF Feature parity) ===== -->
+            <div class="glass-card flex-column" style="max-height: 230px; padding: 16px;">
+                <div class="card-header-actions" style="margin-bottom: 8px; padding-bottom: 6px;">
+                    <span class="card-title" style="font-size: 13px; font-weight: 700; display: flex; align-items: center;">
+                        <svg style="width: 0.95rem; height: 0.95rem; vertical-align: middle; margin-right: 0.4rem; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <line x1="9" y1="3" x2="9" y2="21" />
+                            <line x1="15" y1="3" x2="15" y2="21" />
+                            <line x1="3" y1="9" x2="21" y2="9" />
+                            <line x1="3" y1="15" x2="21" y2="15" />
+                        </svg>
+                        Payload Queues Monitor (Refreshes every @_refreshIntervalSec sec)
+                    </span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 11px; color: var(--text-muted);">Interval Sec:</span>
+                        <input type="number" style="width: 42px; font-size: 11px; padding: 2px 4px; border: 1px solid var(--border-color); border-radius: 4px; background: rgba(15,23,42,0.02); text-align: center;" @bind="_refreshIntervalSec" @onfocusout="UpdateMonitorTimer" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                        <button class="btn-sub-action" style="padding: 2px 8px; font-size: 10px;" @onclick="ToggleMonitor">
+                            @(_isMonitorRunning ? "Stop Monitor" : "Start Monitor")
+                        </button>
+                    </div>
+                </div>
+                <div class="scroll-list" style="flex-grow: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 9px; background: rgba(255, 255, 255, 0.4); padding: 4px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); background: rgba(15,23,42,0.03); color: var(--text-muted); font-weight: 700;">
+                                <th style="padding: 6px 12px;">Session ID</th>
+                                <th style="padding: 6px 12px;">Queue Virtual Path / Name</th>
+                                <th style="padding: 6px 12px; text-align: right; width: 120px;">Payload Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_queueDepths.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8; font-style: italic;">
+                                        No queues initialized. Click "LOAD FILES" to set up stress session queues.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var kvp in _queueDepths)
+                                {
+                                    <tr style="border-bottom: 1px solid rgba(15,23,42,0.02); transition: background-color 0.2s;">
+                                        <td style="padding: 5px 12px; font-family: var(--font-mono); font-weight: 600; color: var(--text-main);">@kvp.Key</td>
+                                        <td style="padding: 5px 12px; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.72rem;">
+                                            @($"{_prefixQueueName}_{kvp.Key.Split('_').Last()}")
+                                        </td>
+                                        <td style="padding: 5px 12px; text-align: right; font-family: var(--font-mono); font-weight: 700; color: @(kvp.Value > 0 ? "#ef4444" : "#10b981");">
+                                            @(kvp.Value == -1 ? "Error" : kvp.Value.ToString("N0"))
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Message1 Panel: MQ Payload Ingestion -->
+            <div class="glass-card flex-column flex-grow" style="padding: 16px;">
+                <div class="card-header-actions" style="margin-bottom: 8px; padding-bottom: 6px;">
+                    <span class="card-title" style="font-size: 13px;">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="4" y1="12" x2="20" y2="12" />
+                            <polyline points="14 6 20 12 14 18" />
+                        </svg>
+                        Message1 — Ingestion / Payload Events
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg1">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg1" style="height: 160px;">
+                    @if (_msg1Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] Select templates and click "LOAD FILES" to initialize queues.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg1Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Message2 Panel: System Connection & Traffic Logs -->
+            <div class="glass-card flex-column flex-grow" style="padding: 16px;">
+                <div class="card-header-actions" style="margin-bottom: 8px; padding-bottom: 6px;">
+                    <span class="card-title" style="font-size: 13px;">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.07 4.93A10 10 0 0 1 21 12a10 10 0 0 1-1.93 5.07M4.93 4.93A10 10 0 0 0 3 12a10 10 0 0 0 1.93 5.07" />
+                        </svg>
+                        Message2 — Socket & Listener Event Logs
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg2">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg2" style="height: 160px;">
+                    @if (_msg2Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] High Stress Service is ready. Select configuration and click "Start Service".</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg2Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 1.5rem; padding-top: 1.2rem; text-align: center; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid rgba(15,23,42,0.08);">
+        <p>CyberCOLA High Stress Simulator © 2026 — FirstBank</p>
+    </footer>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+    private System.Threading.Timer? _monitorTimer;
+
+    // Dual log panels
+    private readonly List<string> _msg1Logs = new();
+    private readonly List<string> _msg2Logs = new();
+
+    private string _transactionType = "ItemNccc";
+    private int _sessionCount = 10;
+    private bool _isChannelsMode = true;
+    private int _repeatCount = 10;
+    private int _port = 9001;
+    private int _sendInterval = 100;
+    private string _prefixQueueName = ".\\Private$\\NStressQueue";
+
+    // 4 Checkboxes WPF parameters
+    private bool _isAutoEcho = true;
+    private bool _isWaitingSignOn = false;
+    private bool _isReplaceCardNumber = true;
+    private bool _isReplaceOriginalData = true;
+
+    // Queue Monitor properties
+    private Dictionary<string, int> _queueDepths = new();
+    private int _refreshIntervalSec = 3;
+    private bool _isMonitorRunning = true;
+    private bool _isLoaded = false;
+
+    private List<string> _availableTemplates = new();
+    private List<string> _selectedTemplates = new();
+    private List<int> _listenPorts = new();
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+    private bool _isIngesting = false;
+    private bool _shouldScrollLogs = false;
+
+    protected override void OnInitialized()
+    {
+        // Load ports
+        foreach (var pStr in Manager.GetListenPorts())
+        {
+            if (int.TryParse(pStr, out int p))
+                _listenPorts.Add(p);
+        }
+        if (_listenPorts.Count > 0) _port = _listenPorts[0];
+
+        _transactionType = Manager.TransactionType;
+        _sessionCount = Manager.SessionCount;
+        _isChannelsMode = Manager.IsChannelsMode;
+        _repeatCount = Manager.RepeatCount;
+        _sendInterval = Manager.SendInterval;
+
+        LoadTemplatesForType(_transactionType);
+
+        Manager.RegisterLogCallback(OnLogReceived);
+
+        if (Manager.IsRunning)
+        {
+            _isLoaded = true;
+            _msg2Logs.Add($"[SYSTEM] High Stress Service is already running on port {Manager.Port}. controls locked.");
+            RefreshQueueDepths();
+        }
+
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+
+        // Queue Monitor Timer (WPF toggle monitor refresh)
+        UpdateMonitorTimer();
+    }
+
+    private void RefreshQueueDepths()
+    {
+        var depths = Manager.GetQueueDepths();
+        if (depths != null && depths.Count > 0)
+        {
+            _queueDepths = depths;
+        }
+    }
+
+    private void UpdateMonitorTimer()
+    {
+        _monitorTimer?.Dispose();
+        if (_isMonitorRunning && _refreshIntervalSec > 0)
+        {
+            _monitorTimer = new System.Threading.Timer(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    if (_isLoaded)
+                    {
+                        RefreshQueueDepths();
+                        StateHasChanged();
+                    }
+                });
+            }, null, 0, _refreshIntervalSec * 1000);
+        }
+    }
+
+    private void ToggleMonitor()
+    {
+        _isMonitorRunning = !_isMonitorRunning;
+        UpdateMonitorTimer();
+        _msg2Logs.Add($"[SYSTEM] Queue monitor automatic refresh has been {(_isMonitorRunning ? "enabled" : "disabled")}.");
+    }
+
+    private void LoadTemplatesForType(string txType)
+    {
+        try
+        {
+            var files = Manager.GetTemplateFiles(txType);
+            _availableTemplates = files.ToList();
+            _selectedTemplates = files.ToList(); // select all by default
+            _isLoaded = false;
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Failed to load templates list: {ex.Message}");
+        }
+    }
+
+    private void OnTransactionTypeChanged(ChangeEventArgs e)
+    {
+        _transactionType = e.Value?.ToString() ?? "ItemNccc";
+        LoadTemplatesForType(_transactionType);
+    }
+
+    private void ToggleTemplateSelection(string file, ChangeEventArgs e)
+    {
+        bool isChecked = (bool)(e.Value ?? false);
+        if (isChecked)
+        {
+            if (!_selectedTemplates.Contains(file)) _selectedTemplates.Add(file);
+        }
+        else
+        {
+            _selectedTemplates.Remove(file);
+        }
+    }
+
+    private void ToggleSelectAllTemplates()
+    {
+        if (_selectedTemplates.Count == _availableTemplates.Count)
+        {
+            _selectedTemplates.Clear();
+        }
+        else
+        {
+            _selectedTemplates = _availableTemplates.ToList();
+        }
+    }
+
+    // WPF Action 1: Load files and initialize queues
+    private async Task LoadTemplates()
+    {
+        if (_selectedTemplates.Count == 0) return;
+        _isIngesting = true;
+        _msg1Logs.Add($"[SYSTEM] Loading {_selectedTemplates.Count} templates into generator cache. Mode: {(_isChannelsMode ? "Channels" : "MSMQ")}, Sessions: {_sessionCount}...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => {
+                Manager.Load(_transactionType, _selectedTemplates, _sessionCount, _isChannelsMode);
+            });
+            _isLoaded = true;
+            RefreshQueueDepths();
+            _msg1Logs.Add($"[SYSTEM] Queues initialized successfully. Virtual prefix: {_prefixQueueName}. Ready for ingestion.");
+        }
+        catch (Exception ex)
+        {
+            _msg1Logs.Add($"[ERROR] Queue initialization failed: {ex.Message}");
+            _isLoaded = false;
+        }
+        finally
+        {
+            _isIngesting = false;
+            StateHasChanged();
+        }
+    }
+
+    // WPF Action 2: Ingest payloads into initialized queues
+    private async Task IngestPayloads()
+    {
+        if (!_isLoaded || _selectedTemplates.Count == 0) return;
+        _isIngesting = true;
+        _msg1Logs.Add($"[SYSTEM] Injecting stress payloads into queues. Repeat Ingestion count: {_repeatCount}...");
+        StateHasChanged();
+        try
+        {
+            int total = await Task.Run(() => Manager.Ingest(_repeatCount));
+            _msg1Logs.Add($"[SYSTEM] Successfully injected {total} payloads across {_sessionCount} queues.");
+            RefreshQueueDepths();
+        }
+        catch (Exception ex)
+        {
+            _msg1Logs.Add($"[ERROR] Ingestion failed: {ex.Message}");
+        }
+        finally
+        {
+            _isIngesting = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnLogReceived(string message)
+    {
+        InvokeAsync(() =>
+        {
+            if (message.Contains("loaded", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("ingest", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("queue", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("purge", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("payload", StringComparison.OrdinalIgnoreCase))
+            {
+                _msg1Logs.Add(message);
+                if (_msg1Logs.Count > 500) _msg1Logs.RemoveAt(0);
+            }
+            else
+            {
+                _msg2Logs.Add(message);
+                if (_msg2Logs.Count > 500) _msg2Logs.RemoveAt(0);
+            }
+            _shouldScrollLogs = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollLogs)
+        {
+            _shouldScrollLogs = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval",
+                    "var e1=document.getElementById('logMsg1'); if(e1) e1.scrollTop=e1.scrollHeight;" +
+                    "var e2=document.getElementById('logMsg2'); if(e2) e2.scrollTop=e2.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private async Task StartService()
+    {
+        _isStarting = true;
+        _msg2Logs.Add($"[SYSTEM] Starting High Stress Simulator on port {_port}...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.Start(_port, _sendInterval, _isWaitingSignOn, _isReplaceCardNumber, _isReplaceOriginalData, _isAutoEcho));
+            _msg2Logs.Add($"[SYSTEM] High Stress Service started successfully at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Start failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopService()
+    {
+        _isStopping = true;
+        _msg2Logs.Add($"[SYSTEM] Stopping High Stress Service...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.Stop());
+            _msg2Logs.Add($"[SYSTEM] High Stress Service stopped at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Stop failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private void PurgeQueues()
+    {
+        Manager.PurgeQueues();
+        RefreshQueueDepths();
+        _msg1Logs.Add("[SYSTEM] All stress queues purged and cleaned.");
+    }
+
+    private void ResetMetrics()
+    {
+        ServerService.Metrics.Reset();
+        _msg2Logs.Add("[SYSTEM] Metrics reset.");
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.Stop();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearMsg1()
+    {
+        _msg1Logs.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearMsg2()
+    {
+        _msg2Logs.Clear();
+        StateHasChanged();
+    }
+
+    private string GetLogoIcon(string txType)
+    {
+        return txType.ToUpper() switch
+        {
+            "FISC" => "images/Fisc.ico",
+            "MASTERCARD" => "images/MasterCard.ico",
+            "TWIN" => "images/Twin.ico",
+            "VISA" => "images/Visa.ico",
+            _ => "images/Nccc.ico"
+        };
+    }
+
+    private string GetLogClass(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "error";
+        if (log.Contains("[WARN]", StringComparison.OrdinalIgnoreCase)) return "warn";
+        if (log.Contains("Receive", StringComparison.OrdinalIgnoreCase)) return "receive";
+        if (log.Contains("Send", StringComparison.OrdinalIgnoreCase)) return "send";
+        return "info";
+    }
+
+    public void Dispose()
+    {
+        Manager.UnregisterLogCallback(OnLogReceived);
+        _clockTimer?.Dispose();
+        _monitorTimer?.Dispose();
+    }
+}

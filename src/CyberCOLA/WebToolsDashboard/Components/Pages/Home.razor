@@ -1,0 +1,258 @@
+@page "/"
+@implements IDisposable
+@inject JobRunner Runner
+@inject EnvironmentStatusService Status
+
+<div style="display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- Tool catalog -->
+    <div class="card" style="width: 280px; flex-shrink: 0;">
+        <h3>工具</h3>
+        @foreach (var group in ToolCatalog.All.GroupBy(t => t.Category))
+        {
+            <div class="category">@group.Key</div>
+            @foreach (var tool in group)
+            {
+                <button class="tool-item @(tool == _tool ? "selected" : "")" @onclick="() => Select(tool)">
+                    @tool.Title
+                    @if (tool.Kind == ToolKind.OpenWindow)
+                    {
+                        <span class="muted" style="font-size: 12px;"> ↗</span>
+                    }
+                </button>
+            }
+        }
+    </div>
+
+    <div style="flex: 1; min-width: 420px; display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- Selected tool -->
+        <div class="card">
+            <h3>@_tool.Title</h3>
+            <div class="muted" style="font-size: 13px; margin-bottom: 4px;">@_tool.Description</div>
+            <div style="font-size: 12px; margin-bottom: 12px;" class="muted">
+                <code>tools/@_tool.Script</code>
+                @if (_tool.NeedsDb) { <span class="badge" style="margin-left: 6px;">需要 DB</span> }
+                @if (_tool.NeedsPublish) { <span class="badge" style="margin-left: 6px;">需要發行版</span> }
+                @if (_tool.Exclusive) { <span class="badge" style="margin-left: 6px;">一次只能跑一個</span> }
+            </div>
+
+            @if (_tool.Parameters.Count > 0)
+            {
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                    @foreach (var p in _tool.Parameters)
+                    {
+                        <label class="field">
+                            @p.Label
+                            @switch (p.Type)
+                            {
+                                case ParameterType.Choice:
+                                    <select value="@_values[p.Name]" @onchange="e => _values[p.Name] = e.Value?.ToString() ?? p.Default">
+                                        @foreach (var c in p.Choices!)
+                                        {
+                                            <option value="@c">@c</option>
+                                        }
+                                    </select>
+                                    break;
+                                case ParameterType.Int:
+                                    <input type="number" min="@p.Min" max="@p.Max" value="@_values[p.Name]"
+                                           @onchange="e => _values[p.Name] = e.Value?.ToString() ?? p.Default" />
+                                    break;
+                                default:
+                                    <select value="@_values[p.Name]" @onchange="e => _values[p.Name] = e.Value?.ToString() ?? p.Default">
+                                        <option value="true">是</option>
+                                        <option value="false">否</option>
+                                    </select>
+                                    break;
+                            }
+                            @if (p.Hint is not null)
+                            {
+                                <span style="font-size: 11px;">@p.Hint</span>
+                            }
+                        </label>
+                    }
+                </div>
+            }
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                @if (_tool.Kind == ToolKind.Run)
+                {
+                    <button class="btn btn-primary" disabled="@ExclusiveBusy" @onclick="Run">▶ 執行</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary" disabled="@(!OperatingSystem.IsWindows())" @onclick="Open">↗ 在新視窗開啟</button>
+                    <span class="muted" style="font-size: 12px;">互動選單：在新的 pwsh 視窗操作，dashboard 不會收到結果。</span>
+                }
+                @if (ExclusiveBusy && _tool.Kind == ToolKind.Run)
+                {
+                    <span class="warn" style="font-size: 13px;">已有授權測試在執行。</span>
+                }
+                @if (_tool.Exclusive && Status.Current is { Processes.Count: > 0 } s)
+                {
+                    <span class="warn" style="font-size: 13px;">目前有 @s.Processes.Count 個 CyberCOLA 程序在執行，測試會沿用它們，結束時也不會停止它們。</span>
+                }
+                @if (_error is not null)
+                {
+                    <span class="bad" style="font-size: 13px;">@_error</span>
+                }
+            </div>
+        </div>
+
+        <!-- Job list -->
+        @if (Runner.Jobs() is { Count: > 0 } jobs)
+        {
+            <div class="card">
+                <h3>本次執行紀錄</h3>
+                <table class="data">
+                    <tr><th>#</th><th>工具</th><th>開始</th><th>狀態</th><th>結果</th><th></th></tr>
+                    @foreach (var job in jobs)
+                    {
+                        <tr style="cursor: pointer; @(job.Id == _jobId ? "background: rgba(56,189,248,0.06);" : "")" @onclick="() => _jobId = job.Id">
+                            <td>@job.Id</td>
+                            <td><code style="font-size: 12px;">@job.Display</code></td>
+                            <td>@job.StartedAt.ToString("HH:mm:ss", CultureInfo.InvariantCulture)</td>
+                            <td class="@StatusClass(job)">@StatusText(job)</td>
+                            <td>@(job.ExitCode is null ? "" : $"{job.ExitCode}：{job.ExitMeaning}")</td>
+                            <td>
+                                @if (job.IsRunning)
+                                {
+                                    <button class="btn btn-danger" style="padding: 2px 10px;" @onclick:stopPropagation="true" @onclick="() => Cancel(job)">中止</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+
+        <!-- Selected job -->
+        @if (_jobId is int id && Runner.Find(id) is { } current)
+        {
+            var lines = current.Lines();
+            @if (current.Tool.AuthTestOutput)
+            {
+                // Parsers match on the text itself; colour codes would break their line anchors.
+                var plain = lines.Select(OutputMasker.StripAnsi).ToList();
+                var summary = TranscriptParser.ParseSummary(plain);
+                <div class="card">
+                    <h3>流程 — #@current.Id @(summary.Network)</h3>
+                    <FlowView Stages="TranscriptParser.ParseStages(plain, !current.IsRunning, current.ExitCode)" />
+                </div>
+                <div class="card">
+                    <h3>結果</h3>
+                    <SummaryView Summary="summary" />
+                    @if (summary.TranscriptPath is not null)
+                    {
+                        <div class="muted" style="font-size: 12px; margin-top: 10px;">transcript：@summary.TranscriptPath</div>
+                    }
+                </div>
+            }
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>輸出 — #@current.Id（@lines.Count 行）</h3>
+                    <label class="muted" style="font-size: 12px;">
+                        <input type="checkbox" @bind="_showAll" /> 顯示全部
+                    </label>
+                </div>
+                <div class="console">@((MarkupString)AnsiText.ToHtml(_showAll ? lines : lines.TakeLast(400)))</div>
+                @if (current.Status == JobStatus.Cancelled && current.Tool.Exclusive)
+                {
+                    <div class="warn" style="font-size: 13px; margin-top: 8px;">
+                        中止的授權測試可能留下已啟動的服務；看上方程序數，必要時用主選單 0 停止。
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ToolDefinition _tool = ToolCatalog.All[0];
+    private Dictionary<string, string> _values = [];
+    private int? _jobId;
+    private string? _error;
+    private bool _showAll;
+    private Timer? _refresh;
+
+    private bool ExclusiveBusy => _tool.Exclusive && Runner.Jobs().Any(j => j.IsRunning && j.Tool.Exclusive);
+
+    protected override void OnInitialized()
+    {
+        Select(_tool);
+        _jobId = Runner.Jobs().FirstOrDefault()?.Id;
+        Runner.JobsChanged += OnJobsChanged;
+
+        // The running-process warning next to the Run button reads the environment status too.
+        Status.Changed += OnJobsChanged;
+
+        // Output arrives line by line; redraw at a steady pace while something runs instead of per line.
+        _refresh = new Timer(_ =>
+        {
+            if (Runner.Jobs().Any(j => j.IsRunning))
+            {
+                _ = InvokeAsync(StateHasChanged);
+            }
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(800));
+    }
+
+    private void Select(ToolDefinition tool)
+    {
+        _tool = tool;
+        _values = tool.Parameters.ToDictionary(p => p.Name, p => p.Default);
+        _error = null;
+    }
+
+    private void Run()
+    {
+        _error = null;
+        try
+        {
+            _jobId = Runner.Start(_tool, _values).Id;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FileNotFoundException)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private void Open()
+    {
+        _error = null;
+        try
+        {
+            Runner.OpenWindow(_tool, _values);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FileNotFoundException
+                                   or PlatformNotSupportedException or System.ComponentModel.Win32Exception)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private void Cancel(Job job) => Runner.Cancel(job);
+
+    private void OnJobsChanged() => _ = InvokeAsync(StateHasChanged);
+
+    private static string StatusText(Job job) => job.Status switch
+    {
+        JobStatus.Running => "執行中",
+        JobStatus.Succeeded => "成功",
+        JobStatus.Failed => "失敗",
+        _ => "已中止",
+    };
+
+    private static string StatusClass(Job job) => job.Status switch
+    {
+        JobStatus.Running => "warn",
+        JobStatus.Succeeded => "ok",
+        _ => "bad",
+    };
+
+    public void Dispose()
+    {
+        Runner.JobsChanged -= OnJobsChanged;
+        Status.Changed -= OnJobsChanged;
+        _refresh?.Dispose();
+    }
+}

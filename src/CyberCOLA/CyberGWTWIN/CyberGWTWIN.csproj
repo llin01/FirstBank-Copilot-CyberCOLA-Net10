@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Com.Cybersoft4u.Service.TWIN.CyberGWTWIN</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Unified CyberGWTWIN Gateway Service (Console, Windows Service, and Linux Daemon)</Description>
+    <Product>CyberCOLA Authorization System</Product>
+    <ApplicationIcon>CyberGWTWIN.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="CyberGWTWIN.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\libs\CyberUtils\src\CyberUtils\CyberUtils.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter.NLog\LoggerAdapter.NLog.csproj" />
+    <ProjectReference Include="..\..\..\libs\LoggerAdapterNLog\src\LoggerAdapter\LoggerAdapter.csproj" />
+    <ProjectReference Include="..\..\..\libs\TM\TM.csproj" />
+    <ProjectReference Include="..\..\..\libs\Yetty\src\Yetty\Yetty.csproj" />
+    <ProjectReference Include="..\CommonLib\CommonLib.csproj" />
+    <ProjectReference Include="..\Interchange\Interchange.csproj" />
+    <ProjectReference Include="..\ServiceProvider\ServiceProvider.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCOLA - SMS Simulator 控制中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=1.0.7">
+</head>
+<body>
+    <div class="glass-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-glow"></div>
+                <img src="images/sms_web_api_server_icon.png" class="icon-sms" alt="SMS Logo">
+                <div class="title-area">
+                    <h1>SMS Simulator</h1>
+                    <p class="tagline">CyberCOLA SMS Gateway Emulator</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot status-offline" id="statusDot"></div>
+                <span class="status-text" id="statusText">停止中</span>
+            </div>
+            <div class="system-time">
+                <span class="label">SYSTEM TIME</span>
+                <span class="value" id="clock">0000-00-00 00:00:00</span>
+            </div>
+        </header>
+
+        <!-- Telemetry Summary Cards -->
+        <section class="telemetry-summary">
+            <div class="telemetry-card glow-warning">
+                <div class="telemetry-title">最大併發連線 (Max Connections)</div>
+                <div class="telemetry-value" id="valMaxConnections">0</div>
+            </div>
+            <div class="telemetry-card glow-success">
+                <div class="telemetry-title">已處理簡訊 (Processed SMS)</div>
+                <div class="telemetry-value text-success" id="valProcessed">0</div>
+            </div>
+            <div class="telemetry-card glow-primary">
+                <div class="telemetry-title">系統運作時間 (Time)</div>
+                <div class="telemetry-value text-primary" id="valClock">0000-00-00 00:00:00</div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="dashboard-grid">
+            <!-- Parameter Settings -->
+            <section class="card control-card">
+                <h2>系統參數配置</h2>
+                <p class="subtitle">設定簡訊網關模擬器之 TCP 監聽與效能</p>
+
+                <div class="form-group">
+                    <label for="inputPort">簡訊監聽埠 (Port)</label>
+                    <input type="number" id="inputPort" value="10000" min="1" max="65535">
+                </div>
+
+                <div class="form-group">
+                    <label for="inputConnections">最大連線數 (Connections)</label>
+                    <input type="number" id="inputConnections" value="50" min="1" max="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="inputBufferSize">緩衝區大小 (Buffer Size)</label>
+                    <input type="number" id="inputBufferSize" value="2048" min="256" max="65536">
+                </div>
+
+                <div class="control-actions">
+                    <button class="btn btn-start" id="btnStart">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        START SERVICE
+                    </button>
+                    <button class="btn btn-stop" id="btnStop" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" />
+                        </svg>
+                        STOP SERVICE
+                    </button>
+                </div>
+
+                <div class="utility-actions">
+                    <button class="btn-sub btn-reset" id="btnResetMetrics">重設統計</button>
+                    <button class="btn-sub btn-close" id="btnCloseApp">關閉模擬器</button>
+                </div>
+            </section>
+
+            <!-- Live Console Logs -->
+            <section class="card logs-card">
+                <div class="card-header">
+                    <h2>簡訊通訊日誌 (Console Logs)</h2>
+                    <button class="btn-clear" id="btnClearLogs">清除記錄</button>
+                </div>
+                <div class="log-console" id="logConsole">
+                    <div class="system-line">[SYSTEM] SMS Gateway Console ready. Waiting for connections...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="js/app.js?v=1.0.7"></script>
+</body>
+</html>

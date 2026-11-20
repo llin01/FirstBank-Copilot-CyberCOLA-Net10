@@ -1,0 +1,315 @@
+@page "/"
+@using System.Text
+@using Com.Cybersoft4u.Test.Web.WebTCPClient
+@implements IDisposable
+@inject TCPClientManager Manager
+
+<div style="display: flex; flex-direction: column; height: 100vh; padding: 20px; gap: 20px; overflow: hidden; background: linear-gradient(135deg, #090d16 0%, #111827 100%);">
+    
+    <!-- HEADER BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(21, 28, 44, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- Icon -->
+            <svg style="width: 28px; height: 28px; color: var(--accent-blue);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <div style="display: flex; align-items: baseline;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: var(--accent-blue); margin-left: 4px; opacity: 0.85;">TCPClient</span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span style="background: rgba(56, 189, 248, 0.08); padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.15); color: var(--accent-blue); font-family: var(--font-mono); font-size: 14px; font-weight: 600; letter-spacing: 0.5px;">
+                SYSTEM TIME: @_currentTime
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN BODY SECTION -->
+    <div style="display: flex; flex: 1; gap: 20px; min-height: 0;">
+        
+        <!-- LEFT PANEL: CONFIGURATION & CONTROL (40% Width) -->
+        <div style="width: 40%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- Connection Control Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">TCP Connection</h3>
+                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03);">
+                        @if (!Manager.IsTcpStarted)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); box-shadow: 0 0 6px rgba(148, 163, 184, 0.3);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--text-muted);">
+                                STOPPED
+                            </span>
+                        }
+                        else if (Manager.IsTcpConnected)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green); box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-green);">
+                                ONLINE
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="pulse-orange" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-orange); box-shadow: 0 0 10px rgba(251, 146, 60, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-orange);">
+                                RETRYING...
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Config Inputs -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 600;">Remote Target IP / Host</span>
+                            <input type="text" @bind-value="Manager.TargetIP" disabled="@Manager.IsTcpStarted" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 600;">Port</span>
+                            <input type="number" @bind-value="Manager.TargetPort" disabled="@Manager.IsTcpStarted" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 600;">Local IP / Bind Host</span>
+                            <input type="text" @bind-value="Manager.LocalIP" disabled="@Manager.IsTcpStarted" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 600;">Bind Port</span>
+                            <input type="number" @bind-value="Manager.LocalPort" disabled="@Manager.IsTcpStarted" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 600;">Remote Host Name</span>
+                            <input type="text" @bind-value="Manager.RemoteHost" disabled="@Manager.IsTcpStarted" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; font-size: 11px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="checkbox" @bind="Manager.AutoEcho" disabled="@Manager.IsTcpStarted" />
+                                Auto Echo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start / Stop Action Buttons -->
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn btn-action btn-start" @onclick="StartTcp" disabled="@Manager.IsTcpStarted" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Start Service
+                    </button>
+                    <button class="btn btn-action btn-stop" @onclick="StopTcp" disabled="@(!Manager.IsTcpStarted)" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Stop Service
+                    </button>
+                </div>
+
+                <!-- Connection Error Panel -->
+                @if (Manager.IsTcpStarted && !Manager.IsTcpConnected)
+                {
+                    <div style="background: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.2); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--accent-orange); display: flex; flex-direction: column; gap: 4px; animation: fadeIn 0.3s;">
+                        <span style="font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                            ⚠️ Connection Pending / Failed
+                        </span>
+                        <span>Cannot connect to target @(Manager.TargetIP):@(Manager.TargetPort).</span>
+                        <span style="color: var(--text-muted); font-size: 10px; margin-top: 2px;">Yetty is automatically retrying every 3 seconds...</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: PAYLOAD TRANSMISSION & SEND (60% Width) -->
+        <div style="width: 60%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- Payload Sender Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">Send Test Payload</h3>
+                    <div style="display: flex; gap: 15px; font-size: 12px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="format" checked="@(_payloadFormat == "HEX")" @onclick='() => _payloadFormat = "HEX"' />
+                            HEX String
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="format" checked="@(_payloadFormat == "ASCII")" @onclick='() => _payloadFormat = "ASCII"' />
+                            ASCII Text
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Input area -->
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <span style="color: var(--text-muted); font-size: 11px;">Payload Content</span>
+                    <textarea @bind="_payloadContent" placeholder="@( _payloadFormat == "HEX" ? "e.g., 0800 0003 02E2..." : "e.g., Hello, Server!" )" style="flex: 1; width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; padding: 12px; font-family: var(--font-mono); font-size: 12px; resize: none; outline: none; transition: border-color 0.2s;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button @onclick="SendPayload" disabled="@(!Manager.IsTcpConnected || string.IsNullOrWhiteSpace(_payloadContent))" style="height: 38px; padding: 0 20px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        Send Payload
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUAL LOG CONSOLES -->
+    <div style="display: flex; gap: 20px; height: 200px; min-height: 200px;">
+        
+        <!-- Console 1: Process System Messages -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-blue);">System & Transmission Logs</span>
+                <button @onclick="ClearSystemLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; white-space: pre-wrap;" id="sys-log-box">
+                @foreach (var log in _systemLogs)
+                {
+                    <div style="color: @GetColorHex(log.Color);">@log.Message</div>
+                }
+            </div>
+        </div>
+
+        <!-- Console 2: Received Messages Monitor -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-green);">Received Logs Monitor</span>
+                <button @onclick="ClearReceivedLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; white-space: pre-wrap;">
+                @foreach (var log in _receivedLogs)
+                {
+                    <div style="color: @GetColorHex(log.Color);">@log.Message</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-action:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-action:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-start {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-start:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    .btn-stop {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-stop:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+</style>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private string _payloadFormat = "HEX";
+    private string _payloadContent = "";
+
+    private List<LogItem> _systemLogs = new();
+    private List<LogItem> _receivedLogs = new();
+    
+    private Timer? _uiTimer;
+
+    protected override void OnInitialized()
+    {
+        Manager.OnSystemLog += HandleSystemLog;
+        Manager.OnReceivedLog += HandleReceivedLog;
+
+        Manager.Init();
+
+        _uiTimer = new Timer(async _ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            await InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void HandleSystemLog(string msg, string color)
+    {
+        _systemLogs.Add(new LogItem(msg, color));
+        if (_systemLogs.Count > 100) _systemLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleReceivedLog(string msg, string color)
+    {
+        _receivedLogs.Add(new LogItem(msg, color));
+        if (_receivedLogs.Count > 100) _receivedLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StartTcp()
+    {
+        Manager.StartTcpService();
+    }
+
+    private void StopTcp()
+    {
+        Manager.StopTcpService();
+    }
+
+    private void SendPayload()
+    {
+        if (string.IsNullOrWhiteSpace(_payloadContent)) return;
+        var isHex = _payloadFormat == "HEX";
+        Manager.SendMessage(_payloadContent, isHex);
+    }
+
+    private void ClearSystemLogs() => _systemLogs.Clear();
+    private void ClearReceivedLogs() => _receivedLogs.Clear();
+
+    private string GetColorHex(string color) => color.ToLower() switch
+    {
+        "red" => "var(--accent-red)",
+        "green" => "var(--accent-green)",
+        "yellow" => "var(--accent-orange)",
+        "cyan" => "var(--accent-blue)",
+        "gray" => "var(--text-muted)",
+        _ => "var(--text-main)"
+    };
+
+    public void Dispose()
+    {
+        Manager.OnSystemLog -= HandleSystemLog;
+        Manager.OnReceivedLog -= HandleReceivedLog;
+        
+        _uiTimer?.Dispose();
+    }
+
+    public class LogItem
+    {
+        public string Message { get; }
+        public string Color { get; }
+
+        public LogItem(string msg, string col)
+        {
+            Message = msg;
+            Color = col;
+        }
+    }
+}

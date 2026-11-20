@@ -1,0 +1,373 @@
+@page "/"
+@implements IDisposable
+@inject ClientSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+
+<div class="glass-bg"></div>
+<div class="glow-orb" id="orb-1"></div>
+<div class="glow-orb" id="orb-2"></div>
+
+<div class="app-container">
+    <!-- Header -->
+    <header class="app-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem;">
+        <div class="logo-area" style="display: flex; align-items: center; gap: 0.8rem;">
+            <div class="logo-icon" style="color: var(--primary-color); display: flex; align-items: center;">
+                <svg class="logo-svg" style="width: 2.2rem; height: 2.2rem; filter: drop-shadow(0 0 8px var(--primary-glow));" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; color: var(--text-primary);">Web<span style="font-size: 1.1rem; font-weight: 400; color: var(--text-secondary); margin-left: 2px;">ClientSimulator</span></h1>
+                <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">NCCC Client Simulator</span>
+            </div>
+        </div>
+        <div class="system-time">
+            <span class="label" style="font-size: 0.75rem; color: var(--text-secondary); display: block; text-align: right;">SYSTEM TIME</span>
+            <span class="value" style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700;">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- Dashboard Layout -->
+    <main class="dashboard-grid">
+        
+        <!-- Left Side: Controls & Configurations -->
+        <div class="panel-left" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Configuration Card -->
+            <section class="glass-card">
+                <h2 class="card-title">NCCC Service Config</h2>
+                <div class="status-indicator @(Manager.IsNcccRunning ? "status-online" : "status-offline")" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.04); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem;">
+                    <span class="status-dot" style="width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: @(Manager.IsNcccRunning ? "var(--success-color)" : "var(--error-color)");"></span>
+                    <span class="status-text">@(Manager.IsNcccRunning ? "RUNNING" : "STOPPED")</span>
+                </div>
+
+                <div class="config-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Target Port</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_targetPort" disabled="@Manager.IsNcccRunning" />
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Local Port Start</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_localPortStart" disabled="@Manager.IsNcccRunning" />
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Sessions Count</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_sessionsCount" disabled="@Manager.IsNcccRunning" />
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Send Interval (ms)</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_sendInterval" />
+                        </div>
+                    </div>
+                    <div class="action-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                        <button class="btn btn-primary" @onclick="StartNcccService" disabled="@(Manager.IsNcccRunning || _isStarting)">Start Service</button>
+                        <button class="btn btn-danger" @onclick="StopNcccService" disabled="@(!Manager.IsNcccRunning || _isStopping)">Stop Service</button>
+                    </div>
+                    <button class="btn btn-close-app" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.08); color: var(--text-primary); border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1rem;" 
+                            @onclick="CloseApp">
+                        <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                            <line x1="12" y1="2" x2="12" y2="12" />
+                        </svg>
+                        Close Simulator
+                    </button>
+                </div>
+            </section>
+
+            <!-- Template Selector Card -->
+            <section class="glass-card">
+                <div class="card-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="card-title">Transaction Templates</h2>
+                    <div class="selector-actions" style="display: flex; gap: 0.5rem;">
+                        <button class="btn-sub-action" style="background: rgba(15, 23, 42, 0.05); border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;" 
+                                @onclick="SelectAllTemplates">All</button>
+                        <button class="btn-sub-action" style="background: rgba(15, 23, 42, 0.05); border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;" 
+                                @onclick="UnselectAllTemplates">None</button>
+                    </div>
+                </div>
+
+                <div class="template-list-wrapper" style="border: 1px solid var(--border-color); border-radius: 10px; max-height: 250px; overflow-y: auto; background: white;">
+                    <table class="template-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="background: rgba(15, 23, 42, 0.02); border-bottom: 1px solid var(--border-color); text-align: left;">
+                                <th style="padding: 0.6rem; width: 40px; text-align: center;">Select</th>
+                                <th style="padding: 0.6rem;">Template File Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_templateFiles.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="2" style="padding: 1rem; text-align: center; color: var(--text-secondary);">No templates found.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var file in _templateFiles)
+                                {
+                                    <tr style="border-bottom: 1px solid rgba(15,23,42,0.05);">
+                                        <td style="padding: 0.5rem; text-align: center;">
+                                            <input type="checkbox" checked="@_selectedTemplates.Contains(file)" @onchange="@(e => ToggleTemplate(file, e.Value))" />
+                                        </td>
+                                        <td style="padding: 0.5rem; font-family: var(--font-mono); font-size: 0.75rem;">@file</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="send-action-wrapper mt-15" style="margin-top: 1.2rem;">
+                    <button class="btn btn-success btn-full" @onclick="SendTransactions" disabled="@(!Manager.IsNcccRunning || _selectedTemplates.Count == 0)">
+                        <svg class="btn-icon" style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        Send Selected Transactions (@_selectedTemplates.Count)
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Side: Terminal Log Monitor -->
+        <div class="panel-right">
+            <section class="glass-card log-card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <h2 class="card-title font-mono" style="font-size: 1.3rem;">Live Logs & Telemetries</h2>
+                    <div class="console-actions" style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="tele-status" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">
+                            UDP Server: <span style="color: @(Manager.IsUdpRunning ? "var(--success-color)" : "var(--error-color)"); font-weight: 700;">@(Manager.IsUdpRunning ? "CONNECTED" : "DISCONNECTED")</span>
+                        </span>
+                        <button class="btn-action" style="background: rgba(93, 91, 244, 0.1); color: var(--primary-color); border: 1px solid rgba(93, 91, 244, 0.25); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" 
+                                @onclick="ClearLogs">Clear Log</button>
+                    </div>
+                </div>
+                <div class="terminal" id="logConsole" style="background: #0f172a; border-radius: 12px; padding: 1.2rem; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #f8fafc; overflow-y: auto; height: 500px; display: flex; flex-direction: column; gap: 0.4rem; flex-grow: 1; border: 1px solid var(--border-color);">
+                    @if (_logs.Count == 0)
+                    {
+                        <div class="system-line" style="color: #64748b;">[SYSTEM] Welcome to NCCC Client Simulator. Setup configurations and start the service to begin.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _logs)
+                        {
+                            <div class="log-line" style="@GetLogStyle(log)">@log</div>
+                        }
+                    }
+                </div>
+            </section>
+        </div>
+
+    </main>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+    private readonly List<string> _logs = new();
+    private List<string> _templateFiles = new();
+    private readonly HashSet<string> _selectedTemplates = new();
+    private bool _shouldScroll = false;
+
+    private int _targetPort;
+    private int _localPortStart;
+    private int _sessionsCount;
+    private int _sendInterval = 10;
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+
+    protected override void OnInitialized()
+    {
+        // Load configurations
+        _targetPort = Manager.NcccListenerPort;
+        _localPortStart = Manager.NcccLocalPort;
+        _sessionsCount = Manager.NcccSessionCount;
+
+        // Subscribe to logs
+        ClientLogBroadcaster.OnLogAdded += OnLogAdded;
+
+        // Fetch templates
+        try
+        {
+            _templateFiles = Manager.GetTemplateFiles() ?? new List<string>();
+        }
+        catch (Exception ex)
+        {
+            ClientLogBroadcaster.Log($"[ERROR] Failed to load template files: {ex.Message}");
+        }
+
+        // Initialize clock
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogAdded(string message)
+    {
+        InvokeAsync(() =>
+        {
+            _logs.Add(message);
+            if (_logs.Count > 1000)
+            {
+                _logs.RemoveAt(0);
+            }
+            _shouldScroll = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScroll)
+        {
+            _shouldScroll = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "var el = document.getElementById('logConsole'); if(el) el.scrollTop = el.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private void ToggleTemplate(string file, object? isChecked)
+    {
+        if (isChecked is bool val && val)
+        {
+            _selectedTemplates.Add(file);
+        }
+        else
+        {
+            _selectedTemplates.Remove(file);
+        }
+    }
+
+    private void SelectAllTemplates()
+    {
+        foreach (var file in _templateFiles)
+        {
+            _selectedTemplates.Add(file);
+        }
+    }
+
+    private void UnselectAllTemplates()
+    {
+        _selectedTemplates.Clear();
+    }
+
+    private async Task StartNcccService()
+    {
+        _isStarting = true;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StartNcccService(_targetPort, _localPortStart, _sessionsCount));
+        }
+        catch (Exception ex)
+        {
+            ClientLogBroadcaster.Log($"[ERROR] Failed to start NCCC service: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopNcccService()
+    {
+        _isStopping = true;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StopNcccService());
+        }
+        catch (Exception ex)
+        {
+            ClientLogBroadcaster.Log($"[ERROR] Failed to stop NCCC service: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SendTransactions()
+    {
+        try
+        {
+            ClientLogBroadcaster.Log($"[SYSTEM] Sending {_selectedTemplates.Count} transaction templates...");
+            await Manager.SendTemplateFiles(_selectedTemplates.ToList(), _sendInterval);
+        }
+        catch (Exception ex)
+        {
+            ClientLogBroadcaster.Log($"[ERROR] Failed to send transactions: {ex.Message}");
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.Dispose();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearLogs()
+    {
+        _logs.Clear();
+    }
+
+    private string GetLogStyle(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "color: #ff1744;";
+        if (log.Contains("[SYSTEM]", StringComparison.OrdinalIgnoreCase)) return "color: #00e676;";
+        return "color: #f8fafc;";
+    }
+
+    public void Dispose()
+    {
+        ClientLogBroadcaster.OnLogAdded -= OnLogAdded;
+        _clockTimer?.Dispose();
+    }
+}

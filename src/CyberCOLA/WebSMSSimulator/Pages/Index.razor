@@ -1,0 +1,391 @@
+@page "/"
+@implements IDisposable
+@inject SmsSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<!-- Background decorative orbs -->
+<div class="glass-bg"></div>
+<div class="glow-orb" id="orb-1"></div>
+<div class="glow-orb" id="orb-2"></div>
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+        <div class="logo-area">
+            <div class="logo-box">
+                <!-- SMS network icon: chat bubble with waves -->
+                <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <path d="M8 10h.01M12 10h.01M16 10h.01" />
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; background: linear-gradient(to right, #0f172a, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Web<span style="font-size: 1.1rem; font-weight: 400; color: #64748b; margin-left: 2px; -webkit-text-fill-color: #64748b;">SMSSimulator</span></h1>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">SMS Gateway Simulator</span>
+            </div>
+        </div>
+
+        <div class="status-indicator">
+            <span class="status-pulse @(Manager.IsRunning ? "running" : "stopped")"></span>
+            <span class="status-text" style="color: @(Manager.IsRunning ? "#10b981" : "#ef4444"); font-weight: 800; font-size: 0.88rem; letter-spacing: 0.3px;">
+                @(Manager.IsRunning ? "RUNNING" : "STOPPED")
+            </span>
+        </div>
+
+        <div class="system-time">
+            <span class="label">SYSTEM TIME</span>
+            <span class="value">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- ===== Main Dashboard ===== -->
+    <main class="dashboard-grid">
+        <!-- Control Panel -->
+        <section class="glass-card control-side" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- System Control -->
+            <div>
+                <div class="card-header">
+                    <span class="card-title">SMS Control Panel</span>
+                </div>
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">SMS Gateway TCP Listener Service</p>
+
+                <div class="form-group">
+                    <label>Listener Port</label>
+                    <input type="number" class="form-control" @bind="_port" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Max Connections</label>
+                    <input type="number" class="form-control" @bind="_maxConnection" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Buffer Size</label>
+                    <input type="number" class="form-control" @bind="_bufferSize" disabled="@(Manager.IsRunning ? "disabled" : null)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Server IP</label>
+                    <input type="text" class="form-control" value="@Manager.ServerIp" disabled />
+                </div>
+
+                <div class="btn-grid" style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" @onclick="StartService"
+                            disabled="@(Manager.IsRunning || _isStarting ? "disabled" : null)"
+                            style="background: #3b82f6; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        <span>@(_isStarting ? "Starting..." : "Start Service")</span>
+                    </button>
+                    <button class="btn btn-danger" @onclick="StopService"
+                            disabled="@(!Manager.IsRunning || _isStopping ? "disabled" : null)"
+                            style="background: #ef4444; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" />
+                        </svg>
+                        <span>@(_isStopping ? "Stopping..." : "Stop Service")</span>
+                    </button>
+                </div>
+
+                <div class="btn-grid" style="margin-top: 1rem;">
+                    <button class="btn btn-secondary" @onclick="ClearAllMessages"
+                            style="background: rgba(15,23,42,0.07); color: #0f172a; border: none; padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
+                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Clean Messages</span>
+                    </button>
+
+                    <button class="btn btn-secondary" @onclick="CloseApp"
+                            style="background: rgba(15,23,42,0.07); color: #0f172a; border: none; padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
+                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                            <line x1="12" y1="2" x2="12" y2="12" />
+                        </svg>
+                        <span>Close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div style="background: rgba(59,130,246,0.06); border-radius: 12px; padding: 1.2rem; border: 1px solid rgba(59,130,246,0.15);">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;">
+                    Service Metrics
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Processed Count</span>
+                        <span class="info-value">@SMSSocketListener.Metrics.ProcessedCount</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Config Timeout</span>
+                        <span class="info-value">@Manager.TimeoutMs ms</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" style="color: @(Manager.IsRunning ? "#10b981" : "#ef4444");">
+                            @(Manager.IsRunning ? "Active" : "Idle")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dual Log Panels (mirroring WPF RichTextBox1 + RichTextBox2) -->
+        <section class="console-side" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Message1 Panel: SMS Data Transmission -->
+            <div class="glass-card flex-column flex-grow">
+                <div class="card-header-actions">
+                    <span class="card-title">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        Message1 — SMS Outgoing / Incoming Payload
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg1">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg1">
+                    @if (_msg1Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] Waiting for SMS connection data...</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg1Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Message2 Panel: System / Socket Listen Events -->
+            <div class="glass-card flex-column flex-grow">
+                <div class="card-header-actions">
+                    <span class="card-title">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.07 4.93A10 10 0 0 1 21 12a10 10 0 0 1-1.93 5.07M4.93 4.93A10 10 0 0 0 3 12a10 10 0 0 0 1.93 5.07" />
+                        </svg>
+                        Message2 — Socket & Listener Events
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg2">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg2">
+                    @if (_msg2Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] Welcome to WebSMSSimulator. Click "Start Service" to begin.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg2Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 2rem; padding-top: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid rgba(15,23,42,0.08);">
+        <p>CyberCOLA SMS Simulator © 2026 — FirstBank</p>
+    </footer>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+
+    // Dual log panels matching WPF RichTextBox1 (payloads) and RichTextBox2 (system/socket events)
+    private readonly List<string> _msg1Logs = new();
+    private readonly List<string> _msg2Logs = new();
+
+    private int _port;
+    private int _maxConnection;
+    private int _bufferSize;
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+    private bool _shouldScrollLogs = false;
+
+    protected override void OnInitialized()
+    {
+        // Load configurations
+        _port = Manager.Port;
+        _maxConnection = Manager.MaxConnection;
+        _bufferSize = Manager.BufferSize;
+
+        Manager.RegisterLogCallback(OnLogReceived);
+
+        // Show initial service state (important when auto-start is enabled)
+        if (Manager.IsRunning)
+        {
+            _msg2Logs.Add($"[SYSTEM] SMS Server is already running on port {Manager.Port}. Start button is disabled.");
+        }
+        else
+        {
+            _msg2Logs.Add($"[SYSTEM] Welcome to WebSMSSimulator. Click \"Start Service\" to begin.");
+        }
+
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogReceived(string message)
+    {
+        InvokeAsync(() =>
+        {
+            // Route SMS payload logs to Message1, and general socket logs to Message2
+            if (message.Contains("Receive:", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("Send:", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("Display SMS", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("-----", StringComparison.OrdinalIgnoreCase))
+            {
+                _msg1Logs.Add(message);
+                if (_msg1Logs.Count > 500) _msg1Logs.RemoveAt(0);
+            }
+            else
+            {
+                _msg2Logs.Add(message);
+                if (_msg2Logs.Count > 500) _msg2Logs.RemoveAt(0);
+            }
+            _shouldScrollLogs = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollLogs)
+        {
+            _shouldScrollLogs = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval",
+                    "var e1=document.getElementById('logMsg1'); if(e1) e1.scrollTop=e1.scrollHeight;" +
+                    "var e2=document.getElementById('logMsg2'); if(e2) e2.scrollTop=e2.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private async Task StartService()
+    {
+        _isStarting = true;
+        _msg2Logs.Add($"[SYSTEM] Starting SMS Gateway Service on port {_port}...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.Start(_port, _maxConnection, _bufferSize));
+            _msg2Logs.Add($"[SYSTEM] Service started successfully at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Start failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopService()
+    {
+        _isStopping = true;
+        _msg2Logs.Add($"[SYSTEM] Stopping SMS Gateway Service...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.Stop());
+            _msg2Logs.Add($"[SYSTEM] Service stopped at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Stop failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.Stop();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearAllMessages()
+    {
+        _msg1Logs.Clear();
+        _msg2Logs.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearMsg1()
+    {
+        _msg1Logs.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearMsg2()
+    {
+        _msg2Logs.Clear();
+        StateHasChanged();
+    }
+
+    private string GetLogClass(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase) || log.Contains("Fatal", StringComparison.OrdinalIgnoreCase)) return "error";
+        if (log.Contains("[WARN]", StringComparison.OrdinalIgnoreCase)) return "warn";
+        if (log.Contains("Receive:", StringComparison.OrdinalIgnoreCase)) return "receive";
+        if (log.Contains("Send:", StringComparison.OrdinalIgnoreCase)) return "send";
+        return "info";
+    }
+
+    public void Dispose()
+    {
+        Manager.UnregisterLogCallback(OnLogReceived);
+        _clockTimer?.Dispose();
+    }
+}

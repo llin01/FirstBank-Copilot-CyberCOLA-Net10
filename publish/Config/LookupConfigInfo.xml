@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LookupConfigInfo>
+  <BankInfo>
+    <BankName>第一銀行</BankName>
+    <Description>This Is Configuration For Setup FirstBank Lookup Parameter</Description>
+  </BankInfo>
+  <GlobalParameters>
+    <RunDelayBySeconds>10</RunDelayBySeconds>
+    <WriteIntervalByMinutes>5</WriteIntervalByMinutes>
+  </GlobalParameters>
+  <LookupParametersLists>
+    <LogListParameters>
+      <Description>This Is Configuration For IAG Log Information</Description>
+      <LookupLogHomeDirectory>F:/CyberSoft/OpenCOLA/NcccConsoleService1/Release/Log</LookupLogHomeDirectory>
+      <LookupFileFormatString>ProcessLookup_{0}.log</LookupFileFormatString>
+      <LookupOutputFileName>F:/CyberSoft/OpenCOLA/NcccConsoleService1/Release/Log/Lookup/Lookup.log</LookupOutputFileName>
+      <MaxWritePerFile>100</MaxWritePerFile>
+    </LogListParameters>
+  </LookupParametersLists>
+</LookupConfigInfo>

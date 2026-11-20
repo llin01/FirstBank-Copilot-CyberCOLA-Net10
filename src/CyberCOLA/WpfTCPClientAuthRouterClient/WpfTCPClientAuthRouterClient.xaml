@@ -1,0 +1,263 @@
+<Window x:Name="MainWindows" Foreground="Black" Height="545.667" Icon="router.ico" Title="Server Monitor" Width="927.333" WindowStartupLocation="CenterScreen" mc:Ignorable="d" x:Class="Com.Cybersoft4u.Test.Wpf.WpfTCPClientAuthRouterClient.TCPClientAuthRouterService" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Closed="Window_Closed">
+    <Window.Resources>
+        <Style TargetType="DataGridColumnHeader" x:Key="CenterGridHeaderStyle">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+    </Window.Resources>
+    <Border Background="Azure" BorderBrush="Black" BorderThickness="1" Padding="5" Margin="5,5,5,5">
+        <Grid>
+            <DockPanel Height="Auto" HorizontalAlignment="Stretch" LastChildFill="True" Margin="0,0,0,0" MinHeight="50" MinWidth="50" Name="DockPanel1" VerticalAlignment="Stretch" Width="Auto">
+                <!--Definition-->
+                <StatusBar DockPanel.Dock="Bottom">
+                    <StatusBar.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                        </ItemsPanelTemplate>
+                    </StatusBar.ItemsPanel>
+                    <StatusBarItem ToolTip="Message">
+                        <TextBlock Foreground="Red" Name="TextBlockMessage" Text="Ready" ToolTip=""/>
+                    </StatusBarItem>
+                    <StatusBarItem Grid.Column="1">
+                        <TextBlock Foreground="Blue" Name="TextBlockTime" Text="Time" ToolTip="Display Current DateTime"/>
+                    </StatusBarItem>
+                </StatusBar>
+                <Grid ShowGridLines="false">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid ShowGridLines="False" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid ShowGridLines="false" Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Border Background="LightGreen" Grid.Column="0" Grid.Row="0" BorderThickness="1" Padding="5">
+                                    <GroupBox x:Name="GroupBoxClientAuth"    Foreground="Blue" Header="ClientAuthRouterService Connection" Margin="0,0,0.0,0">
+                                    <Grid>
+                                        <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Display Client Connection To Server Information" x:Name="DataGridClientAuthConnectionInfo" >
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Binding="{Binding IPAddress}" Header="Server IPEndPoint" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="170">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Binding="{Binding Status}" Header="Status" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="90">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </GroupBox>
+                                </Border>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Border Background="LightGreen" Grid.Column="0" Grid.Row="0" BorderThickness="1" Padding="5">
+                                    <GroupBox x:Name="GroupBoxServer"    Foreground="Blue" Header="Server List" Margin="0,0,0.0,0">
+                                    <Grid>
+                                        <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Server Information" x:Name="DataGridServerInfo" IsReadOnly="true" >
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Binding="{Binding GatewayType}" Header="Type" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="60">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Binding="{Binding RemoteHostName}" Header="Server Name" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="100">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Binding="{Binding IPAddress}" Header="Server IP Address" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="120">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Binding="{Binding ListenerPortNumber}" Header="Listener PortNumber" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="130">
+                                                    <DataGridTextColumn.CellStyle>
+                                                        <Style>
+                                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.CellStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTemplateColumn Header="Action" Width="90">
+                                                    <DataGridTemplateColumn.HeaderStyle>
+                                                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                            <Setter Property="Foreground" Value="Blue"/>
+                                                        </Style>
+                                                    </DataGridTemplateColumn.HeaderStyle>
+                                                    <!--<DataGridTemplateColumn.HeaderTemplate><DataTemplate><CheckBox Margin="10,0" Name="CheckBoxSelectedAction" Foreground="Blue">Action/NoAction</CheckBox></DataTemplate></DataGridTemplateColumn.HeaderTemplate>-->
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox Click="CheckBox_Click" HorizontalAlignment="Center" IsChecked="{Binding Action, Mode=TwoWay}" IsEnabled="{Binding IsEdit, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </GroupBox>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <Grid ShowGridLines="false" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid ShowGridLines="false" Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid  Grid.Row="0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label   x:Name="Label1"                  Content="Connect Port :"   Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="TextBoxConnectPort"      Text="0000"                Foreground="Blue" TextAlignment="Right"  Width="Auto" Height="Auto" Margin="0,3" ToolTip="Listener Port Number" IsEnabled="True" IsReadOnly="True" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        <Label   x:Name="Label2"                  Content="Query Interval :"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="TextBoxInterval"         Text="120"                 Foreground="Blue" TextAlignment="Right"  Width="Auto" Height="Auto"  Margin="0,3" ToolTip="Retrieval Time Interval Of Get Connection Information" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                        <Label   x:Name="Label3"                  Content="Sec"  Foreground="Blue"  Width="Auto" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        <CheckBox x:Name="CheckBoxReadLog" FlowDirection="RightToLeft" HorizontalContentAlignment="Center" VerticalAlignment="Center" IsChecked="True">
+                                            <TextBlock FlowDirection="LeftToRight" Foreground="Blue" TextAlignment="Left" Text="Read Log : " />
+                                        </CheckBox>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid  Grid.Row="1" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="0.3*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <ComboBox Foreground="Blue"  HorizontalContentAlignment="Left" Margin="10,3,10,3.333" ToolTip="Select Category Item" x:Name="ComboBoxSelectCategory" SelectionChanged="ComboBoxSelectCategory_SelectionChanged">
+                                            <ComboBox.ItemContainerStyle>
+                                                <Style TargetType="{x:Type ComboBoxItem}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </ComboBox.ItemContainerStyle>
+                                        </ComboBox>
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <ComboBox Foreground="Blue"  HorizontalContentAlignment="Left" Margin="0,3" ToolTip="Select Category Item" x:Name="ComboBoxSelectCategoryItem" SelectionChanged="ComboBoxSelectCategoryItem_SelectionChanged">
+                                            <ComboBox.ItemContainerStyle>
+                                                <Style TargetType="{x:Type ComboBoxItem}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </ComboBox.ItemContainerStyle>
+                                        </ComboBox>
+                                    </Grid>
+                                </Grid>
+                                <Grid  Grid.Row="2" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="0.3*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-1,0,0,0" >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="5*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label   x:Name="Labe3"      Content="Command Option  :"  Foreground="Blue" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="12,5,0,5.333" Grid.ColumnSpan="2" />
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <ComboBox Foreground="Blue"  HorizontalContentAlignment="Left" Margin="0,3,0,2.667" ToolTip="Select Gateway Command Code" x:Name="ComboBoxSelectCommandCode">
+                                            <ComboBox.ItemContainerStyle>
+                                                <Style TargetType="{x:Type ComboBoxItem}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </ComboBox.ItemContainerStyle>
+                                        </ComboBox>
+                                    </Grid>
+                                </Grid>
+                                <Grid Grid.Row="3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="0.3*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid  Grid.Column="0" >
+                                        <StackPanel Orientation="Horizontal" >
+                                            <Label       x:Name="Labe"      Content="Connection Status :"  Foreground="Blue" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="12,5,0,5.333" Grid.ColumnSpan="2" />
+                                            <Image       x:Name="ImageConnectionStatus"     Width="Auto" Height="Auto" Margin="0,0,0,0" Source="disconnect.ico"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid  Grid.Column="1" >
+                                        <Border BorderThickness="0.5" BorderBrush="Black">
+                                            <TextBox x:Name="TextBoxLogKey"  Foreground="Blue" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" Text="" Width="Auto" Height="Auto" FontSize="14" IsEnabled="True" IsReadOnly="True"  FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid  ShowGridLines="false" Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.1*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="1.1*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Content="UDPStart"       Style="{StaticResource Btn-Primary}" Grid.Row="0" Grid.Column="0"  Margin="0,0,0,0" ToolTip="UDPStart Service" x:Name="BtnStartUDPService"   Width="Auto" Height="Auto" Click="BtnStartUDPService_Click" FontWeight="Bold" />
+                                <Button Content="UDPStop"        Style="{StaticResource Btn-Danger}"  Grid.Row="0" Grid.Column="1"  Margin="0,0,0,0" ToolTip="UDPStop Service" x:Name="BtnStopUDPService"     Width="Auto" Height="Auto" Click="BtnStopUDPService_Click"  FontWeight="Bold" />
+                                <Button Content="ReadDataBase"   Style="{StaticResource Btn-Danger}"  Grid.Row="0" Grid.Column="2"  Margin="0,0,0,0" ToolTip="Retrieval DataBase" x:Name="BtnDataBase"        Width="Auto" Height="Auto" FontWeight="Bold" Background="#FF428BCA" BorderBrush="#FF428BCA" Click="BtnDataBase_Click"/>
+                                <Button Content="Connection"     Style="{StaticResource Btn-Primary}" Grid.Row="1" Grid.Column="0"  Margin="0,0,0,0" ToolTip="Connect To Server" x:Name="BtnConnection"       Width="Auto" Height="Auto" Click="BtnConnection_Click"      FontWeight="Bold" />
+                                <Button Content="Disconnect"     Style="{StaticResource Btn-Primary}" Grid.Row="1" Grid.Column="1"  Margin="0,0,0,0" ToolTip="UDPStop Service"   x:Name="BtnDisconnection"    Width="Auto" Height="Auto" Click="BtnDisconnection_Click"   FontWeight="Bold" />
+                                <Button Content="Send Command"   Style="{StaticResource Btn-Primary}" Grid.Row="2" Grid.Column="0"  Margin="0,0,0,0" ToolTip="Send Command To Gateway" x:Name="BtnSend"       Width="Auto" Height="Auto" Click="BtnSend_Click"            FontWeight="Bold" />
+                                <Button Content="Clean Message"  Style="{StaticResource Btn-Primary}" Grid.Row="3" Grid.Column="0"  Margin="0,0,0,0" ToolTip="Clean Message" x:Name="BtnCleanMessage"         Width="Auto" Height="Auto" Click="BtnCleanMessage_Click"    FontWeight="Bold" />
+                                <Button Content="Close"          Style="{StaticResource Btn-Primary}" Grid.Row="3" Grid.Column="1"  Margin="0,0,0,0" ToolTip="Close Window" x:Name="BtnClose"   Width="Auto" Height="Auto" Click="BtnClose_Click" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <GroupBox x:Name="GroupBoxLogMessage"  Foreground="Blue" Header="Log Message" Margin="0,0,0.0,0">
+                            <Border Background="LightGreen">
+                                <RichTextBox HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="0,0,0,0" ToolTip="Display Log Message" VerticalAlignment="Stretch" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" x:Name="RichTextBoxLogMessage"/>
+                            </Border>
+                        </GroupBox>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <GroupBox x:Name="GroupBoxSystemMessage"    Foreground="Blue" Header="System Log" Margin="0,0,0.0,0">
+                            <Border Background="LightGreen">
+                                <RichTextBox HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="0,0,0,0" ToolTip="Display Operatuin Message" VerticalAlignment="Stretch" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" x:Name="RichTextBoxSystemMessage"/>
+                            </Border>
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

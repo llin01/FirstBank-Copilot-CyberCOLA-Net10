@@ -1,0 +1,165 @@
+<Window x:Name="MainWindow1" x:Class="Com.Cybersoft4u.Simulator.Wpf.WpfETicketClientSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="E-Ticket Client Authorization Simulator" Height="562" Width="914" Icon="EasyCard.ico" Closed="Window_Closed"  >
+    <Window.Resources>
+        <Style TargetType="DataGridColumnHeader" x:Key="CenterGridHeaderStyle">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <ControlTemplate x:Key="ExampleButton" TargetType="{x:Type Button}">
+            <Border Background="LightGreen" BorderBrush="Black" BorderThickness="1" CornerRadius="5" x:Name="Border" Padding="10">
+                <ContentPresenter />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border" Property="Background" Value="Red" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <DockPanel MinHeight="50" MinWidth="50" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="0" Grid.ColumnSpan="1" Grid.Row="0" Grid.RowSpan="1" Margin="0,0,0,0" Width="NaN" Height="NaN" Name="dockPanel1">
+            <!--Definition-->
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem>
+                    <TextBlock Name="TextBlockMessage" Text="Ready" Foreground="Red"/>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="1">
+                    <TextBlock Name="TextBlockTime" Text="Time"  Foreground="Blue"/>
+                </StatusBarItem>
+            </StatusBar>
+            <Grid>
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="2.5*" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions >
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!--Panel-->
+                <Border Grid.Row="0" Grid.Column="0" Background="LightGreen" >
+                    <GroupBox x:Name="Message1" Header="Operation Log Message" Margin="0,0,-0.333,0" >
+                        <RichTextBox x:Name="RichTextBox1" HorizontalAlignment="Stretch" Margin="0,0,0,0"  VerticalAlignment="Stretch" VerticalContentAlignment="Top" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                    </GroupBox>
+                </Border>
+                <Grid ShowGridLines="false" Grid.Row="0" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="LightGreen"  >
+                        <GroupBox x:Name="Message2" Header="Log Message" Margin="0,0,-0.333,0" >
+                            <RichTextBox x:Name="RichTextBox2" HorizontalAlignment="Stretch" Margin="0,0,0,0"  VerticalAlignment="Stretch" VerticalContentAlignment="Top" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                        </GroupBox>
+                    </Border>
+                    <Border Grid.Row="1" Background="LightGreen"  >
+                        <GroupBox x:Name="Message3" Header="E-Ticket Message Data" Margin="0,0,-0.333,0" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="11*"/>
+                                    <ColumnDefinition Width="53*"/>
+                                    <ColumnDefinition Width="74*"/>
+                                    <ColumnDefinition Width="239*"/>
+                                </Grid.ColumnDefinitions>
+                                <DataGrid AutoGenerateColumns="False" Background="White" ToolTip="Display Client Connection To Server Information" x:Name="DataGridRetrievalQueue" Grid.ColumnSpan="4">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding MessageType}" Header="MessageType" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="100">
+                                            <DataGridTextColumn.CellStyle>
+                                                <Style>
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.CellStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding ProcessCode}" Header="Process Code" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="100">
+                                            <DataGridTextColumn.CellStyle>
+                                                <Style>
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.CellStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding SystemTraceNumber}" Header="System Trace Number" HeaderStyle="{StaticResource CenterGridHeaderStyle}" IsReadOnly="True" Width="180">
+                                            <DataGridTextColumn.CellStyle>
+                                                <Style>
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.CellStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </GroupBox>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="LightSeaGreen">
+                    <Grid.RowDefinitions >
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label   x:Name="Label1"                Grid.Row="0" Grid.Column="0" Content="Listener Port Number :"  Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxListenerPort"   Grid.Row="0" Grid.Column="1" Text="19325" TextAlignment="Right" ToolTip="Server Listener Port Number" IsEnabled="False" />
+                    <Label   x:Name="Label2"                Grid.Row="1" Grid.Column="0" Content="Start Local Port Number :"  Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxStartLocalPort" Grid.Row="1" Grid.Column="1" Text="1000" TextAlignment="Right" ToolTip="Start Local Port Number" IsEnabled="False" />
+                    <Label   x:Name="Label3"                Grid.Row="2" Grid.Column="0" Content="Session Count :"  Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxSessionCount"   Grid.Row="2" Grid.Column="1" Text="2" TextAlignment="Right" ToolTip="Session Count" IsEnabled="False" />
+                    <Label   x:Name="Label4"                Grid.Row="3" Grid.Column="0" Content="Send File Name Or Directory :"  Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxSelectFileName" Grid.Row="3" Grid.Column="1" Text="Select File Name" TextAlignment="Left" ToolTip="Select Send File Name" IsEnabled="False" />
+                    <Label   x:Name="Label5"                Grid.Row="4" Grid.Column="0" Content="Time Interval Millisecond :"  Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxTimeIntervalMillisecond"   Grid.Row="4" Grid.Column="1" Text="1000" TextAlignment="Right" ToolTip="Select Send File Name" IsEnabled="False" />
+                    <Label   x:Name="Label6"                Grid.Row="5" Grid.Column="0" Content="Repeat Count :" Foreground="Black" FontSize="10" HorizontalAlignment="Left" />
+                    <TextBox x:Name="TextBoxRepeatCount"    Grid.Row="5" Grid.Column="1" Text="1" TextAlignment="Right" ToolTip="Create Queue data Repeat Count" />
+                    <StackPanel  Grid.Row="5" Grid.Column="1" Orientation="Horizontal"/>
+                    <Label   x:Name="Label7"                          Grid.Row="6" Grid.Column="0" Content="電子票證 :" Foreground="Black" FontSize="9" />
+                    <ComboBox x:Name="ComboBoxETicketFunction"        Grid.Row="6" Grid.Column="1" ToolTip="E-Ticket Function" SelectedIndex="0" HorizontalContentAlignment="Right" IsEnabled="False" />
+                    <Button x:Name="BtnClientStart"      Content="Client Start"       Grid.Row="0" Grid.Column="2"      Click="BtnClientStart_Click" FontWeight="Bold" IsEnabled="True" />
+                    <Button x:Name="BtnClientStop"       Content="Client Stop"        Grid.Row="0" Grid.Column="3"         Click="BtnClientStop_Click"  FontWeight="Bold" IsEnabled="False"/>
+                    <Button x:Name="BtnUDPStart"         Content="UDP Start"          Grid.Row="1" Grid.Column="2"      FontWeight="Bold" Click="BtnUDPStart_Click" />
+                    <Button x:Name="BtnUDPStop"          Content="UDP Stop"           Grid.Row="1" Grid.Column="3"      FontWeight="Bold" Click="BtnUDPStop_Click" IsEnabled="False" />
+                    <Button x:Name="BtnSelectFileName"   Content="Select File Name Or Directory"   Grid.Row="2" Grid.Column="2"      FontWeight="Bold" Click="BtnSelectFileName_Click" />
+                    <Button x:Name="BtnSendFile"         Content="Send Message To Channel"   Grid.Row="2" Grid.Column="3"      FontWeight="Bold" Click="BtnSendFile_Click" />
+                    <Button x:Name="BtnCommand1"         Content="Command1"           Grid.Row="3" Grid.Column="2"      FontWeight="Bold" />
+                    <Button x:Name="BtnCommand2"         Content="Command2"           Grid.Row="3" Grid.Column="3"      FontWeight="Bold" />
+                    <Button x:Name="BtnCommand3"         Content="Command3"           Grid.Row="4" Grid.Column="2"      FontWeight="Bold" />
+                    <Button x:Name="BtnCommand4"         Content="Command4"           Grid.Row="4" Grid.Column="3"      FontWeight="Bold" />
+                    <Button x:Name="BtnCommand5"         Content="Command5"           Grid.Row="5" Grid.Column="2"      FontWeight="Bold" />
+                    <Button x:Name="BtnCommand6"         Content="Command6"           Grid.Row="5" Grid.Column="3"      FontWeight="Bold" />
+                    <Button x:Name="BtnCleanMessage"     Content="Clean Message"      Grid.Row="6" Grid.Column="2"      Click="BtnCleanMessage_Click" FontWeight="Bold"  />
+                    <Button x:Name="BtnClosed"           Content="Close"              Grid.Row="6" Grid.Column="3"      Click="BtnClosed_Click" FontWeight="Bold" />
+                </Grid>
+                <!--Splitter-->
+                <!--<GridSplitter Grid.Row="1" Grid.Column="0" Background="Transparent" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top"  Height="5" />-->
+                <!--<GridSplitter Grid.Row="0" Grid.Column="0"  Background="Transparent"    HorizontalAlignment="Stretch"   VerticalAlignment="Stretch"  Height="5" />-->
+                <GridSplitter Grid.Row="0" Grid.Column="0" Background="Transparent"                     HorizontalAlignment="Right"   VerticalAlignment="Stretch" Width="5"  />
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

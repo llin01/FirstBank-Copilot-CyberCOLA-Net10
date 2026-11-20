@@ -1,0 +1,236 @@
+@page "/"
+@implements IDisposable
+@inject HsmSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<div class="background-decor">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+</div>
+
+<div class="app-container">
+    <!-- Header -->
+    <header>
+        <div class="header-logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; color: var(--text-primary);">Web<span style="font-size: 1.1rem; font-weight: 400; color: var(--text-secondary); margin-left: 2px;">HSMSimulator</span></h1>
+        </div>
+        <div class="status-indicator">
+            <span class="status-dot @(Manager.IsRunning ? "status-online" : "status-offline")"></span>
+            <span class="status-text">@(Manager.IsRunning ? "Running" : "Stopped")</span>
+        </div>
+        <div class="system-time">
+            <span class="label">SYSTEM TIME</span>
+            <span class="value">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-grid">
+        <!-- Control Panel Card -->
+        <section class="card control-card">
+            <h2>System Control Panel</h2>
+            <p class="subtitle">Manage HSM Simulator TCP Listening Service</p>
+
+            <div class="info-group">
+                <div class="info-item">
+                    <label>Listener Port</label>
+                    <div class="value" style="font-size: 1.8rem; font-weight: 700; color: var(--primary-color);">@Manager.Port</div>
+                </div>
+            </div>
+
+            <div class="control-actions" style="display: flex; flex-direction: column; gap: 1rem;">
+                <button class="btn btn-start" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--primary-color); color: white; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer;" 
+                        @onclick="StartListen" disabled="@Manager.IsRunning">
+                    <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    Start Service
+                </button>
+                <button class="btn btn-stop" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--error-color); color: white; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer;" 
+                        @onclick="StopListen" disabled="@(!Manager.IsRunning)">
+                    <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="4" width="16" height="16" rx="2" />
+                    </svg>
+                    Stop Service
+                </button>
+                <button class="btn btn-close-app" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.08); color: var(--text-primary); border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1rem;" 
+                        @onclick="CloseApp">
+                    <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                        <line x1="12" y1="2" x2="12" y2="12" />
+                    </svg>
+                    Close Simulator
+                </button>
+            </div>
+        </section>
+
+        <!-- Console Log Card -->
+        <section class="card log-card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>Real-time Transaction Logs (Live Logs)</h2>
+                <button class="btn-clear" style="background: rgba(93, 91, 244, 0.1); color: var(--primary-color); border: 1px solid rgba(93, 91, 244, 0.25); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" 
+                        @onclick="ClearLogs">Clear Logs</button>
+            </div>
+            <div class="terminal-wrapper" style="display: flex; flex-direction: column; background: var(--bg-terminal); border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; flex-grow: 1;">
+                <div class="terminal-header" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.03); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-color);">
+                    <span class="terminal-dot red" style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></span>
+                    <span class="terminal-dot yellow" style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></span>
+                    <span class="terminal-dot green" style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></span>
+                    <span class="terminal-title" style="margin-left: 0.5rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);">Log Message</span>
+                </div>
+                <div class="terminal-body" id="logConsole" style="padding: 1.2rem; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.6; overflow-y: auto; height: 400px; display: flex; flex-direction: column; gap: 0.4rem; background: #0f172a; color: #f8fafc;">
+                    @if (_logs.Count == 0)
+                    {
+                        <div class="system-line" style="color: #64748b;">[SYSTEM] Welcome to WebHSMSimulator. Click "Start Service" to enable the TCP listener.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _logs)
+                        {
+                            <div class="log-line" style="@GetLogStyle(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: auto; padding-top: 2.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+        <p>CyberCOLA Payment Gateway Simulator System © 2026</p>
+    </footer>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+    private readonly List<string> _logs = new();
+    private bool _shouldScroll = false;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to logs
+        HsmLogBroadcaster.OnLogAdded += OnLogAdded;
+        
+        // Copy historical logs
+        _logs.AddRange(HsmLogBroadcaster.GetHistory());
+
+        // Initialize clock timer
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogAdded(string message)
+    {
+        InvokeAsync(() =>
+        {
+            _logs.Add(message);
+            // Limit log count
+            if (_logs.Count > 1000)
+            {
+                _logs.RemoveAt(0);
+            }
+            _shouldScroll = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScroll)
+        {
+            _shouldScroll = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "var el = document.getElementById('logConsole'); if(el) el.scrollTop = el.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private void StartListen()
+    {
+        try
+        {
+            Manager.Start();
+        }
+        catch (Exception ex)
+        {
+            HsmLogBroadcaster.Log($"[ERROR] Start Listen failed: {ex.Message}");
+        }
+    }
+
+    private void StopListen()
+    {
+        try
+        {
+            Manager.Stop();
+        }
+        catch (Exception ex)
+        {
+            HsmLogBroadcaster.Log($"[ERROR] Stop Listen failed: {ex.Message}");
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.Stop();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearLogs()
+    {
+        _logs.Clear();
+    }
+
+    private string GetLogStyle(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "color: #ff1744;";
+        if (log.Contains("[SYSTEM]", StringComparison.OrdinalIgnoreCase)) return "color: #00e676;";
+        return "color: #f8fafc;";
+    }
+
+    public void Dispose()
+    {
+        HsmLogBroadcaster.OnLogAdded -= OnLogAdded;
+        _clockTimer?.Dispose();
+    }
+}

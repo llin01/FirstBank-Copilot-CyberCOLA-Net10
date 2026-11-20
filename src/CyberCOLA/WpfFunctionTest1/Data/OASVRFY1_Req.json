@@ -1,0 +1,17 @@
+{
+     "TXN_ID": "OASVRFY1",
+     "FN_CODE": "0",
+     "TERMINAL_ID": "CMSWEB",
+     "USER_ID": "15377",
+     "BODY": {
+         "CARD_NBR":"5199397100576677",
+         "EXP_DTE":"0230",
+         "CARD_CVV2":"503",
+         "ID":"T107915341",
+         "MCC_CODE":"0000",
+         "CELL_PHONE":"0912345671",
+         "CUST_BIRTHDAY":"1987-09-19T00:00:00",
+         "RTN_CODE":"00",
+         "AUTH_CODE":"123456"
+     }
+}

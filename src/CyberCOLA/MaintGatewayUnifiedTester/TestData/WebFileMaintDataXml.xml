@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WebFileMaintDataXml>
+   <WebTxKeySeq>20170206081840Df9VIkM9</WebTxKeySeq>
+   <WebIsoP2CardNbr>4563010010002000</WebIsoP2CardNbr>
+   <WebIsoP3ProcessCde>000030</WebIsoP3ProcessCde>
+   <WebIsoP7TxDteTime>0401101010</WebIsoP7TxDteTime>
+   <WebIsoP11TraceNo>000011</WebIsoP11TraceNo>
+   <WebIsoP13TransYear>0101</WebIsoP13TransYear>
+   <WebIsoP14ExpirDte>1225</WebIsoP14ExpirDte>
+   <WebIsoP33FwdIICode>000000</WebIsoP33FwdIICode>
+   <WebIsoP36NTID>123456789012345678901234567890123456789012345678</WebIsoP36NTID>
+   <WebIsoP37RefNbr>000000000012</WebIsoP37RefNbr>
+   <WebIsoP39Rsp>00</WebIsoP39Rsp>
+   <WebIsoP48AdditionalData>0123456789012345678901234567890123456789012345678901234567890123456789012345</WebIsoP48AdditionalData>
+   <WebIsoP49TranCurCode>901</WebIsoP49TranCurCode>
+   <WebIsoP58T05TxDte>20210101000000</WebIsoP58T05TxDte>
+   <WebIsoP60FromHostMaintData>0123456789012345678901234567890123456789012345678901234567</WebIsoP60FromHostMaintData>
+   <WebIsoP63SystemID>01</WebIsoP63SystemID>
+   <WebIsoS73ActDte>111111</WebIsoS73ActDte>
+   <WebIsoS91FileUpdCode>1</WebIsoS91FileUpdCode>
+   <WebIsoS92FileSecurityCode>01</WebIsoS92FileSecurityCode>
+   <WebIsoS96MessageSecurity>00000000        </WebIsoS96MessageSecurity>
+   <WebIsoS101FileName>NF</WebIsoS101FileName>
+   <WebIsoS115AdditionalTraceData>Y</WebIsoS115AdditionalTraceData>
+   <WebIsoS120FileUpd>01234567890123456789012345678901234567890123456789</WebIsoS120FileUpd>
+   <WebIsoS122HostMaint>R2017010120170102</WebIsoS122HostMaint>
+   <WebIsoS124TokenData>1</WebIsoS124TokenData>
+</WebFileMaintDataXml>

@@ -1,0 +1,598 @@
+@page "/"
+@using System.Text
+@using Com.Cybersoft4u.Test.Web.WebMonitorService
+@using Com.Cybersoft4u.Interchange
+@implements IDisposable
+@inject MonitorServiceManager Manager
+
+<div style="display: flex; flex-direction: column; height: 100vh; padding: 20px; gap: 20px; overflow: hidden; background: linear-gradient(135deg, #090d16 0%, #111827 100%);">
+    
+    <!-- HEADER BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(21, 28, 44, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- Icon -->
+            <svg style="width: 28px; height: 28px; color: var(--accent-blue);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path>
+            </svg>
+            <div style="display: flex; align-items: baseline;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: var(--accent-blue); margin-left: 4px; opacity: 0.85;">MonitorService</span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span style="background: rgba(56, 189, 248, 0.08); padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.15); color: var(--accent-blue); font-family: var(--font-mono); font-size: 14px; font-weight: 600; letter-spacing: 0.5px;">
+                SYSTEM TIME: @_currentTime
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN BODY SECTION -->
+    <div style="display: flex; flex: 1; gap: 20px; min-height: 0;">
+        
+        <!-- LEFT PANEL: CONNECTION & ACTIVE CLIENTS (35% Width) -->
+        <div style="width: 35%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- Connection Control Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">Service Connection</h3>
+                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03);">
+                        @if (!Manager.IsTcpStarted)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); box-shadow: 0 0 6px rgba(148, 163, 184, 0.3);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--text-muted);">
+                                STOPPED
+                            </span>
+                        }
+                        else if (Manager.IsTcpConnected)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green); box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-green);">
+                                ONLINE
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="pulse-orange" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-orange); box-shadow: 0 0 10px rgba(251, 146, 60, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-orange);">
+                                RETRYING...
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                    <div>
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Remote Address</span>
+                        <span style="font-family: var(--font-mono); font-weight: 500;">
+                            @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.RemoteIP ?? "N/A"):@(Manager.ClientServiceInfo?.TCPClientServiceConfig?.RemotePort ?? "N/A")
+                        </span>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Local Address</span>
+                        <span style="font-family: var(--font-mono); font-weight: 500;">
+                            @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.LocalIP ?? "N/A"):@(Manager.ClientServiceInfo?.TCPClientServiceConfig?.LocalPort ?? "N/A")
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn btn-action btn-start" @onclick="StartTcp" disabled="@Manager.IsTcpStarted" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Start Service
+                    </button>
+                    <button class="btn btn-action btn-stop" @onclick="StopTcp" disabled="@(!Manager.IsTcpStarted)" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Stop Service
+                    </button>
+                </div>
+
+                @if (Manager.IsTcpStarted && !Manager.IsTcpConnected)
+                {
+                    <div style="background: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.2); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--accent-orange); display: flex; flex-direction: column; gap: 4px; animation: fadeIn 0.3s;">
+                        <span style="font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                            ⚠️ Connection Pending / Failed
+                        </span>
+                        <span>Cannot connect to target CFLin-NB-Test:9902.</span>
+                        <span style="color: var(--text-muted); font-size: 10px; margin-top: 2px;">Yetty is automatically retrying every 3 seconds...</span>
+                    </div>
+                }
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="flex: 1;">
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Retrieval Interval (sec)</span>
+                        <input type="number" @bind-value="_retrievalInterval" style="width: 100%; margin-top: 4px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white; padding: 5px 10px; font-family: var(--font-mono); font-size: 12px;" />
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">UDP Logging Port</span>
+                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+                            <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 600;">
+                                @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.UDPListenerPort ?? "N/A")
+                            </span>
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: @(Manager.IsUdpRunning ? "var(--accent-green)" : "var(--accent-red)");"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Connections Panel -->
+            <div style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; min-height: 0; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">Router Client List</h3>
+                    <button @onclick="RefreshClients" disabled="@(!Manager.IsTcpConnected)" style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.1); color: var(--accent-blue); transition: all 0.2s;">
+                        Refresh List
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="display: flex; gap: 15px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                            <input type="radio" name="clientType" checked="@(_activeTab == "Gateway")" @onclick='() => ChangeTab("Gateway")' />
+                            Gateway
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                            <input type="radio" name="clientType" checked="@(_activeTab == "ClientAuth")" @onclick='() => ChangeTab("ClientAuth")' />
+                            ClientAuth
+                        </label>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+                        Count: @_filteredClients.Count
+                    </span>
+                </div>
+
+                <!-- Table Grid -->
+                <div style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <th style="padding: 10px; width: 40px; text-align: center;">
+                                    <input type="checkbox" checked="@(_filteredClients.Any() && _filteredClients.All(c => c.IsSelected))" @onchange="ToggleSelectAll" />
+                                </th>
+                                <th style="padding: 10px; color: var(--text-muted);">IP / Endpoint Address</th>
+                                <th style="padding: 10px; color: var(--text-muted); width: 80px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!_filteredClients.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" style="padding: 20px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                        No connections found. Click Refresh.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var client in _filteredClients)
+                                {
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background-color 0.2s;" class="table-row-hover">
+                                        <td style="padding: 10px; text-align: center;">
+                                            <input type="checkbox" @bind="client.IsSelected" />
+                                        </td>
+                                        <td style="padding: 10px; font-family: var(--font-mono); font-weight: 500;">
+                                            @client.IPAddress
+                                        </td>
+                                        <td style="padding: 10px;">
+                                            <span style="background: rgba(74, 222, 128, 0.08); color: var(--accent-green); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;">
+                                                Connected
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: DETAILED METRICS & COMMAND TRANSMISSION (65% Width) -->
+        <div style="width: 65%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- Command Center Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">Command Center</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Category</span>
+                        <div style="margin-top: 6px; font-family: var(--font-mono); font-size: 13px; height: 38px; padding: 8px 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; color: var(--accent-orange); display: flex; align-items: center;">
+                            @_activeTab System Command
+                        </div>
+                    </div>
+
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Command Code</span>
+                        <select class="form-control" @bind="_selectedCommand" style="font-family: var(--font-sans); font-size: 13px; margin-top: 6px; height: 38px; padding: 6px 12px; line-height: 1.5; color: #f1f5f9; background-color: #0f172a; border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 6px; width: 100%;">
+                            @foreach (var cmd in _availableCommands)
+                            {
+                                <option value="@cmd" style="background-color: #0f172a; color: #f1f5f9;">@cmd</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button @onclick="ExecuteCommand" disabled="@(!Manager.IsTcpConnected || !_filteredClients.Any(c => c.IsSelected))" style="height: 38px; padding: 0 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; display: flex; align-items: center; gap: 6px;">
+                            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Get Info
+                        </button>
+
+                        <button @onclick="ToggleAutoQuery" disabled="@(!Manager.IsTcpConnected)" style="height: 38px; padding: 0 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid @(_isAutoQuery ? "var(--accent-red)" : "var(--accent-orange)"); background: rgba(0,0,0,0.15); color: @(_isAutoQuery ? "var(--accent-red)" : "var(--accent-orange)"); display: flex; align-items: center; gap: 6px;">
+                            <span>@(_isAutoQuery ? "Stop Auto" : "Start Auto")</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Grid Panel -->
+            <div style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; min-height: 0; gap: 12px;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">
+                    @_activeTab Connection Router Details
+                </h3>
+
+                <!-- Table Grid -->
+                <div style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                    @if (_activeTab == "Gateway")
+                    {
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 800px;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1;">
+                                    <th style="padding: 10px; color: var(--text-muted);">Client Endpoint</th>
+                                    <th style="padding: 10px; color: var(--text-muted);">Local Endpoint</th>
+                                    <th style="padding: 10px; color: var(--text-muted);">Remote Endpoint</th>
+                                    <th style="padding: 10px; color: var(--text-muted);">Initial Create Time</th>
+                                    <th style="padding: 10px; color: var(--text-muted);">Now Process Time</th>
+                                    <th style="padding: 10px; color: var(--text-muted);">Tx Type</th>
+                                    <th style="padding: 10px; color: var(--text-muted); text-align: right;">Total Count</th>
+                                    <th style="padding: 10px; color: var(--text-muted); text-align: right;">Daily Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!_gatewayDetails.Any())
+                                {
+                                    <tr>
+                                        <td colspan="8" style="padding: 20px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                            No detailed records found. Select client checkbox and click Get Info.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var detail in _gatewayDetails)
+                                    {
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);" class="table-row-hover">
+                                            <td style="padding: 10px; font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue);">@detail.ClientIPEndPoint</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono);">@detail.LocalEndPoint</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono);">@detail.RemoteEndPoint</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono);">@detail.InitialCreateDateTime</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono);">@detail.NowProcessDateTime</td>
+                                            <td style="padding: 10px;">@detail.NowProcessTransactionType</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono); text-align: right; color: var(--accent-orange);">@detail.TotalCount</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono); text-align: right; color: var(--accent-green);">@detail.DailyTotalCount</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1;">
+                                    <th style="padding: 10px; color: var(--text-muted); width: 25%;">Client Endpoint</th>
+                                    <th style="padding: 10px; color: var(--text-muted); width: 35%;">Column 1</th>
+                                    <th style="padding: 10px; color: var(--text-muted); width: 40%;">Column 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!_clientAuthDetails.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" style="padding: 20px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                            No detailed records found. Select client checkbox and click Get Info.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var detail in _clientAuthDetails)
+                                    {
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);" class="table-row-hover">
+                                            <td style="padding: 10px; font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue);">@detail.ClientIPEndPoint</td>
+                                            <td style="padding: 10px;">@detail.Column1</td>
+                                            <td style="padding: 10px; font-family: var(--font-mono);">@detail.Column2</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUAL LOG CONSOLES -->
+    <div style="display: flex; gap: 20px; height: 200px; min-height: 200px;">
+        
+        <!-- Console 1: Process System Messages -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-blue);">System & Transaction Logs</span>
+                <button @onclick="ClearSystemLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; white-space: pre-wrap;" id="sys-log-box">
+                @foreach (var log in _systemLogs)
+                {
+                    <div style="color: @GetColorHex(log.Color);">@log.Message</div>
+                }
+            </div>
+        </div>
+
+        <!-- Console 2: UDP Raw Monitor -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-orange);">UDP Logs Monitor</span>
+                <button @onclick="ClearUdpLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; color: #a3e635; padding-right: 5px; white-space: pre-wrap;">
+                @foreach (var log in _udpLogs)
+                {
+                    <div>@log</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-row-hover:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    .btn-action:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-action:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-start {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-start:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    .btn-stop {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-stop:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+</style>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private string _activeTab = "Gateway";
+    private int _retrievalInterval = 120;
+    
+    private string _selectedCommand = "";
+    private List<string> _availableCommands = new();
+    
+    private List<ClientItem> _allClients = new();
+    private List<ClientItem> _filteredClients = new();
+    
+    private List<GatewayClientRouterInfo> _gatewayDetails = new();
+    private List<ClientAuthClientRouterInfo> _clientAuthDetails = new();
+
+    private List<LogItem> _systemLogs = new();
+    private List<string> _udpLogs = new();
+    
+    private Timer? _uiTimer;
+    private Timer? _autoQueryTimer;
+    private bool _isAutoQuery = false;
+
+    protected override void OnInitialized()
+    {
+        Manager.OnSystemLog += HandleSystemLog;
+        Manager.OnUdpLog += HandleUdpLog;
+
+        Manager.Init();
+        
+        // Setup initial default selected commands
+        ChangeTab("Gateway");
+
+        if (Manager.ClientServiceInfo?.TCPClientServiceConfig?.ClientRetrievalTimeIntervalSec != null &&
+            int.TryParse(Manager.ClientServiceInfo.TCPClientServiceConfig.ClientRetrievalTimeIntervalSec, out var val))
+        {
+            _retrievalInterval = val;
+        }
+
+        _uiTimer = new Timer(async _ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            await InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void HandleSystemLog(string msg, string color)
+    {
+        _systemLogs.Add(new LogItem(msg, color));
+        if (_systemLogs.Count > 100) _systemLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleUdpLog(string msg)
+    {
+        _udpLogs.Add(msg);
+        if (_udpLogs.Count > 100) _udpLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StartTcp()
+    {
+        Manager.StartTcpService();
+    }
+
+    private void StopTcp()
+    {
+        Manager.StopTcpService();
+    }
+
+    private void ChangeTab(string tab)
+    {
+        _activeTab = tab;
+        _availableCommands.Clear();
+        
+        if (Manager.MessageCommandInfo?.CommandItemsInfo != null)
+        {
+            if (tab == "Gateway")
+            {
+                var list = Manager.MessageCommandInfo.CommandItemsInfo.Gateway.GatewayServiceCommand.Commands.Command;
+                _availableCommands.AddRange(list);
+            }
+            else
+            {
+                var list = Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.ClientAuthServiceCommand.Commands.Command;
+                _availableCommands.AddRange(list);
+            }
+        }
+        
+        if (_availableCommands.Any())
+        {
+            _selectedCommand = _availableCommands.First();
+        }
+
+        FilterClients();
+    }
+
+    private async Task RefreshClients()
+    {
+        var rawList = await Manager.RefreshRouterClientConnectionInfoAsync();
+        _allClients.Clear();
+        
+        foreach (var raw in rawList)
+        {
+            var parts = raw.Split('#');
+            if (parts.Length == 2)
+            {
+                _allClients.Add(new ClientItem
+                {
+                    Type = parts[0],
+                    IPAddress = parts[1],
+                    IsSelected = false
+                });
+            }
+        }
+
+        FilterClients();
+    }
+
+    private void FilterClients()
+    {
+        _filteredClients = _allClients.Where(c => c.Type.Equals(_activeTab, StringComparison.OrdinalIgnoreCase)).ToList();
+        StateHasChanged();
+    }
+
+    private void ToggleSelectAll(ChangeEventArgs e)
+    {
+        var val = (bool)(e.Value ?? false);
+        foreach (var client in _filteredClients)
+        {
+            client.IsSelected = val;
+        }
+    }
+
+    private async Task ExecuteCommand()
+    {
+        var selectedIps = _filteredClients.Where(c => c.IsSelected).Select(c => c.IPAddress).ToList();
+        if (!selectedIps.Any()) return;
+
+        if (_activeTab == "Gateway")
+        {
+            var res = await Manager.QueryGatewayInfoAsync(selectedIps, _selectedCommand);
+            _gatewayDetails = res;
+        }
+        else
+        {
+            var res = await Manager.QueryClientAuthInfoAsync(selectedIps, _selectedCommand);
+            _clientAuthDetails = res;
+        }
+        StateHasChanged();
+    }
+
+    private void ToggleAutoQuery()
+    {
+        if (_isAutoQuery)
+        {
+            _autoQueryTimer?.Dispose();
+            _isAutoQuery = false;
+            HandleSystemLog("Auto Query Stopped.", "yellow");
+        }
+        else
+        {
+            _isAutoQuery = true;
+            HandleSystemLog("Auto Query Started.", "green");
+            _autoQueryTimer = new Timer(async _ =>
+            {
+                await InvokeAsync(async () =>
+                {
+                    await ExecuteCommand();
+                });
+            }, null, 0, 5000); // Trigger query every 5 seconds
+        }
+    }
+
+    private void ClearSystemLogs() => _systemLogs.Clear();
+    private void ClearUdpLogs() => _udpLogs.Clear();
+
+    private string GetColorHex(string color) => color.ToLower() switch
+    {
+        "red" => "var(--accent-red)",
+        "green" => "var(--accent-green)",
+        "yellow" => "var(--accent-orange)",
+        "cyan" => "var(--accent-blue)",
+        "gray" => "var(--text-muted)",
+        _ => "var(--text-main)"
+    };
+
+    public void Dispose()
+    {
+        Manager.OnSystemLog -= HandleSystemLog;
+        Manager.OnUdpLog -= HandleUdpLog;
+        
+        _uiTimer?.Dispose();
+        _autoQueryTimer?.Dispose();
+    }
+
+    public class ClientItem
+    {
+        public string Type { get; set; } = string.Empty;
+        public string IPAddress { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
+    }
+
+    public class LogItem
+    {
+        public string Message { get; }
+        public string Color { get; }
+
+        public LogItem(string msg, string col)
+        {
+            Message = msg;
+            Color = col;
+        }
+    }
+}

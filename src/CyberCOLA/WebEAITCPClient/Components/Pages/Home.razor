@@ -1,0 +1,561 @@
+@page "/"
+@using System.Text
+@using System.Diagnostics
+@using Newtonsoft.Json
+@using Com.Cybersoft4u.Test.Web.WebEAITCPClient
+@using Com.Cybersoft4u.CommonLib.EAI
+@implements IDisposable
+@inject EAITCPClientManager Manager
+
+<div style="display: flex; flex-direction: column; height: 100vh; padding: 20px; gap: 20px; overflow: hidden; background: linear-gradient(135deg, #090d16 0%, #111827 100%);">
+    
+    <!-- HEADER BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(21, 28, 44, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg style="width: 28px; height: 28px; color: var(--accent-blue);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <div style="display: flex; align-items: baseline;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: var(--accent-blue); margin-left: 4px; opacity: 0.85;">EAITCPClient</span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span style="color: var(--accent-blue); font-family: var(--font-mono); font-size: 14px; font-weight: 600; background: rgba(56, 189, 248, 0.08); padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.15); letter-spacing: 0.5px;">
+                SYSTEM TIME: @_currentTime
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN BODY SECTION -->
+    <div style="display: flex; flex: 1; gap: 20px; min-height: 0;">
+        
+        <!-- LEFT PANEL: EAI CONFIG & JSON EDITOR (40% Width) -->
+        <div style="width: 40%; display: flex; flex-direction: column; gap: 20px; min-height: 0; overflow-y: auto;">
+            
+            <!-- Connection Control Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">EAI Socket Configuration</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Remote Server</span>
+                        <input type="text" @bind-value="_serverName" style="background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Listener Port</span>
+                        <input type="number" @bind-value="_port" style="background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Conn Timeout (ms)</span>
+                        <input type="number" @bind-value="_connTimeout" style="background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Rcv Timeout (ms)</span>
+                        <input type="number" @bind-value="_sndRcvTimeout" style="background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON Payload Input Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">Request JSON Payload</h3>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-utility" @onclick="LoadReqSample" style="font-size: 10px; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.2); background: rgba(56, 189, 248, 0.05); color: var(--accent-blue); cursor: pointer;">
+                            Req Sample
+                        </button>
+                        <button class="btn btn-utility" @onclick="LoadRspSample" style="font-size: 10px; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(251, 146, 60, 0.2); background: rgba(251, 146, 60, 0.05); color: var(--accent-orange); cursor: pointer;">
+                            Rsp Sample
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Web File Uploader -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Load local file (.dat / .json)</span>
+                    <InputFile id="eai-file-uploader" OnChange="HandleFileSelected" style="display: none;" />
+                    <label for="eai-file-uploader" class="btn-action" style="display: inline-block; padding: 10px; background: rgba(56, 189, 248, 0.06); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; color: var(--accent-blue); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s;">
+                        Choose Local File...
+                    </label>
+                    @if (!string.IsNullOrEmpty(_selectedFileName))
+                    {
+                        <span style="font-size: 11px; color: var(--accent-green); font-family: var(--font-mono); word-break: break-all; margin-top: 2px;">
+                            📄 @_selectedFileName
+                        </span>
+                    }
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 120px;">
+                    <textarea @bind="_payloadText" placeholder="Enter or paste EAI JSON Request here..." style="width: 100%; flex: 1; background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #a3e635; padding: 12px; font-family: var(--font-mono); font-size: 12px; resize: none; outline: none;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn btn-action btn-process" @onclick="ExecuteTcpProcess" disabled="@_isProcessing" style="flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        @if (_isProcessing)
+                        {
+                            <span class="spinner" style="width: 12px; height: 12px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite;"></span>
+                            <span>Processing...</span>
+                        }
+                        else
+                        {
+                            <span>Process TCP Request</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: NCCC ISO8583 PARSER & TOOLBOX (60% Width) -->
+        <div style="width: 60%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- NCCC Financial Packet Parser Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">NCCC ISO8583 Packet Parser</h3>
+                    <button class="btn btn-action btn-parse" @onclick="ParsePayloadToNccc" disabled="@(string.IsNullOrWhiteSpace(_payloadText))" style="padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; transition: all 0.2s;">
+                        Parse JSON to NCCC
+                    </button>
+                </div>
+
+                <!-- MTI & Bitmap Header info -->
+                @if (_ncccFields.Any() || !string.IsNullOrEmpty(_ncccMti))
+                {
+                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px 15px; font-size: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 10px;">MTI</span>
+                            <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-orange);">@_ncccMti</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 10px;">BITMAP</span>
+                            <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-blue); word-break: break-all;">@_ncccBitmap</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 10px;">HEADER</span>
+                            <span style="font-family: var(--font-mono); font-weight: 700;">@_ncccHeader</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Fields grid table -->
+                <div style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); position: sticky; top: 0; z-index: 10;">
+                                <th style="padding: 10px; color: var(--text-muted); font-weight: 600; width: 140px;">FIELD ID & NAME</th>
+                                <th style="padding: 10px; color: var(--text-muted); font-weight: 600;">TEXT VALUE</th>
+                                <th style="padding: 10px; color: var(--text-muted); font-weight: 600; width: 160px;">HEX VALUE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!_ncccFields.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" style="padding: 40px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                        No parsed NCCC packet. Load a request JSON and click "Parse JSON to NCCC" above.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var field in _ncccFields)
+                                {
+                                    <tr class="table-row-hover" style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background-color 0.15s;">
+                                        <td style="padding: 8px 10px; font-weight: 600; color: var(--accent-blue);">
+                                            [@field.FieldName]
+                                        </td>
+                                        <td style="padding: 8px 10px; color: #f1f5f9; font-family: var(--font-mono); word-break: break-all;">@field.FieldVal</td>
+                                        <td style="padding: 8px 10px; color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; word-break: break-all;">@field.FieldHex</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Token items box -->
+                @if (_ncccTokens.Any())
+                {
+                    <div style="background: rgba(251, 146, 60, 0.05); border: 1px solid rgba(251, 146, 60, 0.12); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto;">
+                        <span style="font-size: 10px; font-weight: 700; color: var(--accent-orange); text-transform: uppercase;">
+                            Token Fields Detected (F57 Tokens)
+                        </span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; font-family: var(--font-mono);">
+                            @foreach (var tok in _ncccTokens)
+                            {
+                                <span style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; color: #fff;">
+                                    <strong style="color: var(--accent-orange);">Token[@tok.Key]</strong>: @tok.Value
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- EAI Utility Toolbox Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">EAI Utility Toolbox</h3>
+                
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Card Number Input (15 digits)</span>
+                        <input type="text" @bind-value="_checkDigitInput" placeholder="e.g. 428430010685772" style="width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 8px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                    <button class="btn btn-action" @onclick="CalculateCardCheckDigit" style="padding: 9px 18px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">
+                        Generate Check Digit
+                    </button>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_checkDigitOutput))
+                {
+                    <div style="background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 6px; padding: 10px 15px; font-size: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Result Card Number (With Check Digit):</span>
+                        <strong style="color: var(--accent-green); font-family: var(--font-mono); font-size: 14px;">@_checkDigitOutput</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- LOG CONSOLE -->
+    <div style="background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 15px; height: 180px; min-height: 180px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-blue);">System & Transmission Logs</span>
+            <button @onclick="ClearLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+        </div>
+        <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; white-space: pre-wrap;">
+            @foreach (var log in _systemLogs)
+            {
+                <div style="color: @GetColorHex(log.Color);">@log.Message</div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-row-hover:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    .btn-action:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-action:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-process {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-process:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    .btn-parse {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: 1px solid var(--accent-green);
+        background: rgba(74, 222, 128, 0.08);
+        color: var(--accent-green);
+    }
+    .btn-parse:disabled {
+        background: #334155 !important;
+        border-color: #475569 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    
+    // EAI Config
+    private string _serverName = "localhost";
+    private int _port = 9951;
+    private int _connTimeout = 2000;
+    private int _sndRcvTimeout = 5000;
+
+    // States
+    private string _payloadText = string.Empty;
+    private bool _isProcessing = false;
+    private string? _selectedFileName;
+    
+    // NCCC parsed values
+    private List<NcccParsedField> _ncccFields = new();
+    private List<TokenItem> _ncccTokens = new();
+    private string? _ncccMti;
+    private string? _ncccBitmap;
+    private string? _ncccHeader;
+
+    // Utility Card Check Digit
+    private string _checkDigitInput = "428430010685772";
+    private string _checkDigitOutput = string.Empty;
+
+    // Logs
+    private List<LogItem> _systemLogs = new();
+    private Timer? _uiTimer;
+
+    protected override void OnInitialized()
+    {
+        Manager.OnSystemLog += HandleSystemLog;
+        Manager.Init();
+
+        // Load default properties from appsettings
+        _serverName = Manager.DefaultServerName ?? "localhost";
+        _port = Manager.DefaultPort;
+        _connTimeout = Manager.DefaultConnectionTimeout;
+        _sndRcvTimeout = Manager.DefaultSendReceiveTimeout;
+
+        // Auto load Request Sample initially
+        LoadReqSample();
+
+        _uiTimer = new Timer(async _ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            await InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void HandleSystemLog(string msg, string color)
+    {
+        _systemLogs.Add(new LogItem(msg, color));
+        if (_systemLogs.Count > 150) _systemLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var maxAllowedSize = 1024 * 100; // 100 KB limit for Dat/JSON payloads
+            using var stream = e.File.OpenReadStream(maxAllowedSize);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            
+            _payloadText = await reader.ReadToEndAsync();
+            _selectedFileName = e.File.Name;
+            HandleSystemLog($"Loaded local file: {e.File.Name} ({e.File.Size} bytes)", "yellow");
+            
+            // Try parsing if possible
+            TryFormatCheckAndParse();
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"Error reading file: {ex.Message}", "red");
+        }
+    }
+
+    private void LoadReqSample()
+    {
+        try
+        {
+            _selectedFileName = "FCB9GQ_Req.json (Sample)";
+            var reqSamplePath = Path.Combine(Manager.InitialFolderPath ?? "", "FCB9GQ_Req.json");
+            if (File.Exists(reqSamplePath))
+            {
+                _payloadText = File.ReadAllText(reqSamplePath);
+                HandleSystemLog("Loaded FCB9GQ_Req sample payload.", "yellow");
+            }
+            else
+            {
+                // Fallback default mock
+                _payloadText = "{\n  \"TXN_ID\": \"FCB9GQREQ_QRTN\",\n  \"FN_CODE\": \"1\",\n  \"TERMINAL_ID\": \"13996187\",\n  \"USER_ID\": \"1234\",\n  \"BODY\": {\n    \"CreditCardNo\": \"5588279801001701\",\n    \"MerPAN\": \"5302140501107013\",\n    \"TxnSeqNo\": \"QR0000000047\",\n    \"TxnAmtNTD\": \"0000000010100\",\n    \"MCC\": \"5999\",\n    \"CurCode\": \"901\",\n    \"OriTxnAmt\": \"0000000010100\",\n    \"CountryCode\": \"TW\",\n    \"MerName\": \"test shop\",\n    \"MerCity\": \"taipei city\",\n    \"WalletAppInd\": \"02\",\n    \"ReserveField\": \"\",\n    \"QRLen\": \"029\",\n    \"QRMsg\": \"62011612345678901234560203***\"\n  }\n}";
+                HandleSystemLog("Loaded fallback FCB9GQ_Req sample.", "yellow");
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"Error loading request sample: {ex.Message}", "red");
+        }
+    }
+
+    private void LoadRspSample()
+    {
+        try
+        {
+            _selectedFileName = "FCB9GQ_Rsp.json (Sample)";
+            var rspSamplePath = Path.Combine(Manager.InitialFolderPath ?? "", "FCB9GQ_Rsp.json");
+            if (File.Exists(rspSamplePath))
+            {
+                _payloadText = File.ReadAllText(rspSamplePath);
+                HandleSystemLog("Loaded FCB9GQ_Rsp sample payload.", "yellow");
+            }
+            else
+            {
+                // Fallback default mock
+                _payloadText = "{\n  \"FMH\": \"\",\n  \"FN_CODE\": \"\",\n  \"RESPONSE_CODE\": \"T000\",\n  \"RESPONSE_DESCRIPTION\": \"成功\",\n  \"TERMINAL_ID\": \"13996187\",\n  \"USER_ID\": \"1234\",\n  \"BODY\": {\n    \"TxnDate\": \"20221225\",\n    \"TxnTime\": \"201010\",\n    \"CreditCardNo\": \"4910740038595106\",\n    \"MerPAN\": \"6619400169     \",\n    \"QRTxnSeqNo\": \"123456\",\n    \"TxnAmtNTD\": 12.22,\n    \"AuthorizationCode\": \"123456\"\n  }\n}";
+                HandleSystemLog("Loaded fallback FCB9GQ_Rsp sample.", "yellow");
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"Error loading response sample: {ex.Message}", "red");
+        }
+    }
+
+    private void TryFormatCheckAndParse()
+    {
+        // Auto check if it looks valid
+        if (string.IsNullOrEmpty(_payloadText)) return;
+        try
+        {
+            var testObj = JsonConvert.DeserializeObject(_payloadText);
+            if (testObj != null)
+            {
+                HandleSystemLog("JSON syntax verified successfully.", "green");
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"JSON syntax check failed: {ex.Message}", "red");
+        }
+    }
+
+    private async Task ExecuteTcpProcess()
+    {
+        if (string.IsNullOrEmpty(_payloadText))
+        {
+            HandleSystemLog("Payload cannot be empty.", "red");
+            return;
+        }
+
+        _isProcessing = true;
+        HandleSystemLog("Initiating EAI TCP Transmission...", "cyan");
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
+
+        try
+        {
+            var sendBytes = Encoding.Default.GetBytes(_payloadText);
+            var receiveBytes = await Manager.ProcessTCPTaskAsync(sendBytes, _serverName, _port, _connTimeout, _sndRcvTimeout);
+
+            if (receiveBytes != null && receiveBytes.Length > 0)
+            {
+                var rspJsonString = Encoding.Default.GetString(receiveBytes);
+                HandleSystemLog($"[Response Received]: {rspJsonString}", "green");
+                
+                try
+                {
+                    var rspObject = JsonConvert.DeserializeObject<FCB9GQ.FCB9GQ_RSP>(rspJsonString);
+                    if (rspObject != null)
+                    {
+                        HandleSystemLog($"EAI FCB9GQ Response successfully mapped: CODE [{rspObject.RESPONSE_CODE}], DESC [{rspObject.RESPONSE_DESCRIPTION}]", "green");
+                    }
+                    else
+                    {
+                        HandleSystemLog("Warning: Could not convert received bytes to FCB9GQ_RSP class.", "yellow");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleSystemLog($"FCB9GQ Mapping Warning: {ex.Message}", "yellow");
+                }
+            }
+            else
+            {
+                HandleSystemLog("No EAI response data returned (null/empty received).", "red");
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"TCP Execution Error: {ex.Message}", "red");
+        }
+        finally
+        {
+            stopWatch.Stop();
+            var elapsedTime = $"{stopWatch.Elapsed.Hours:00}:{stopWatch.Elapsed.Minutes:00}:{stopWatch.Elapsed.Seconds:00}.{stopWatch.Elapsed.Milliseconds / 10:00}";
+            HandleSystemLog($"TCP Execution Elapsed Time: {elapsedTime}", "cyan");
+            _isProcessing = false;
+        }
+    }
+
+    private void ParsePayloadToNccc()
+    {
+        if (string.IsNullOrEmpty(_payloadText)) return;
+
+        try
+        {
+            var reqObject = JsonConvert.DeserializeObject<FCB9GQ.FCB9GQ_REQ>(_payloadText);
+            if (reqObject == null)
+            {
+                HandleSystemLog("JSON is invalid or cannot be cast to FCB9GQ_REQ structure.", "red");
+                return;
+            }
+
+            HandleSystemLog("Initiating ConvertFCB9GQMessage2NcccIso8583...", "cyan");
+            
+            _ncccFields = Manager.ParseNcccIso8583(reqObject, out var header, out var bitmap, out var mti, out var tokens);
+            _ncccHeader = header;
+            _ncccBitmap = bitmap;
+            _ncccMti = mti;
+            _ncccTokens = tokens;
+
+            if (_ncccFields.Any())
+            {
+                HandleSystemLog("NCCC ISO8583 packet successfully parsed. Grid populated.", "green");
+            }
+            else
+            {
+                HandleSystemLog("Parse failed. No fields extracted.", "red");
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleSystemLog($"Convert NcccISo8583 exception: {ex.Message}", "red");
+        }
+    }
+
+    private void CalculateCardCheckDigit()
+    {
+        if (string.IsNullOrEmpty(_checkDigitInput)) return;
+        _checkDigitOutput = Manager.CalculateCardCheckDigit(_checkDigitInput);
+    }
+
+    private void ClearLogs() => _systemLogs.Clear();
+
+    private string GetColorHex(string color) => color.ToLower() switch
+    {
+        "red" => "var(--accent-red)",
+        "green" => "var(--accent-green)",
+        "yellow" => "var(--accent-orange)",
+        "cyan" => "var(--accent-blue)",
+        "gray" => "var(--text-muted)",
+        _ => "var(--text-main)"
+    };
+
+    public void Dispose()
+    {
+        Manager.OnSystemLog -= HandleSystemLog;
+        _uiTimer?.Dispose();
+    }
+
+    public class LogItem
+    {
+        public string Message { get; }
+        public string Color { get; }
+
+        public LogItem(string msg, string col)
+        {
+            Message = msg;
+            Color = col;
+        }
+    }
+}

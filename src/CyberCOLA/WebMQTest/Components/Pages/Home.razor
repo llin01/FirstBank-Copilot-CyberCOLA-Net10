@@ -1,0 +1,449 @@
+@page "/"
+@implements IDisposable
+@using Com.Cybersoft4u.CyberUtils.Utils
+@using Com.Cybersoft4u.CommonLib.Resource
+@inject Com.Cybersoft4u.Test.Web.WebMQTest.MQTestManager Manager
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="logo-section">
+            <img src="images/mq.ico" alt="MQ" style="height: 32px; width: 32px; object-fit: contain; filter: drop-shadow(0 0 8px var(--primary-glow));" />
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-transform: uppercase; font-family: var(--font-sans); display: inline-block; line-height: 1;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: #64748b; font-family: var(--font-sans); display: inline-block; line-height: 1;">MQ Test Utility</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="status-badge" style="border-color: @(_isConnected ? "rgba(74,222,128,0.25)" : "rgba(239,68,68,0.25)");">
+                <span style="color: @(_isConnected ? "var(--accent-color)" : "#ef4444")">STATUS:</span>
+                <span style="margin-left: 5px; font-weight: 600; color: var(--text-main);">@(_isConnected ? "CONNECTED" : "DISCONNECTED")</span>
+            </div>
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color); font-family: var(--font-mono); font-weight: 600;">SYSTEM TIME: @_currentTime</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Dashboard Grid ===== -->
+    <div class="dashboard-grid" style="grid-template-columns: 280px 1fr;">
+        
+        <!-- ===== Left: Connection Control Panel ===== -->
+        <aside class="panel">
+            <div class="panel-title">Connection Console</div>
+
+            <div class="form-group">
+                <label>Connection Profiles</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <button class="btn btn-primary" disabled="@(_isExecuting)" @onclick="ConnectMQ">
+                        Initialize & Connect
+                    </button>
+                    <button class="btn btn-secondary" disabled="@(!_isConnected || _isExecuting)" @onclick="DisconnectMQ">
+                        Release Connection
+                    </button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;" />
+
+            <!-- Card Load Section -->
+            <div class="form-group" style="flex-grow: 1;">
+                <label>Card Database Status</label>
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--text-muted); line-height: 1.6; font-family: var(--font-mono); height: 180px; overflow-y: auto;">
+                    <strong>XML Database:</strong><br/>
+                    @_cardXmlStatus<br/><br/>
+                    <strong>Records Loaded:</strong><br/>
+                    <span style="color: var(--primary-color); font-size: 14px; font-weight: bold;">@Manager.CardInfosList.Count</span> card profiles
+                    <hr style="border-color: rgba(255,255,255,0.05); margin: 8px 0;"/>
+                    <strong>Data Directory:</strong><br/>
+                    <span style="font-size: 10px; word-break: break-all;">@_dataDirStatus</span>
+                </div>
+            </div>
+
+            <!-- Auxiliary Actions -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto;">
+                <button class="btn btn-secondary" disabled="@(_isExecuting)" @onclick="CleanConsoles">Clean</button>
+                <!-- Standard danger button without inline gradients -->
+                <button class="btn btn-danger" disabled="@(_isExecuting)" @onclick="CloseApp">Close</button>
+            </div>
+        </aside>
+
+        <!-- ===== Right: MQ Workspace ===== -->
+        <main class="logger-panel-layout" style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px; overflow: hidden;">
+            
+            <!-- 1. Send & Receive Queue Settings Panel -->
+            <section class="panel" style="padding: 15px;">
+                <div class="panel-title" style="margin-bottom: 12px;">Queue Endpoint Configurations</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    
+                    <!-- Send Queue Config Group -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--primary-color); text-transform: uppercase;">1. Put (Send) Queue Settings</div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Queue Manager</label>
+                            <input type="text" class="form-control" @bind="_sendQMgr" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Queue Name</label>
+                            <input type="text" class="form-control" @bind="_sendQueue" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Channel Connection Info</label>
+                            <input type="text" class="form-control" @bind="_sendChannel" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                    </div>
+
+                    <!-- Receive Queue Config Group -->
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-color); text-transform: uppercase;">2. Get (Receive) Queue Settings</div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Queue Manager</label>
+                            <input type="text" class="form-control" @bind="_recvQMgr" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Queue Name</label>
+                            <input type="text" class="form-control" @bind="_recvQueue" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Channel Connection Info</label>
+                            <input type="text" class="form-control" @bind="_recvChannel" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; height: 28px;" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Test Payload & Simulators Section -->
+            <section class="panel" style="padding: 15px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+                
+                <!-- Left: XML Payload Textarea -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Send Payload (XML/Text)</label>
+                        <button class="btn btn-secondary" style="font-size: 10px; padding: 2px 8px;" @onclick="GenerateDefaultXml">Reset Default Template</button>
+                    </div>
+                    <textarea class="form-control" @bind="_txtSendPayload" style="font-family: var(--font-mono); font-size: 11px; height: 130px; background: rgba(10, 15, 26, 0.5); color: var(--text-main);" placeholder="Input MQ message content..."></textarea>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 4px;">
+                        <button class="btn btn-success" style="flex-grow: 1;" disabled="@(!_isConnected || _isExecuting)" @onclick="SendSingleMessage">
+                            Put Single Message
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Continuous Receive & Batch Simulator -->
+                <div style="display: flex; flex-direction: column; gap: 12px; justify-content: space-between;">
+                    
+                    <!-- Continuous Listener Block -->
+                    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Continuous Listener</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" disabled="@(!_isConnected || _isExecuting)" @onclick="ReceiveSingle">
+                                Single Get Message
+                            </button>
+                            <button class="btn @(_isListenerRunning ? "btn-danger" : "btn-primary")" style="padding: 4px 8px; font-size: 11px;" disabled="@(!_isConnected)" @onclick="ToggleContinuousListener">
+                                @(_isListenerRunning ? "Stop Listener" : "Start Listener")
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Batch Sim Block -->
+                    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">VDMQ Batch Simulator</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; margin-top: 6px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 11px; color: var(--text-muted);">Count:</span>
+                                <input type="number" class="form-control" @bind="_batchRepeatCount" min="1" max="1000" style="font-family: var(--font-mono); font-size: 11px; padding: 2px 6px; height: 26px; width: 60px;" />
+                            </div>
+                            <button class="btn btn-success" style="padding: 4px 8px; font-size: 11px;" disabled="@(!_isConnected || _isExecuting)" @onclick="RunBatchSimulation">
+                                Run VDMQ Simulation
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 3. Dual Logging Consoles -->
+            <section style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; overflow: hidden; height: 220px;">
+                
+                <!-- Process Log Console -->
+                <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Process Logs</label>
+                    <div class="console-box" style="flex-grow: 1; font-size: 11px; font-family: var(--font-mono); white-space: pre-wrap; overflow-y: auto;">@_processLogText</div>
+                </div>
+
+                <!-- Receive Monitor Console -->
+                <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Continuous Receive Monitor</label>
+                    <div class="console-box" style="flex-grow: 1; font-size: 11px; font-family: var(--font-mono); white-space: pre-wrap; overflow-y: auto; color: var(--accent-color);">@_recvLogText</div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+</div>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private Timer? _clockTimer;
+
+    private bool _isConnected = false;
+    private bool _isExecuting = false;
+    private bool _isListenerRunning = false;
+
+    // --- Config States ---
+    private string _cardXmlStatus = "Checking database path...";
+    private string _dataDirStatus = "Checking data folder...";
+
+    // --- Inputs ---
+    private string _sendQMgr = string.Empty;
+    private string _sendQueue = string.Empty;
+    private string _sendChannel = string.Empty;
+
+    private string _recvQMgr = string.Empty;
+    private string _recvQueue = string.Empty;
+    private string _recvChannel = string.Empty;
+
+    private string _txtSendPayload = string.Empty;
+    private int _batchRepeatCount = 10;
+
+    // --- Console Contents ---
+    private string _processLogText = "";
+    private string _recvLogText = "";
+
+    protected override void OnInitialized()
+    {
+        // 1. Register Clock
+        _clockTimer = new Timer(_ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+
+        // 2. Register Events
+        Manager.OnProcessLog += (msg, isErr) =>
+        {
+            var prefix = isErr ? "[ERROR] " : "[INFO] ";
+            _processLogText += $"{prefix}{msg}\n";
+            InvokeAsync(StateHasChanged);
+        };
+
+        Manager.OnMessageReceived += (payload) =>
+        {
+            _recvLogText += $"{payload}\n\n";
+            InvokeAsync(StateHasChanged);
+        };
+
+        // 3. Load Configurations
+        Manager.LoadConfigurations();
+
+        // 4. Fill Inputs
+        if (Manager.MQServerInfo?.MQServers?.MQServer != null && Manager.MQServerInfo.MQServers.MQServer.Count > 0)
+        {
+            var config = new ConfigurationLoaderRoot();
+            _cardXmlStatus = config.Get(SystemConstantData.ConfigSectionName.GeneralConfigSectionName, "cardinfos-xml-data-file") ?? "Not configured";
+            _dataDirStatus = config.Get(SystemConstantData.ConfigSectionName.GeneralConfigSectionName, "send-file-directory") ?? "Not configured";
+
+            var sendServer = Manager.MQServerInfo.MQServers.MQServer[0];
+            _sendQMgr = sendServer.MQQueueManagerListener ?? string.Empty;
+            _sendQueue = sendServer.MQPutQueueName ?? string.Empty;
+            _sendChannel = sendServer.MQChannelInfoListener ?? string.Empty;
+
+            if (Manager.MQServerInfo.MQServers.MQServer.Count >= 2)
+            {
+                var recvServer = Manager.MQServerInfo.MQServers.MQServer[1];
+                _recvQMgr = recvServer.MQQueueManagerListener ?? string.Empty;
+                _recvQueue = recvServer.MQGetQueueName ?? string.Empty;
+                _recvChannel = recvServer.MQChannelInfoListener ?? string.Empty;
+            }
+            else
+            {
+                _recvQMgr = sendServer.MQQueueManagerListener ?? string.Empty;
+                _recvQueue = sendServer.MQGetQueueName ?? string.Empty;
+                _recvChannel = sendServer.MQChannelInfoListener ?? string.Empty;
+            }
+        }
+
+        GenerateDefaultXml();
+    }
+
+    private void GenerateDefaultXml()
+    {
+        _txtSendPayload = Manager.CreateDefaultVDRequestXml();
+        StateHasChanged();
+    }
+
+    private async Task ConnectMQ()
+    {
+        if (_isExecuting) return;
+        _isExecuting = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            int result = Manager.CreateMQConnection(
+                _sendQMgr.Trim(), _sendQueue.Trim(), _sendChannel.Trim(),
+                _recvQMgr.Trim(), _recvQueue.Trim(), _recvChannel.Trim());
+
+            _isConnected = (result == 0);
+        }
+        catch (Exception ex)
+        {
+            _processLogText += $"[ERROR] Connect Exception: {ex.Message}\n";
+            _isConnected = false;
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DisconnectMQ()
+    {
+        if (_isExecuting) return;
+        _isExecuting = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            if (_isListenerRunning)
+            {
+                ToggleContinuousListener();
+            }
+            Manager.ReleaseMQObject();
+            _isConnected = false;
+            _processLogText += "[INFO] Connection Released.\n";
+        }
+        catch (Exception ex)
+        {
+            _processLogText += $"[ERROR] Release Exception: {ex.Message}\n";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task SendSingleMessage()
+    {
+        if (!_isConnected || _isExecuting || string.IsNullOrEmpty(_txtSendPayload)) return;
+        
+        _isExecuting = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            Manager.MQSend(_txtSendPayload.Trim(), _recvQueue.Trim(), _recvQMgr.Trim());
+        }
+        catch (Exception ex)
+        {
+            _processLogText += $"[ERROR] Send Exception: {ex.Message}\n";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ReceiveSingle()
+    {
+        if (!_isConnected || _isExecuting) return;
+
+        _isExecuting = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            string receivedMsg = Manager.MQReceiveSingle(2000); // 2000ms wait
+            if (!string.IsNullOrEmpty(receivedMsg))
+            {
+                _recvLogText += $"Read message (Single):\n{receivedMsg}\n\n";
+            }
+        }
+        catch (Exception ex)
+        {
+            _processLogText += $"[ERROR] Receive Exception: {ex.Message}\n";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ToggleContinuousListener()
+    {
+        if (!_isConnected) return;
+
+        if (_isListenerRunning)
+        {
+            Manager.StopContinuousReceive();
+            _isListenerRunning = false;
+        }
+        else
+        {
+            Manager.StartContinuousReceive(_recvQMgr.Trim(), _recvQueue.Trim(), _recvChannel.Trim());
+            _isListenerRunning = true;
+        }
+        StateHasChanged();
+    }
+
+    private async Task RunBatchSimulation()
+    {
+        if (!_isConnected || _isExecuting) return;
+
+        _isExecuting = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            Manager.CreateAndSendVDMQMessages(_txtSendPayload.Trim(), _batchRepeatCount, _recvQueue.Trim(), _recvQMgr.Trim());
+        }
+        catch (Exception ex)
+        {
+            _processLogText += $"[ERROR] Simulator Batch Exception: {ex.Message}\n";
+        }
+        finally
+        {
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void CleanConsoles()
+    {
+        _processLogText = "";
+        _recvLogText = "";
+        StateHasChanged();
+    }
+
+    private void CloseApp()
+    {
+        if (_isListenerRunning)
+        {
+            Manager.StopContinuousReceive();
+        }
+        Manager.ReleaseMQObject();
+        Lifetime.StopApplication();
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+    }
+
+    public void Dispose()
+    {
+        _clockTimer?.Dispose();
+        Manager.Dispose();
+    }
+}

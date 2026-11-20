@@ -1,0 +1,27 @@
+<div class="flow">
+    @for (var i = 0; i < Stages.Count; i++)
+    {
+        var stage = Stages[i];
+        if (i > 0)
+        {
+            <span class="arrow">→</span>
+        }
+        <div class="stage @stage.Status">
+            @Icon(stage.Status) @stage.Title
+            <span class="time">@(stage.Time ?? " ")</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<FlowStage> Stages { get; set; } = [];
+
+    private static string Icon(StageStatus status) => status switch
+    {
+        StageStatus.Done => "✔",
+        StageStatus.Running => "⏳",
+        StageStatus.Failed => "✖",
+        _ => "○",
+    };
+}

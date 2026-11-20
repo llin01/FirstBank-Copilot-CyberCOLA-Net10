@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ServiceMonitorInfo>
+  <BankInfo>
+    <BankName>第一銀行</BankName>
+    <Description>This Is Main Windows For Service Monitor</Description>
+  </BankInfo>
+  <ServiceInfo>
+    <ServerName>CFLin-NB-Test</ServerName>
+    <ListenerPort>9901</ListenerPort>
+    <BackLog>1204</BackLog>
+    <ClientRetrievalTimeIntervalSec>10</ClientRetrievalTimeIntervalSec>
+  </ServiceInfo>
+  <UDPServiceInfo>
+    <ServerName>CFLin-NB-Test</ServerName>
+    <ListenerPort>9902</ListenerPort>
+    <IsStart>true</IsStart>
+  </UDPServiceInfo>
+  <DatabaseInfo>
+    <ConnectionString>Data Source=CFLIN-NB-Test,1433\MSSQLSERVER;TrustServerCertificate=True;Initial Catalog=NCARD;Connect Timeout=10;User id=CyberCArd;Password=cybersoft1qaz@WSX!; </ConnectionString>
+    <IsEncrypted>false</IsEncrypted>
+    <EncryptedKey>123456</EncryptedKey>
+  </DatabaseInfo>
+  <CommandItemsInfo>
+  	<Gateway Description="For Gateway Service Use">
+  	  <VISAService Description="VISA Service Use">
+        <Commands>
+          <Command>NSI--Normal Sign On(F70 = 0071)</Command>
+          <Command>SSI--STIN Sign On(F70 = 0078)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 0072)</Command>
+          <Command>SSO--STIN Sign Off(F70 = 0079)</Command>
+          <Command>SEHO--Switch Auto Echo Flag(true, false)</Command>
+          <Command>DISP--Display VISA CONNECT Information(Include Ip, Port, Station ID, Sign Status)</Command>
+          <Command>START--Start Service , Start service if it's not running</Command>
+          <Command>STOP--Stop Service , Stop service if it's running</Command>
+      	</Commands>
+      </VISAService>
+      <MASTERCARDService Description="MASTERCARD Service Use">
+      	<Commands>
+          <Command>GSI--Group Sign On(F70 = 061, P2=03382)</Command>
+          <Command>GSO--Group Sign Off(F70 = 062, P2=03382)</Command>
+          <Command>S1SI--Stage1 Sign On(F70 = 001, P2=[524095, 540836, 543371, 55200300, 55200315, 55200317, 55200356, 55200357, 55200359, 55200361, 55200398])</Command>
+          <Command>S1SO--Stage1 Sign Off(F70 = 001, P2=[524095, 540836, 543371, 55200300, 55200315, 55200317, 55200356, 55200357, 55200359, 55200361, 55200398])
+          </Command>
+          <Command>S2SI--Stage2 Sign On(F70 = 001, P2=[51491400, 51491456, 51491457, 51491459, 51491461, 51572103, 540641, 543382, 55233500, 55233515, 55233517, 5523354, 543782, 5442280, 5442286])</Command>
+          <Command>S2SO--Stage2 Sign Off(F70 = 001, P2=[51491400, 51491456, 51491457, 51491459, 51491461, 51572103, 540641, 543382, 55233500, 55233515, 55233517, 5523354, 543782, 5442280, 5442286])</Command>
+          <Command>CGSI--Switch Group Sign Flag(true, false)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </MASTERCARDService>
+      <MASTERCARDANRService Description="MASTERCARD ANR Service Use">
+      	<Commands>
+      	  <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </MASTERCARDANRService>
+      <COLAService Description="COLA Service Use">
+      	<Commands>
+      	  <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+      	</Commands>
+      </COLAService>
+      <NCCCService Description="NCCC Service Use">
+      	<Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--Normal Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>START--Start Service , Start service if it's not running(false)</Command>
+          <Command>STOP--Stop Service , Stop service if it's running(false)</Command>
+        </Commands>
+      </NCCCService>
+  	</Gateway>
+    <ClientAuth Description="For Client Authorization Service Use">
+      <VISAClient Description="VISA Client Authorization Use">
+      	<Commands>
+          <Command>NSI--Normal Sign On(F70 = 0071)</Command>
+          <Command>NSO--Normal Sign Off(F70 = 0072)</Command>
+       	</Commands>
+      </VISAClient>
+      <MASTERCARDClient Description="MASTERCARD Client Authorization Use">
+      	<Commands>
+          <Command>GSI--Group Sign On(F70 = 061, P2=03382)</Command>
+          <Command>GSO--Group Sign Off(F70 = 062, P2=03382)</Command>
+        </Commands>
+      </MASTERCARDClient>
+      <NCCCClient Description="NCCC Client Authorization Use">
+      	<Commands>
+          <Command>NSI--Normal Sign On(F70 = 001)</Command>
+          <Command>NSO--STIN Sign Off(F70 =  002)</Command>
+          <Command>CKEY--Change Key(F70 =  161)</Command>
+          <Command>RKEY--Repeat Key(F70 =  163)</Command>
+          <Command>VKEY--Verify Key(F70 =  164)</Command>
+          <Command>EHO--Echo Test(F70 =  301)</Command>
+          <Command>0300--File Maintenance Update</Command>
+        </Commands>
+      </NCCCClient>
+    </ClientAuth>
+  </CommandItemsInfo>
+  <ServiceMonitorCommandInfo>
+    <ConnectionStatus>01</ConnectionStatus>
+    <Echo>99</Echo>
+  </ServiceMonitorCommandInfo>
+</ServiceMonitorInfo>

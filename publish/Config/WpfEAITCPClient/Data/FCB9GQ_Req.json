@@ -1,0 +1,23 @@
+{
+     "TXN_ID": "FCB9GQREQ_QRTN",
+     "FN_CODE": "1",
+     "TERMINAL_ID": "13996187",
+     "USER_ID": "1234",
+     "BODY": {
+         "CreditCardNo": "5588279801001701",
+         "MerPAN": "5302140501107013",
+         "TxnSeqNo": "QR0000000047",
+         "TxnAmtNTD": "0000000010100",
+         "MCC": "5999",
+         "CurCode": "901",
+         "OriTxnAmt": "0000000010100",
+         "CountryCode": "TW",
+         "MerName": "test shop",
+         "MerCity": "taipei city",
+         "WalletAppInd": "02",
+         "ReserveField": "",
+         "QRLen": "029",
+         "QRMsg": "62011612345678901234560203***"
+     }
+ }
+

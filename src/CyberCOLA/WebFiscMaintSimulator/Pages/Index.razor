@@ -1,0 +1,364 @@
+@page "/"
+@implements IDisposable
+@inject FiscMaintSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<!-- Background decorative orbs -->
+<div class="glass-bg"></div>
+<div class="glow-orb" id="orb-1"></div>
+<div class="glow-orb" id="orb-2"></div>
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+        <div class="logo-area">
+            <div class="logo-box">
+                <!-- FISC network icon: shield with signal waves -->
+                <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M8 12h8M10 9h4M10 15h4" />
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; background: linear-gradient(to right, #0f172a, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Web<span style="font-size: 1.1rem; font-weight: 400; color: #64748b; margin-left: 2px; -webkit-text-fill-color: #64748b;">FiscMaintSimulator</span></h1>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">FISC Maintenance File Simulator</span>
+            </div>
+        </div>
+
+        <div class="status-indicator">
+            <span class="status-pulse @(Manager.IsRunning ? "running" : "stopped")"></span>
+            <span class="status-text" style="color: @(Manager.IsRunning ? "#10b981" : "#ef4444"); font-weight: 800; font-size: 0.88rem; letter-spacing: 0.3px;">
+                @(Manager.IsRunning ? "RUNNING" : "STOPPED")
+            </span>
+        </div>
+
+        <div class="system-time">
+            <span class="label">SYSTEM TIME</span>
+            <span class="value">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- ===== Main Dashboard ===== -->
+    <main class="dashboard-grid">
+        <!-- Control Panel -->
+        <section class="glass-card control-side" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- System Control -->
+            <div>
+                <div class="card-header">
+                    <span class="card-title">System Control Panel</span>
+                </div>
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">FISC Maintenance File Listener Service</p>
+
+                <div class="form-group">
+                    <label>Listener Port</label>
+                    <input type="number" class="form-control" value="@Manager.ServerListenerPort" disabled />
+                </div>
+
+                <div class="form-group">
+                    <label>Server IP</label>
+                    <input type="text" class="form-control" value="@Manager.ServerIPAddr" disabled />
+                </div>
+
+                <div class="form-group">
+                    <label>Max Connections</label>
+                    <input type="number" class="form-control" value="@Manager.MaxConnection" disabled />
+                </div>
+
+                <div class="form-group">
+                    <label>Buffer Size</label>
+                    <input type="number" class="form-control" value="@Manager.BufferSize" disabled />
+                </div>
+
+                <div class="btn-grid" style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" @onclick="StartService"
+                            disabled="@(Manager.IsRunning || _isStarting ? "disabled" : null)"
+                            style="background: #5d5bf4; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        <span>@(_isStarting ? "Starting..." : "Start Service")</span>
+                    </button>
+                    <button class="btn btn-danger" @onclick="StopService"
+                            disabled="@(!Manager.IsRunning || _isStopping ? "disabled" : null)"
+                            style="background: #ef4444; color: #fff; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" />
+                        </svg>
+                        <span>@(_isStopping ? "Stopping..." : "Stop Service")</span>
+                    </button>
+                </div>
+
+                <button @onclick="CloseApp"
+                        style="width: 100%; margin-top: 1rem; background: rgba(15,23,42,0.07); color: #0f172a; border: none; padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
+                    <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                        <line x1="12" y1="2" x2="12" y2="12" />
+                    </svg>
+                    <span>Close Simulator</span>
+                </button>
+            </div>
+
+            <!-- Info Card -->
+            <div style="background: rgba(93,91,244,0.06); border-radius: 12px; padding: 1.2rem; border: 1px solid rgba(93,91,244,0.15);">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #5d5bf4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;">
+                    Service Configuration
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Listen Port</span>
+                        <span class="info-value">@Manager.ServerListenerPort</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Max Timeout</span>
+                        <span class="info-value">@Manager.MaxTimeoutMilliseconds ms</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" style="color: @(Manager.IsRunning ? "#10b981" : "#ef4444");">
+                            @(Manager.IsRunning ? "Active" : "Idle")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dual Log Panels (mirroring WPF Message1 + Message2) -->
+        <section class="console-side" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Message1 Panel: Incoming Transactions -->
+            <div class="glass-card flex-column flex-grow">
+                <div class="card-header-actions">
+                    <span class="card-title">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #0284c7;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                        Message1 — Incoming Transactions
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg1">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg1">
+                    @if (_msg1Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] Waiting for incoming FISC maintenance data...</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg1Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Message2 Panel: System / Service Events -->
+            <div class="glass-card flex-column flex-grow">
+                <div class="card-header-actions">
+                    <span class="card-title">
+                        <svg style="width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.4rem; color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.07 4.93A10 10 0 0 1 21 12a10 10 0 0 1-1.93 5.07M4.93 4.93A10 10 0 0 0 3 12a10 10 0 0 0 1.93 5.07" />
+                        </svg>
+                        Message2 — Service Events
+                    </span>
+                    <button class="btn-sub-action" @onclick="ClearMsg2">Clear</button>
+                </div>
+                <div class="terminal" id="logMsg2">
+                    @if (_msg2Logs.Count == 0)
+                    {
+                        <div class="terminal-line info" style="color: #94a3b8;">[SYSTEM] Welcome to WebFiscMaintSimulator. Click "Start Service" to begin.</div>
+                    }
+                    else
+                    {
+                        @foreach (var log in _msg2Logs)
+                        {
+                            <div class="terminal-line @GetLogClass(log)">@log</div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 2rem; padding-top: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid rgba(15,23,42,0.08);">
+        <p>CyberCOLA FISC Maintenance Simulator © 2026 — FirstBank</p>
+    </footer>
+</div>
+
+@code {
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+
+    // Dual log panels matching WPF RichTextBox1 (incoming) and RichTextBox2 (service events)
+    private readonly List<string> _msg1Logs = new();
+    private readonly List<string> _msg2Logs = new();
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+    private bool _shouldScrollMsg2 = false;
+
+    protected override void OnInitialized()
+    {
+        Manager.RegisterLogCallback(OnLogReceived);
+
+        // Show initial service state (important when auto-start is enabled)
+        if (Manager.IsRunning)
+        {
+            _msg2Logs.Add($"[SYSTEM] Service is already running on port {Manager.ServerListenerPort}. Start button is disabled.");
+        }
+        else
+        {
+            _msg2Logs.Add($"[SYSTEM] Welcome to WebFiscMaintSimulator. Click \"Start Service\" to begin.");
+        }
+
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogReceived(string message)
+    {
+        InvokeAsync(() =>
+        {
+            // Route: RECV/DATA → Message1 panel; others → Message2 panel
+            if (message.Contains("[RECV]", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("[DATA]", StringComparison.OrdinalIgnoreCase) ||
+                message.Contains("receive", StringComparison.OrdinalIgnoreCase))
+            {
+                _msg1Logs.Add(message);
+                if (_msg1Logs.Count > 500) _msg1Logs.RemoveAt(0);
+            }
+            else
+            {
+                _msg2Logs.Add(message);
+                if (_msg2Logs.Count > 500) _msg2Logs.RemoveAt(0);
+            }
+            _shouldScrollMsg2 = true;
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollMsg2)
+        {
+            _shouldScrollMsg2 = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval",
+                    "var e1=document.getElementById('logMsg1'); if(e1) e1.scrollTop=e1.scrollHeight;" +
+                    "var e2=document.getElementById('logMsg2'); if(e2) e2.scrollTop=e2.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private async Task StartService()
+    {
+        _isStarting = true;
+        _msg2Logs.Add($"[SYSTEM] Starting FISC Maintenance Simulator on port {Manager.ServerListenerPort}...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StartService());
+            _msg2Logs.Add($"[SYSTEM] Service started successfully at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Start failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopService()
+    {
+        _isStopping = true;
+        _msg2Logs.Add($"[SYSTEM] Stopping FISC Maintenance Simulator...");
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() => Manager.StopService());
+            _msg2Logs.Add($"[SYSTEM] Service stopped at {DateTime.Now:yyyy-MM-dd HH:mm:ss}.");
+        }
+        catch (Exception ex)
+        {
+            _msg2Logs.Add($"[ERROR] Stop failed: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.StopService();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void ClearMsg1()
+    {
+        _msg1Logs.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearMsg2()
+    {
+        _msg2Logs.Clear();
+        StateHasChanged();
+    }
+
+    private string GetLogClass(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "error";
+        if (log.Contains("[WARN]", StringComparison.OrdinalIgnoreCase)) return "warn";
+        if (log.Contains("[RECV]", StringComparison.OrdinalIgnoreCase) ||
+            log.Contains("receive", StringComparison.OrdinalIgnoreCase)) return "receive";
+        if (log.Contains("[SEND]", StringComparison.OrdinalIgnoreCase)) return "send";
+        return "info";
+    }
+
+    public void Dispose()
+    {
+        Manager.UnregisterLogCallback(OnLogReceived);
+        _clockTimer?.Dispose();
+    }
+}

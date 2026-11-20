@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Not read by any CyberCOLA code. The Auth's HSM client, DLL\SocketClient.dll, takes its server, ports and
+  retry settings from D:\NCARD_EXE\ProHSM\config.ini (port 8500 in the test environment, answered by
+  WpfHSMSimulator / WebHSMSimulator). Ports 12119-12122 here are only used by the legacy WpfServerSimulator /
+  WebServerSimulator. See docs/AUTH_TIMEOUT_REFERENCE.md.
+-->
+<HSMServerInfo>
+   <PrimaryServerName>HSMServer1</PrimaryServerName> 
+   <BackupServerName>HSMServer2</BackupServerName>
+   <ConnectPortNumbers>
+     <ConnectPortNumber>12119</ConnectPortNumber>
+     <ConnectPortNumber>12120</ConnectPortNumber>
+     <ConnectPortNumber>12121</ConnectPortNumber>
+     <ConnectPortNumber>12122</ConnectPortNumber>
+   </ConnectPortNumbers>
+   <ConnectionTimeOut>3</ConnectionTimeOut>
+   <SendTimeOut>3</SendTimeOut>
+   <ReceiveTimeOut>3</ReceiveTimeOut>
+   <RetryCount>3</RetryCount> 
+   <MaxSessionNumber>16</MaxSessionNumber>
+</HSMServerInfo>

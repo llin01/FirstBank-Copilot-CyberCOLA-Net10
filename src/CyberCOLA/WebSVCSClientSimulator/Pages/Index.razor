@@ -1,0 +1,487 @@
+@page "/"
+@implements IDisposable
+@inject SVCSClientSimulatorManager Manager
+@inject Microsoft.Extensions.Hosting.IHostApplicationLifetime Lifetime
+
+<div class="app-container">
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="logo-section">
+            <img src="images/@(_eTicketType.ToLower()).ico" alt="E-Ticket" style="height: 32px; width: 32px; object-fit: contain;" />
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-transform: uppercase; font-family: var(--font-sans);">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: #64748b; font-family: var(--font-sans);">SVCS Client Simulator</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="status-badge">
+                <span class="status-pulse @(Manager.IsRunning ? "active" : "stopped")"></span>
+                <span>@(Manager.IsRunning ? "CLIENT RUNNING" : "CLIENT STOPPED")</span>
+            </div>
+            <div class="status-badge" style="border-color: rgba(56,189,248,0.25);">
+                <span style="color: var(--primary-color); font-family: var(--font-mono); font-weight: 600;">SYSTEM TIME: @_currentTime</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Dashboard Grid ===== -->
+    <div class="dashboard-grid">
+        
+        <!-- ===== Left: Parameters Panel ===== -->
+        <aside class="panel">
+            <div class="panel-title">Client Settings</div>
+
+            <!-- E-Ticket Type -->
+            <div class="form-group">
+                <label>E-Ticket Type</label>
+                <select class="form-control" @bind="_eTicketType" disabled="@(Manager.IsRunning)" @bind:after="OnETicketTypeChanged">
+                    <option value="SVCS">SVCS (Smart Voucher)</option>
+                    <option value="ICASH">ICASH</option>
+                    <option value="IPASS">IPASS</option>
+                </select>
+            </div>
+
+            <!-- Listener Port -->
+            <div class="form-group">
+                <label>Target Port Number</label>
+                <input type="number" class="form-control" @bind="_port" disabled="@(Manager.IsRunning)" />
+            </div>
+
+            <!-- Start Local Port -->
+            <div class="form-group">
+                <label>Start Local Port</label>
+                <input type="number" class="form-control" @bind="_startLocalPort" disabled="@(Manager.IsRunning)" />
+            </div>
+
+            <!-- Session Count -->
+            <div class="form-group">
+                <label>Session Count</label>
+                <input type="number" class="form-control" @bind="_sessionCount" disabled="@(Manager.IsRunning)" />
+            </div>
+
+            <!-- Interval -->
+            <div class="form-group">
+                <label>Time Interval (ms)</label>
+                <input type="number" class="form-control" @bind="_timeInterval" />
+            </div>
+
+            <!-- Repeat Count -->
+            <div class="form-group">
+                <label>Repeat Count</label>
+                <input type="number" class="form-control" @bind="_repeatCount" />
+            </div>
+
+            <!-- Template Checklist -->
+            <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
+                <div class="file-list-header">
+                    <label>Payload Templates</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="font-size: 9px; padding: 2px 6px;" @onclick="SelectAllFiles">All</button>
+                        <button class="btn btn-secondary" style="font-size: 9px; padding: 2px 6px;" @onclick="ClearFileSelection">Clear</button>
+                    </div>
+                </div>
+                <div class="file-list-box" style="flex-grow: 1;">
+                    @if (_availableFiles.Length == 0)
+                    {
+                        <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 12px;">No templates found.</div>
+                    }
+                    else
+                    {
+                        @foreach (var file in _availableFiles)
+                        {
+                            <div class="file-item">
+                                <input type="checkbox" id="chk_@file" checked="@_selectedFiles.Contains(file)" @onchange="(e) => ToggleFileSelection(file, e.Value)" />
+                                <label for="chk_@file" style="text-transform: none; font-weight: 500; font-family: var(--font-mono); font-size: 11px; cursor: pointer; color: var(--text-main);">@file</label>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn btn-primary" disabled="@(Manager.IsRunning || _isStartingClient)" @onclick="StartClient">Client Start</button>
+                    <button class="btn btn-danger" disabled="@(!Manager.IsRunning || _isStoppingClient)" @onclick="StopClient">Client Stop</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn btn-success" disabled="@(_isUdpRunning)" @onclick="StartUDP">UDP Start</button>
+                    <button class="btn btn-danger" disabled="@(!_isUdpRunning)" @onclick="StopUDP">UDP Stop</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn btn-primary" @onclick="LoadTemplates">Load Files</button>
+                    <button class="btn btn-success" disabled="@(!Manager.IsRunning || Manager.IsSending || Manager.LoadedFilesCount == 0)" @onclick="SendPayloads">Send Message</button>
+                </div>
+
+                <button class="btn btn-danger" disabled="@(!Manager.IsSending)" @onclick="StopSending">Stop Sending</button>
+
+                <!-- WPF Placeholders for Command 1-6 -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 5px;">
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 1")'>Cmd 1</button>
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 2")'>Cmd 2</button>
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 3")'>Cmd 3</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 4")'>Cmd 4</button>
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 5")'>Cmd 5</button>
+                    <button class="btn btn-secondary" style="font-size: 10px; padding: 6px;" @onclick='() => ExecutePlaceholderCommand("Command 6")'>Cmd 6</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== Right: Dual Console & Data Grid ===== -->
+        <main class="logger-panel-layout">
+            
+            <!-- Connection & Telemetry Logs (Message 2) -->
+            <section class="panel" style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                    <div class="panel-title">System Connection Logs (Message 2)</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">SENT COUNT: @Manager.SentCount</span>
+                        <button class="btn btn-secondary" style="font-size: 9px; padding: 2px 8px;" @onclick="ResetSentCount">Reset</button>
+                    </div>
+                </div>
+                <div id="system-console" class="console-box">
+                    @foreach (var log in _systemLogs)
+                    {
+                        <div class="console-line">@log</div>
+                    }
+                </div>
+            </section>
+
+            <!-- Detailed Field Hex Logs (Message 1) -->
+            <section class="panel" style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                    <div class="panel-title">Transmission Field Hex Details (Message 1)</div>
+                    <button class="btn btn-secondary" style="font-size: 9px; padding: 2px 8px;" @onclick="ClearDetailedConsole">Clear</button>
+                </div>
+                <div id="detail-console" class="console-box" style="height: 220px; font-size: 11px;">
+                    @foreach (var log in _detailLogs)
+                    {
+                        <div class="console-line info">@log</div>
+                    }
+                </div>
+            </section>
+
+            <!-- E-Ticket Message Grid (WPF parity) -->
+            <section class="panel">
+                <div class="panel-title">SVCS Message Data Grid (Parsed templates)</div>
+                <div class="grid-container">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Message Type</th>
+                                    <th style="width: 35%;">Process Code</th>
+                                    <th style="width: 40%;">System Trace Number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Manager.LoadedETicketMessages.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 16px;">
+                                            No payload templates loaded. Please click "LOAD FILES" to inspect.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Manager.LoadedETicketMessages)
+                                    {
+                                        <tr>
+                                            <td>@item.MessageType</td>
+                                            <td>@item.ProcessCode</td>
+                                            <td>@item.SystemTraceNumber</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private Timer? _clockTimer;
+
+    private string _eTicketType = "SVCS";
+    private int _port;
+    private int _startLocalPort;
+    private int _sessionCount;
+    private int _repeatCount = 1;
+    private int _timeInterval = 1000;
+
+    private bool _isUdpRunning = false;
+    private bool _isStartingClient = false;
+    private bool _isStoppingClient = false;
+
+    private string[] _availableFiles = Array.Empty<string>();
+    private HashSet<string> _selectedFiles = new();
+
+    private readonly List<string> _systemLogs = new();
+    private readonly List<string> _detailLogs = new();
+
+    protected override void OnInitialized()
+    {
+        // Initial defaults
+        _port = Manager.Port;
+        _startLocalPort = Manager.StartLocalPort;
+        _sessionCount = Manager.SessionCount;
+        _timeInterval = Manager.TimeInterval;
+        _repeatCount = Manager.RepeatCount;
+        _eTicketType = Manager.ETicketType;
+
+        // Hook broadcaster callbacks
+        ETicketLogBroadcaster.OnSystemLogAdded += HandleSystemLog;
+        ETicketLogBroadcaster.OnDetailLogAdded += HandleDetailLog;
+
+        // Preload log history
+        _systemLogs.AddRange(ETicketLogBroadcaster.GetSystemHistory());
+        _detailLogs.AddRange(ETicketLogBroadcaster.GetDetailHistory());
+
+        // Refresh template file checklist
+        RefreshFileList();
+
+        // System clock runner (Parity check)
+        _clockTimer = new Timer(_ => 
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+
+        // Auto start UDP if config demands
+        try
+        {
+            Manager.StartUDPFromConfig();
+            _isUdpRunning = true;
+        }
+        catch { }
+    }
+
+    private void RefreshFileList()
+    {
+        try
+        {
+            _availableFiles = Manager.GetTemplateFiles(_eTicketType);
+            _selectedFiles.Clear();
+            foreach (var f in _availableFiles)
+            {
+                _selectedFiles.Add(f); // Default select all
+            }
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Failed to load files list: {ex.Message}");
+        }
+    }
+
+    private void OnETicketTypeChanged()
+    {
+        RefreshFileList();
+        StateHasChanged();
+    }
+
+    private void HandleSystemLog(string msg)
+    {
+        InvokeAsync(() =>
+        {
+            _systemLogs.Add(msg);
+            if (_systemLogs.Count > 150) _systemLogs.RemoveAt(0);
+            StateHasChanged();
+        });
+    }
+
+    private void HandleDetailLog(string msg)
+    {
+        InvokeAsync(() =>
+        {
+            _detailLogs.Add(msg);
+            if (_detailLogs.Count > 150) _detailLogs.RemoveAt(0);
+            StateHasChanged();
+        });
+    }
+
+    private void ToggleFileSelection(string file, object? isChecked)
+    {
+        bool bChecked = Convert.ToBoolean(isChecked);
+        if (bChecked)
+        {
+            _selectedFiles.Add(file);
+        }
+        else
+        {
+            _selectedFiles.Remove(file);
+        }
+    }
+
+    private void SelectAllFiles()
+    {
+        foreach (var f in _availableFiles)
+        {
+            _selectedFiles.Add(f);
+        }
+    }
+
+    private void ClearFileSelection()
+    {
+        _selectedFiles.Clear();
+    }
+
+    private async Task StartClient()
+    {
+        if (_isStartingClient || Manager.IsRunning) return;
+        _isStartingClient = true;
+        StateHasChanged();
+
+        try
+        {
+            ETicketLogBroadcaster.LogSystem($"Client Start command triggered. Type: {_eTicketType}, Port: {_port}, LocalPort: {_startLocalPort}, Sessions: {_sessionCount}");
+            await Task.Run(() => Manager.StartClient(_eTicketType, _port, _startLocalPort, _sessionCount));
+            ETicketLogBroadcaster.LogSystem("Client Start success");
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Failed to start client: {ex.Message}");
+        }
+        finally
+        {
+            _isStartingClient = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopClient()
+    {
+        if (_isStoppingClient || !Manager.IsRunning) return;
+        _isStoppingClient = true;
+        StateHasChanged();
+
+        try
+        {
+            ETicketLogBroadcaster.LogSystem("Client Stop command triggered");
+            await Task.Run(() => Manager.StopClient());
+            ETicketLogBroadcaster.LogSystem("Client Stop success");
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Failed to stop client: {ex.Message}");
+        }
+        finally
+        {
+            _isStoppingClient = false;
+            StateHasChanged();
+        }
+    }
+
+    private void StartUDP()
+    {
+        try
+        {
+            var key = _eTicketType.Trim().ToUpper() switch
+            {
+                "ICASH" => "ICASHUDPListenerPort",
+                "IPASS" => "IPASSUDPListenerPort",
+                _ => "SVCSUDPListenerPort"
+            };
+            var config = Manager.GetType().GetField("_config", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(Manager) as IConfiguration;
+            var port = config?.GetValue<int>($"GeneralConfig:{key}") ?? 9919;
+            
+            Manager.StartUDP(port);
+            _isUdpRunning = true;
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Failed to start UDP: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private void StopUDP()
+    {
+        try
+        {
+            Manager.StopUDP();
+            _isUdpRunning = false;
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Failed to stop UDP: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private void LoadTemplates()
+    {
+        try
+        {
+            var list = _selectedFiles.ToList();
+            if (list.Count == 0 && _availableFiles.Length > 0)
+            {
+                list = _availableFiles.ToList(); // Default select all
+            }
+            Manager.LoadTemplates(_eTicketType, list, _repeatCount);
+            ETicketLogBroadcaster.LogSystem($"Successfully loaded {Manager.LoadedFilesCount} payload templates into transmission buffer.");
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Load Templates failed: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private void SendPayloads()
+    {
+        try
+        {
+            Manager.SendPayloads(_timeInterval);
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Sending Payloads failed: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private void StopSending()
+    {
+        try
+        {
+            Manager.StopSending();
+        }
+        catch (Exception ex)
+        {
+            ETicketLogBroadcaster.LogSystem($"[ERROR] Stop Sending failed: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private void ExecutePlaceholderCommand(string name)
+    {
+        ETicketLogBroadcaster.LogSystem($"Command trigger: [{name}] execution placeholder clicked (WPF parity).");
+    }
+
+    private void ClearDetailedConsole()
+    {
+        _detailLogs.Clear();
+    }
+
+    private void ResetSentCount()
+    {
+        Manager.ResetMetrics();
+    }
+
+    public void Dispose()
+    {
+        _clockTimer?.Dispose();
+        ETicketLogBroadcaster.OnSystemLogAdded -= HandleSystemLog;
+        ETicketLogBroadcaster.OnDetailLogAdded -= HandleDetailLog;
+    }
+}

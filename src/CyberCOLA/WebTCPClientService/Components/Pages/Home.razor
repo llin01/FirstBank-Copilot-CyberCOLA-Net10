@@ -1,0 +1,698 @@
+@page "/"
+@using System.Text
+@using Com.Cybersoft4u.Test.Web.WebTCPClientService
+@using Com.Cybersoft4u.Interchange
+@implements IDisposable
+@inject TCPClientServiceManager Manager
+
+<div style="display: flex; flex-direction: column; height: 100vh; padding: 20px; gap: 20px; overflow: hidden; background: linear-gradient(135deg, #090d16 0%, #111827 100%);">
+    
+    <!-- HEADER BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(21, 28, 44, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg style="width: 28px; height: 28px; color: var(--accent-blue);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <div style="display: flex; align-items: baseline;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Web</span>
+                <span style="font-size: 1.1rem; font-weight: 400; color: var(--accent-blue); margin-left: 4px; opacity: 0.85;">TCPClientService</span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span style="color: var(--accent-blue); font-family: var(--font-mono); font-size: 14px; font-weight: 600; background: rgba(56, 189, 248, 0.08); padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.15); letter-spacing: 0.5px;">
+                SYSTEM TIME: @_currentTime
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN BODY SECTION -->
+    <div style="display: flex; flex: 1; gap: 20px; min-height: 0;">
+        
+        <!-- LEFT PANEL: CONFIGURATION & COMMAND SELECT (40% Width) -->
+        <div style="width: 40%; display: flex; flex-direction: column; gap: 20px; min-height: 0; overflow-y: auto;">
+            
+            <!-- Connection Control Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">Service Connection</h3>
+                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03);">
+                        @if (!Manager.IsTcpStarted)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); box-shadow: 0 0 6px rgba(148, 163, 184, 0.3);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--text-muted);">
+                                STOPPED
+                            </span>
+                        }
+                        else if (Manager.IsTcpConnected)
+                        {
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green); box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-green);">
+                                ONLINE
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="pulse-orange" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-orange); box-shadow: 0 0 10px rgba(251, 146, 60, 0.6);"></span>
+                            <span style="font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--accent-orange);">
+                                RETRYING...
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                    <div>
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Remote Target IP / Port</span>
+                        <span style="font-family: var(--font-mono); font-weight: 500;">
+                            @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.RemoteIP ?? "N/A"):@(Manager.ClientServiceInfo?.TCPClientServiceConfig?.RemotePort ?? "N/A")
+                        </span>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Local Bind IP / Port</span>
+                        <span style="font-family: var(--font-mono); font-weight: 500;">
+                            @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.LocalIP ?? "N/A"):@(Manager.ClientServiceInfo?.TCPClientServiceConfig?.LocalPort ?? "N/A")
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn btn-action btn-start" @onclick="StartTcp" disabled="@Manager.IsTcpStarted" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Start Service
+                    </button>
+                    <button class="btn btn-action btn-stop" @onclick="StopTcp" disabled="@(!Manager.IsTcpStarted)" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Stop Service
+                    </button>
+                </div>
+
+                @if (Manager.IsTcpStarted && !Manager.IsTcpConnected)
+                {
+                    <div style="background: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.2); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--accent-orange); display: flex; flex-direction: column; gap: 4px; animation: fadeIn 0.3s;">
+                        <span style="font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                            ⚠️ Connection Pending / Failed
+                        </span>
+                        <span>Cannot connect to target Router: @(Manager.ClientServiceInfo?.TCPClientServiceConfig?.RemoteIP).</span>
+                        <span style="color: var(--text-muted); font-size: 10px; margin-top: 2px;">Yetty is automatically retrying every 3 seconds...</span>
+                    </div>
+                }
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="flex: 1;">
+                        <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Retrieval Interval (sec)</span>
+                        <input type="number" @value="_queryInterval" @onchange="UpdateQueryInterval" min="1" max="300" style="width: 80px; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: white; padding: 4px 8px; font-size: 12px; font-family: var(--font-mono); margin-top: 4px; text-align: center;" />
+                    </div>
+                    <button class="btn btn-action" @onclick="QueryChannelStatus" disabled="@(!Manager.IsTcpConnected)" style="padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--accent-blue); background: rgba(56, 189, 248, 0.08); color: var(--accent-blue); transition: all 0.2s;">
+                        Query Channel Status
+                    </button>
+                </div>
+            </div>
+
+            <!-- Command Selection Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-blue);">Command Generator</h3>
+                
+                <!-- Category Select -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Category</span>
+                    <select @bind="_selectedCategory" @bind:after="OnCategoryChanged" style="width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 8px; font-size: 12px; outline: none; background-color: #0f172a; color: #f1f5f9;">
+                        @foreach (var cat in _categories)
+                        {
+                            <option value="@cat.Key">@cat.Value</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Category Item Select -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Sub-Category</span>
+                    <select @bind="_selectedCategoryItem" @bind:after="OnCategoryItemChanged" style="width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 8px; font-size: 12px; outline: none; background-color: #0f172a; color: #f1f5f9;">
+                        @foreach (var item in _categoryItems)
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Command Code Select -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">Action Code</span>
+                    <select @bind="_selectedCommand" style="width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 8px; font-size: 12px; outline: none; background-color: #0f172a; color: #f1f5f9;">
+                        @foreach (var cmd in _availableCommands)
+                        {
+                            <option value="@cmd">@cmd</option>
+                        }
+                    </select>
+                </div>
+
+                @if (_selectedCategory == "G")
+                {
+                    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
+                        <span style="color: var(--text-muted); font-size: 10px; text-transform: uppercase;">GW Local Port</span>
+                        <input type="number" @bind-value="_gwLocalPort" style="width: 100%; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: white; padding: 6px 12px; font-size: 12px; font-family: var(--font-mono);" />
+                    </div>
+                }
+            </div>
+
+            <!-- UDP Server Control Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 14px; font-weight: 600; text-transform: uppercase; color: var(--accent-blue);">UDP Log Server</h3>
+                    <span style="font-size: 11px; font-weight: 600; color: @(Manager.IsUdpRunning ? "var(--accent-green)" : "var(--text-muted)")">
+                        @(Manager.IsUdpRunning ? $"ON (PORT {Manager.ClientServiceInfo?.TCPClientServiceConfig?.UDPListenerPort})" : "OFF")
+                    </span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-action btn-start" @onclick="StartUdp" disabled="@Manager.IsUdpRunning" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Start UDP
+                    </button>
+                    <button class="btn btn-action btn-stop" @onclick="StopUdp" disabled="@(!Manager.IsUdpRunning)" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; transition: all 0.2s;">
+                        Stop UDP
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: ACTIVE CONNECTIONS & COMMAND TRANSMISSION (60% Width) -->
+        <div style="width: 60%; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+            
+            <!-- Connection Lists -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; flex: 1; min-height: 0;">
+                
+                <!-- Tab headers -->
+                <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 15px;">
+                        <button @onclick='() => ChangeTab("Gateway")' style="background: none; border: none; font-size: 14px; font-weight: 600; cursor: pointer; color: @(_activeTab == "Gateway" ? "var(--accent-blue)" : "var(--text-muted)"); border-bottom: 2px solid @(_activeTab == "Gateway" ? "var(--accent-blue)" : "transparent"); padding-bottom: 8px;">
+                            Gateway List (@_filteredGateways.Count)
+                        </button>
+                        <button @onclick='() => ChangeTab("ClientAuth")' style="background: none; border: none; font-size: 14px; font-weight: 600; cursor: pointer; color: @(_activeTab == "ClientAuth" ? "var(--accent-blue)" : "var(--text-muted)"); border-bottom: 2px solid @(_activeTab == "ClientAuth" ? "var(--accent-blue)" : "transparent"); padding-bottom: 8px;">
+                            ClientAuth List (@_filteredClientAuths.Count)
+                        </button>
+                    </div>
+
+                    <button class="btn btn-action" @onclick="ExecuteSendCommand" disabled="@(!Manager.IsTcpConnected || !HasSelectedEntities())" style="padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        Send Command
+                    </button>
+                </div>
+
+                <!-- Grid Data Container -->
+                <div style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+                                <th style="padding: 10px; width: 40px; text-align: center;">
+                                    <input type="checkbox" checked="@_allSelected" @onchange="ToggleSelectAll" />
+                                </th>
+                                <th style="padding: 10px; color: var(--text-muted); font-weight: 600;">ENTITY IP ADDRESS / ENDPOINT</th>
+                                <th style="padding: 10px; color: var(--text-muted); font-weight: 600; width: 120px; text-align: center;">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_activeTab == "Gateway")
+                            {
+                                @if (!_filteredGateways.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" style="padding: 30px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                            No active Gateway connections found. Click "Query Channel Status" to scan.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var client in _filteredGateways)
+                                    {
+                                        <tr class="table-row-hover" style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background-color 0.15s;">
+                                            <td style="padding: 10px; text-align: center;">
+                                                <input type="checkbox" @bind="client.IsSelected" />
+                                            </td>
+                                            <td style="padding: 10px; font-family: var(--font-mono); font-weight: 600; color: #e2e8f0;">@client.IPAddress</td>
+                                            <td style="padding: 10px; text-align: center;">
+                                                <span style="background: rgba(74, 222, 128, 0.1); color: var(--accent-green); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">ACTIVE</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                @if (!_filteredClientAuths.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" style="padding: 30px; text-align: center; color: var(--text-muted); font-style: italic;">
+                                            No active ClientAuth connections found. Click "Query Channel Status" to scan.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var client in _filteredClientAuths)
+                                    {
+                                        <tr class="table-row-hover" style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background-color 0.15s;">
+                                            <td style="padding: 10px; text-align: center;">
+                                                <input type="checkbox" @bind="client.IsSelected" />
+                                            </td>
+                                            <td style="padding: 10px; font-family: var(--font-mono); font-weight: 600; color: #e2e8f0;">@client.IPAddress</td>
+                                            <td style="padding: 10px; text-align: center;">
+                                                <span style="background: rgba(74, 222, 128, 0.1); color: var(--accent-green); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">ACTIVE</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUAL LOG CONSOLES -->
+    <div style="display: flex; gap: 20px; height: 180px; min-height: 180px;">
+        
+        <!-- Console 1: Process System Messages -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-blue);">System & Command Logs</span>
+                <button @onclick="ClearSystemLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; white-space: pre-wrap;">
+                @foreach (var log in _systemLogs)
+                {
+                    <div style="color: @GetColorHex(log.Color);">@log.Message</div>
+                }
+            </div>
+        </div>
+
+        <!-- Console 2: UDP Logs Receiver -->
+        <div style="flex: 1; background: #070a13; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 15px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--accent-orange);">UDP Logs Receiver</span>
+                <button @onclick="ClearUdpLogs" style="background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; padding-right: 5px; color: #a3e635; white-space: pre-wrap;">
+                @foreach (var log in _udpLogs)
+                {
+                    <div>@log</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-row-hover:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    .btn-action:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-action:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-start {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-start:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    .btn-stop {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        cursor: pointer;
+    }
+    .btn-stop:disabled {
+        background: #334155 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+</style>
+
+@code {
+    private string _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private int _queryInterval = 5;
+    private string _activeTab = "Gateway";
+    private bool _allSelected = false;
+
+    private string _selectedCategory = "G";
+    private string _selectedCategoryItem = "";
+    private string _selectedCommand = "";
+    private int _gwLocalPort = 0;
+
+    private List<ClientItem> _filteredGateways = new();
+    private List<ClientItem> _filteredClientAuths = new();
+
+    private List<LogItem> _systemLogs = new();
+    private List<string> _udpLogs = new();
+
+    private Timer? _uiTimer;
+    private Timer? _autoQueryTimer;
+
+    private readonly Dictionary<string, string> _categories = new()
+    {
+        { "G", "Gateway Command" },
+        { "C", "ClientAuth Command" },
+        { "R", "Router Command" }
+    };
+
+    private Dictionary<string, string> _categoryItems = new();
+    private List<string> _availableCommands = new();
+
+    protected override void OnInitialized()
+    {
+        Manager.OnSystemLog += HandleSystemLog;
+        Manager.OnUdpLog += HandleUdpLog;
+        Manager.OnConnectionListUpdated += HandleConnectionListUpdated;
+
+        Manager.Init();
+
+        // Bind initial category dropdown
+        OnCategoryChanged();
+
+        if (Manager.ClientServiceInfo != null)
+        {
+            if (int.TryParse(Manager.ClientServiceInfo.TCPClientServiceConfig.ClientRetrievalTimeIntervalSec.Trim(), out var sec))
+            {
+                _queryInterval = sec;
+            }
+        }
+
+        _uiTimer = new Timer(async _ =>
+        {
+            _currentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            await InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+
+        // Auto Query loop
+        StartAutoQueryTimer();
+    }
+
+    private void StartAutoQueryTimer()
+    {
+        _autoQueryTimer?.Dispose();
+        _autoQueryTimer = new Timer(async _ =>
+        {
+            if (Manager.IsTcpConnected)
+            {
+                await InvokeAsync(async () =>
+                {
+                    await Manager.QueryChannelStatusAsync();
+                });
+            }
+        }, null, 0, _queryInterval * 1000);
+    }
+
+    private void UpdateQueryInterval(ChangeEventArgs e)
+    {
+        if (e.Value != null && int.TryParse(e.Value.ToString(), out var sec) && sec > 0)
+        {
+            _queryInterval = sec;
+            StartAutoQueryTimer();
+            HandleSystemLog($"Query interval changed to {_queryInterval} seconds.", "yellow");
+        }
+    }
+
+    private void OnCategoryChanged()
+    {
+        _categoryItems.Clear();
+        _availableCommands.Clear();
+
+        if (Manager.MessageCommandInfo?.CommandItemsInfo != null)
+        {
+            if (_selectedCategory == "G")
+            {
+                _categoryItems.Add("VISAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.VISAService.Description);
+                _categoryItems.Add("MASTERCARDService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.MASTERCARDService.Description);
+                _categoryItems.Add("MASTERCARDANRService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.MASTERCARDANRService.Description);
+                _categoryItems.Add("NCCCCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCCCCOLAService.Description);
+                _categoryItems.Add("NCPSCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCPSCOLAService.Description);
+                _categoryItems.Add("TWMPCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWMPCOLAService.Description);
+                _categoryItems.Add("STINCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.STINCOLAService.Description);
+                _categoryItems.Add("FISCCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.FISCCOLAService.Description);
+                _categoryItems.Add("TWINCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWINCOLAService.Description);
+                _categoryItems.Add("SVCSCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.SVCSCOLAService.Description);
+                _categoryItems.Add("ICASHCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.ICASHCOLAService.Description);
+                _categoryItems.Add("IPASSCOLAService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.IPASSCOLAService.Description);
+                _categoryItems.Add("NCCCService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCCCService.Description);
+                _categoryItems.Add("NCPSService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCPSService.Description);
+                _categoryItems.Add("TWMPService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWMPService.Description);
+                _categoryItems.Add("STINService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.STINService.Description);
+                _categoryItems.Add("FISCService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.FISCService.Description);
+                _categoryItems.Add("TWINService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWINService.Description);
+                _categoryItems.Add("SVCSService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.SVCSService.Description);
+                _categoryItems.Add("ICASHService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.ICASHService.Description);
+                _categoryItems.Add("IPASSService", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.IPASSService.Description);
+                _categoryItems.Add("GatewayServiceCommand", Manager.MessageCommandInfo.CommandItemsInfo.Gateway.GatewayServiceCommand.Description);
+            }
+            else if (_selectedCategory == "C")
+            {
+                _categoryItems.Add("VISAClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.VISAClient.Description);
+                _categoryItems.Add("MASTERCARDClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.MASTERCARDClient.Description);
+                _categoryItems.Add("NCCCClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.NCCCClient.Description);
+                _categoryItems.Add("NCPSClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.NCPSClient.Description);
+                _categoryItems.Add("STINClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.STINClient.Description);
+                _categoryItems.Add("FISCClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.FISCClient.Description);
+                _categoryItems.Add("TWINClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.TWINClient.Description);
+                _categoryItems.Add("SVCSClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.SVCSClient.Description);
+                _categoryItems.Add("ICASHClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.ICASHClient.Description);
+                _categoryItems.Add("IPASSClient", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.IPASSClient.Description);
+                _categoryItems.Add("ClientAuthServiceCommand", Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.ClientAuthServiceCommand.Description);
+            }
+            else if (_selectedCategory == "R")
+            {
+                _categoryItems.Add("RouterServiceCommand", Manager.MessageCommandInfo.CommandItemsInfo.Router.RouterServiceCommand.Description);
+            }
+        }
+
+        _selectedCategoryItem = _categoryItems.Keys.FirstOrDefault() ?? "";
+        OnCategoryItemChanged();
+    }
+
+    private void OnCategoryItemChanged()
+    {
+        _availableCommands.Clear();
+        if (Manager.MessageCommandInfo?.CommandItemsInfo == null || string.IsNullOrEmpty(_selectedCategoryItem)) return;
+
+        if (_selectedCategory == "G")
+        {
+            var commands = _selectedCategoryItem switch
+            {
+                "VISAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.VISAService.Commands.Command,
+                "MASTERCARDService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.MASTERCARDService.Commands.Command,
+                "MASTERCARDANRService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.MASTERCARDANRService.Commands.Command,
+                "NCCCCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCCCCOLAService.Commands.Command,
+                "NCPSCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCPSCOLAService.Commands.Command,
+                "TWMPCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWMPCOLAService.Commands.Command,
+                "STINCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.STINCOLAService.Commands.Command,
+                "FISCCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.FISCCOLAService.Commands.Command,
+                "TWINCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWINCOLAService.Commands.Command,
+                "SVCSCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.SVCSCOLAService.Commands.Command,
+                "ICASHCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.ICASHCOLAService.Commands.Command,
+                "IPASSCOLAService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.IPASSCOLAService.Commands.Command,
+                "NCCCService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCCCService.Commands.Command,
+                "NCPSService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.NCPSService.Commands.Command,
+                "TWMPService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWMPService.Commands.Command,
+                "STINService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.STINService.Commands.Command,
+                "FISCService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.FISCService.Commands.Command,
+                "TWINService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.TWINService.Commands.Command,
+                "SVCSService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.SVCSService.Commands.Command,
+                "ICASHService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.ICASHService.Commands.Command,
+                "IPASSService" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.IPASSService.Commands.Command,
+                "GatewayServiceCommand" => Manager.MessageCommandInfo.CommandItemsInfo.Gateway.GatewayServiceCommand.Commands.Command,
+                _ => new List<string>()
+            };
+            _availableCommands.AddRange(commands);
+        }
+        else if (_selectedCategory == "C")
+        {
+            var commands = _selectedCategoryItem switch
+            {
+                "VISAClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.VISAClient.Commands.Command,
+                "MASTERCARDClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.MASTERCARDClient.Commands.Command,
+                "NCCCClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.NCCCClient.Commands.Command,
+                "NCPSClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.NCPSClient.Commands.Command,
+                "STINClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.STINClient.Commands.Command,
+                "FISCClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.FISCClient.Commands.Command,
+                "TWINClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.TWINClient.Commands.Command,
+                "SVCSClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.SVCSClient.Commands.Command,
+                "ICASHClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.ICASHClient.Commands.Command,
+                "IPASSClient" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.IPASSClient.Commands.Command,
+                "ClientAuthServiceCommand" => Manager.MessageCommandInfo.CommandItemsInfo.ClientAuth.ClientAuthServiceCommand.Commands.Command,
+                _ => new List<string>()
+            };
+            _availableCommands.AddRange(commands);
+        }
+        else if (_selectedCategory == "R")
+        {
+            if (_selectedCategoryItem == "RouterServiceCommand")
+            {
+                _availableCommands.AddRange(Manager.MessageCommandInfo.CommandItemsInfo.Router.RouterServiceCommand.Commands.Command);
+            }
+        }
+
+        _selectedCommand = _availableCommands.FirstOrDefault() ?? "";
+    }
+
+    private void HandleSystemLog(string msg, string color)
+    {
+        _systemLogs.Add(new LogItem(msg, color));
+        if (_systemLogs.Count > 150) _systemLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleUdpLog(string msg)
+    {
+        _udpLogs.Add(msg);
+        if (_udpLogs.Count > 150) _udpLogs.RemoveAt(0);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleConnectionListUpdated()
+    {
+        // Keep selection state if possible, otherwise create new
+        var currentGateways = _filteredGateways.ToDictionary(g => g.IPAddress, g => g.IsSelected);
+        var currentClientAuths = _filteredClientAuths.ToDictionary(c => c.IPAddress, c => c.IsSelected);
+
+        _filteredGateways = Manager.GatewayList.Select(ip => new ClientItem
+        {
+            IPAddress = ip,
+            IsSelected = currentGateways.ContainsKey(ip) && currentGateways[ip]
+        }).ToList();
+
+        _filteredClientAuths = Manager.ClientAuthList.Select(ip => new ClientItem
+        {
+            IPAddress = ip,
+            IsSelected = currentClientAuths.ContainsKey(ip) && currentClientAuths[ip]
+        }).ToList();
+
+        _allSelected = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StartTcp() => Manager.StartTcpService();
+    private void StopTcp() => Manager.StopTcpService();
+
+    private void StartUdp()
+    {
+        if (Manager.ClientServiceInfo != null)
+        {
+            var port = Convert.ToInt32(Manager.ClientServiceInfo.TCPClientServiceConfig.UDPListenerPort.Trim());
+            Manager.StartUdpService(port);
+        }
+    }
+
+    private void StopUdp() => Manager.StopUdpService();
+
+    private async Task QueryChannelStatus()
+    {
+        await Manager.QueryChannelStatusAsync();
+    }
+
+    private void ChangeTab(string tab)
+    {
+        _activeTab = tab;
+        _allSelected = false;
+    }
+
+    private void ToggleSelectAll(ChangeEventArgs e)
+    {
+        _allSelected = e.Value != null && (bool)e.Value;
+        if (_activeTab == "Gateway")
+        {
+            foreach (var c in _filteredGateways) c.IsSelected = _allSelected;
+        }
+        else
+        {
+            foreach (var c in _filteredClientAuths) c.IsSelected = _allSelected;
+        }
+    }
+
+    private bool HasSelectedEntities()
+    {
+        if (_activeTab == "Gateway")
+            return _filteredGateways.Any(g => g.IsSelected);
+        else
+            return _filteredClientAuths.Any(c => c.IsSelected);
+    }
+
+    private async Task ExecuteSendCommand()
+    {
+        if (!Manager.IsTcpConnected) return;
+
+        // Parse command prefix
+        var cmdCode = _selectedCommand.Split(new[] { "--" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        var categoryItemCode = _selectedCategoryItem;
+
+        if (_selectedCategory == "G")
+        {
+            var selectedIps = _filteredGateways.Where(g => g.IsSelected).Select(g => g.IPAddress).ToList();
+            if (!selectedIps.Any()) return;
+            
+            HandleSystemLog($"Sending command {cmdCode} to selected Gateways...", "cyan");
+            await Manager.SendGatewayCommandAsync(selectedIps, _selectedCategory, categoryItemCode, cmdCode, _gwLocalPort);
+        }
+        else if (_selectedCategory == "C")
+        {
+            var selectedIps = _filteredClientAuths.Where(c => c.IsSelected).Select(c => c.IPAddress).ToList();
+            if (!selectedIps.Any()) return;
+            
+            HandleSystemLog($"Sending command {cmdCode} to selected ClientAuths...", "cyan");
+            await Manager.SendClientAuthCommandAsync(selectedIps, _selectedCategory, categoryItemCode, cmdCode);
+        }
+        else if (_selectedCategory == "R")
+        {
+            HandleSystemLog($"Sending Router Command {cmdCode}...", "cyan");
+            await Manager.SendRouterCommandAsync(_selectedCategory, categoryItemCode, cmdCode);
+        }
+    }
+
+    private void ClearSystemLogs() => _systemLogs.Clear();
+    private void ClearUdpLogs() => _udpLogs.Clear();
+
+    private string GetColorHex(string color) => color.ToLower() switch
+    {
+        "red" => "var(--accent-red)",
+        "green" => "var(--accent-green)",
+        "yellow" => "var(--accent-orange)",
+        "cyan" => "var(--accent-blue)",
+        "gray" => "var(--text-muted)",
+        _ => "var(--text-main)"
+    };
+
+    public void Dispose()
+    {
+        Manager.OnSystemLog -= HandleSystemLog;
+        Manager.OnUdpLog -= HandleUdpLog;
+        Manager.OnConnectionListUpdated -= HandleConnectionListUpdated;
+        
+        _uiTimer?.Dispose();
+        _autoQueryTimer?.Dispose();
+    }
+
+    public class ClientItem
+    {
+        public string IPAddress { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
+    }
+
+    public class LogItem
+    {
+        public string Message { get; }
+        public string Color { get; }
+
+        public LogItem(string msg, string col)
+        {
+            Message = msg;
+            Color = col;
+        }
+    }
+}

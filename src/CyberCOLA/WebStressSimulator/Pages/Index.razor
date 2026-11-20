@@ -1,0 +1,653 @@
+@page "/"
+@implements IDisposable
+@inject StressSimulatorManager Manager
+@inject IJSRuntime JSRuntime
+
+<div class="background-decor">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+</div>
+
+<div class="app-container">
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem;">
+        <div class="logo-area" style="display: flex; align-items: center; gap: 0.8rem;">
+            <div class="logo-box">
+                @GetTransactionIcon("2.2rem", "logo-svg")
+            </div>
+            <div class="logo-text">
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.1; color: var(--text-primary);">Web<span style="font-size: 1.1rem; font-weight: 400; color: var(--text-secondary); margin-left: 2px;">StressSimulator</span></h1>
+                <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">High Stress Load Simulator</span>
+            </div>
+        </div>
+        <div class="status-indicator">
+            <span class="status-dot @(Manager.IsRunning ? "status-online" : "status-offline")" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block;"></span>
+            <span class="status-text" style="font-weight: 600; font-size: 0.9rem;">@(Manager.IsRunning ? "Running" : "Stopped")</span>
+        </div>
+        <div class="system-time">
+            <span class="label" style="font-size: 0.75rem; color: var(--text-secondary); display: block; text-align: right;">SYSTEM TIME</span>
+            <span class="value" style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700;">@_systemTime</span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid" style="display: grid; grid-template-columns: 380px 1fr; gap: 2rem; flex-grow: 1;">
+        <!-- Left Column: Controls & Configuration -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Service Config Card -->
+            <section class="card control-card">
+                <h2>Service Configuration</h2>
+                <p class="subtitle">Set Stress Test Listener Parameters</p>
+
+                <div class="config-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">TRANS TYPE</label>
+                            <select class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600; cursor: pointer;" 
+                                    @bind:get="_transactionType" @bind:set="OnTransactionTypeChanged" disabled="@Manager.IsRunning">
+                                <option value="FISC">FISC</option>
+                                <option value="IAG">IAG</option>
+                                <option value="MasterCard">MasterCard</option>
+                                <option value="NCCC">NCCC</option>
+                                <option value="NCPS">NCPS</option>
+                                <option value="STIN">STIN</option>
+                                <option value="TWIN">TWIN</option>
+                                <option value="TWMP">TWMP</option>
+                                <option value="Visa">Visa</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">LISTEN PORT</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_listenPort" disabled="@Manager.IsRunning" />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">ECHO INT. (ms)</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_sendInterval" />
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">REPEAT COUNT</label>
+                            <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                                   @bind="_repeatCount" />
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">TPS CALC INT. (sec)</label>
+                        <input type="number" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                               @bind="_interval" />
+                    </div>
+
+                    <div style="display: flex; gap: 1.5rem; margin: 0.2rem 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" @bind="_isWaitingSignOn" /> Sign-on Check
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" @bind="_isAutoEcho" /> Auto Echo
+                        </label>
+                    </div>
+
+                    <div class="control-actions" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <button class="btn btn-start" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; width: 100%; transition: opacity 0.3s; @((Manager.IsRunning || _isStarting) ? "background: #5d5bf4; color: white; opacity: 0.5; cursor: not-allowed;" : "background: #5d5bf4; color: white; cursor: pointer;")" 
+                                    @onclick="StartService" disabled="@(Manager.IsRunning || _isStarting)">
+                                @GetTransactionIcon()
+                                <span>Start Service</span>
+                            </button>
+                            <button class="btn btn-stop" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; width: 100%; transition: opacity 0.3s; @((!Manager.IsRunning || _isStopping) ? "background: #ef4444; color: white; opacity: 0.5; cursor: not-allowed;" : "background: #ef4444; color: white; cursor: pointer;")" 
+                                    @onclick="StopService" disabled="@(!Manager.IsRunning || _isStopping)">
+                                <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                                </svg>
+                                <span>Stop Service</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-close-app" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.08); color: var(--text-primary); border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 0.5rem;" 
+                                @onclick="CloseApp">
+                            <svg style="width: 1.2rem; height: 1.2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </svg>
+                            Close Simulator
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payload Ingestion & Template Card -->
+            <section class="card control-card">
+                <h2>Payload & Queue Management</h2>
+                
+                <!-- Ingest Action -->
+                <div class="ingest-wrapper" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 0.3rem;">INGEST PAYLOADS (REPEAT)</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="number" class="form-control" style="width: 80px; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);" 
+                               @bind="_ingestRepeat" min="1" />
+                        <button class="btn btn-ingest" 
+                                style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; transition: opacity 0.3s; @((!Manager.IsRunning || Manager.LoadedFilesCount == 0) ? "background: #10b981; color: white; opacity: 0.5; cursor: not-allowed;" : "background: #10b981; color: white; cursor: pointer;")"
+                                @onclick="IngestPayloads" disabled="@(!Manager.IsRunning || Manager.LoadedFilesCount == 0)">Ingest payloads</button>
+                    </div>
+                </div>
+
+                <!-- Queue Status Monitor -->
+                <div class="queues-wrapper" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">ACTIVE MESSAGE QUEUES</label>
+                        <button class="btn-sub-action" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color); border: none; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;" 
+                                @onclick="ResetQueues">Reset Queues</button>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.02); border-radius: 8px; padding: 0.6rem; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color);">
+                        @if (_queueInfos.Count == 0)
+                        {
+                            <span style="font-size: 0.8rem; color: var(--text-secondary); display: block; text-align: center; padding: 0.5rem 0;">No active queues.</span>
+                        }
+                        else
+                        {
+                            @foreach (var q in _queueInfos)
+                            {
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(0,0,0,0.03);">
+                                    <span style="font-family: var(--font-mono); color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;">@q.QueueName</span>
+                                    <span style="font-family: var(--font-mono); font-weight: 700; color: @(q.QueueCount > 0 ? "var(--primary-color)" : "var(--text-secondary)");">@q.QueueCount</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Template list -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">TEMPLATES (@_selectedTemplates.Count selected)</label>
+                    <div style="display: flex; gap: 0.3rem;">
+                        <button class="btn-sub-action" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" @onclick="SelectAll">All</button>
+                        <button class="btn-sub-action" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" @onclick="SelectNone">None</button>
+                    </div>
+                </div>
+                <div style="border: 1px solid var(--border-color); border-radius: 8px; max-height: 140px; overflow-y: auto; background: white; margin-bottom: 0.8rem;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                        <tbody>
+                            @foreach (var file in _templateFiles)
+                            {
+                                <tr style="border-bottom: 1px solid rgba(0,0,0,0.03);">
+                                    <td style="padding: 0.3rem; text-align: center; width: 30px;">
+                                        <input type="checkbox" checked="@_selectedTemplates.Contains(file)" @onchange="@(e => ToggleTemplate(file, e.Value))" />
+                                    </td>
+                                    <td style="padding: 0.3rem; font-family: var(--font-mono); font-size: 0.7rem;">@file</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-load btn-full" 
+                        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; width: 100%; transition: opacity 0.3s; @((_selectedTemplates.Count == 0) ? "background: #f59e0b; color: white; opacity: 0.5; cursor: not-allowed;" : "background: #f59e0b; color: white; cursor: pointer;")"
+                        @onclick="LoadTemplates" disabled="@(_selectedTemplates.Count == 0)">
+                    Load Selected Templates (@Manager.LoadedFilesCount loaded)
+                </button>
+            </section>
+        </div>
+
+        <!-- Right Column: Metrics & Live Logs -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Telemetry & Metrics Dashboard -->
+            <section class="card" style="padding: 1.5rem;">
+                <h2 style="margin-bottom: 1rem;">Live Telemetry & Performance Metrics</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem;">
+                    <!-- TPS -->
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.3rem;">TPS (SPEED)</span>
+                        <span style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: var(--primary-color);">@_tps</span>
+                    </div>
+                    <!-- Connections -->
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.3rem;">ACTIVE CONNS</span>
+                        <span style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: var(--success-color);">@_activeConnections</span>
+                    </div>
+                    <!-- Success -->
+                    <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.3rem;">SUCCESS</span>
+                        <span style="font-family: var(--font-mono); font-size: 2rem; font-weight: 800; color: #8b5cf6;">@_successCount</span>
+                    </div>
+                    <!-- Errors -->
+                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.3rem;">ERRORS</span>
+                        <span style="font-family: var(--font-mono); font-size: 2rem; font-weight: 800; color: var(--error-color);">@_errorCount</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Log Consoles Card -->
+            <section class="card logs-card" style="display: flex; flex-direction: column; flex-grow: 1;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <h2>交易與通訊日誌 (Transaction Logs)</h2>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">
+                            UDP Ingestion: <span style="color: #10b981; font-weight: 700;">PORT @Manager.UdpPort</span>
+                        </span>
+                        <button class="btn-clear" style="background: rgba(93, 91, 244, 0.1); color: var(--primary-color); border: 1px solid rgba(93, 91, 244, 0.25); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;" 
+                                @onclick="ClearLogs">清除日誌</button>
+                    </div>
+                </div>
+                
+                <div class="consoles-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; flex-grow: 1;">
+                    <div class="console-box" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div class="console-title" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">系統與交易日誌 (System Logs)</div>
+                        <div class="log-console" id="sysConsole" style="background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; height: 350px; overflow-y: auto; padding: 0.8rem; font-family: var(--font-code); font-size: 0.85rem; line-height: 1.5;">
+                            @if (_systemLogs.Count == 0)
+                            {
+                                <div class="system-line" style="color: #64748b;">[SYSTEM] System Console ready.</div>
+                            }
+                            else
+                            {
+                                @foreach (var log in _systemLogs)
+                                {
+                                    <div class="log-line" style="@GetLogStyle(log)">@log</div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="console-box" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div class="console-title" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">UDP 日誌監聽 (UDP Logs)</div>
+                        <div class="log-console" id="udpConsole" style="background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; height: 350px; overflow-y: auto; padding: 0.8rem; font-family: var(--font-code); font-size: 0.85rem; line-height: 1.5;">
+                            @if (_udpLogs.Count == 0)
+                            {
+                                <div class="system-line" style="color: #64748b;">[UDP] UDP Console ready.</div>
+                            }
+                            else
+                            {
+                                @foreach (var log in _udpLogs)
+                                {
+                                    <div class="log-line" style="@GetLogStyle(log)">@log</div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: auto; padding-top: 2rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+        <p>CyberCOLA Payment Gateway Simulator System © 2026</p>
+    </footer>
+</div>
+
+@code {
+    private string GetTransactionIconPath()
+    {
+        switch (_transactionType.ToUpper())
+        {
+            case "FISC":
+                return "images/Fisc.ico";
+            case "NCCC":
+                return "images/Nccc.ico";
+            case "MASTERCARD":
+                return "images/MasterCard.ico";
+            case "VISA":
+                return "images/Visa.ico";
+            case "TWIN":
+                return "images/Twin.ico";
+            case "TWMP":
+                return "images/Twmp.ico";
+            case "NCPS":
+                return "images/Ncps.ico";
+            case "IAG":
+            case "STIN":
+                return "images/CreditCard.ico";
+            default:
+                return "images/TCPIP.ico";
+        }
+    }
+
+    private RenderFragment GetTransactionIcon(string size = "1.2rem", string className = "") => builder =>
+    {
+        builder.OpenElement(0, "img");
+        if (!string.IsNullOrEmpty(className)) builder.AddAttribute(1, "class", className);
+        builder.AddAttribute(2, "src", GetTransactionIconPath());
+        builder.AddAttribute(3, "style", $"width: {size}; height: {size}; object-fit: contain; vertical-align: middle;");
+        builder.CloseElement();
+    };
+
+    private string _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private System.Threading.Timer? _clockTimer;
+    private readonly List<string> _systemLogs = new();
+    private readonly List<string> _udpLogs = new();
+    private bool _shouldScrollSystem = false;
+    private bool _shouldScrollUdp = false;
+
+    // Config form bindings
+    private string _transactionType = "FISC";
+    private int _listenPort = 8100;
+    private int _sendInterval = 10000;
+    private int _repeatCount = 1;
+    private int _interval = 30;
+    private bool _isWaitingSignOn = false;
+    private bool _isAutoEcho = true;
+
+    private int _ingestRepeat = 1;
+
+    private bool _isStarting = false;
+    private bool _isStopping = false;
+
+    // Dynamic stats
+    private int _tps = 0;
+    private int _activeConnections = 0;
+    private long _successCount = 0;
+    private long _errorCount = 0;
+    private List<QueueInfo> _queueInfos = new();
+
+    private List<string> _templateFiles = new();
+    private readonly HashSet<string> _selectedTemplates = new();
+
+    protected override void OnInitialized()
+    {
+        // Load initial configurations
+        _transactionType = Manager.TransactionType ?? "FISC";
+        _listenPort = Manager.ListenPort == 0 ? 8100 : Manager.ListenPort;
+        _sendInterval = Manager.SendInterval == 0 ? 10000 : Manager.SendInterval;
+        _isWaitingSignOn = Manager.IsWaitingSignOn;
+        _isAutoEcho = Manager.IsAutoEcho;
+
+        // Fetch template file list
+        try
+        {
+            _templateFiles = Manager.GetTemplateFiles() ?? new List<string>();
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Failed to fetch templates: {ex.Message}");
+        }
+
+        // Subscribe to log events
+        StressLogBroadcaster.OnLogAdded += OnLogAdded;
+
+        // Sync and dispatch historical logs
+        foreach (var history in StressLogBroadcaster.GetHistory())
+        {
+            if (history.Contains("[UDP]", StringComparison.OrdinalIgnoreCase) || 
+                history.Contains("[UDP-ERROR]", StringComparison.OrdinalIgnoreCase))
+            {
+                _udpLogs.Add(history);
+            }
+            else
+            {
+                _systemLogs.Add(history);
+            }
+        }
+
+        // Initialize clock & telemetry timer (runs every 1s)
+        _clockTimer = new System.Threading.Timer(_ =>
+        {
+            _systemTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            
+            // Sync live telemetry
+            _tps = Manager.Tps;
+            _activeConnections = Manager.ActiveConnections;
+            _successCount = Manager.SuccessCount;
+            _errorCount = Manager.ErrorCount;
+
+            try
+            {
+                _queueInfos = Manager.GetQueueInfo() ?? new List<QueueInfo>();
+            }
+            catch
+            {
+                _queueInfos = new List<QueueInfo>();
+            }
+
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void OnLogAdded(string message)
+    {
+        InvokeAsync(() =>
+        {
+            if (message.Contains("[UDP]", StringComparison.OrdinalIgnoreCase) || 
+                message.Contains("[UDP-ERROR]", StringComparison.OrdinalIgnoreCase))
+            {
+                _udpLogs.Add(message);
+                if (_udpLogs.Count > 500)
+                {
+                    _udpLogs.RemoveAt(0);
+                }
+                _shouldScrollUdp = true;
+            }
+            else
+            {
+                _systemLogs.Add(message);
+                if (_systemLogs.Count > 500)
+                {
+                    _systemLogs.RemoveAt(0);
+                }
+                _shouldScrollSystem = true;
+            }
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollSystem)
+        {
+            _shouldScrollSystem = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "var el = document.getElementById('sysConsole'); if(el) el.scrollTop = el.scrollHeight;");
+            }
+            catch { }
+        }
+        if (_shouldScrollUdp)
+        {
+            _shouldScrollUdp = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "var el = document.getElementById('udpConsole'); if(el) el.scrollTop = el.scrollHeight;");
+            }
+            catch { }
+        }
+    }
+
+    private void ToggleTemplate(string file, object? isChecked)
+    {
+        if (isChecked is bool val && val)
+        {
+            _selectedTemplates.Add(file);
+        }
+        else
+        {
+            _selectedTemplates.Remove(file);
+        }
+    }
+
+    private void SelectAll()
+    {
+        foreach (var file in _templateFiles)
+        {
+            _selectedTemplates.Add(file);
+        }
+    }
+
+    private void SelectNone()
+    {
+        _selectedTemplates.Clear();
+    }
+
+    private void LoadTemplates()
+    {
+        try
+        {
+            _systemLogs.Add($"[SYSTEM] Loading {_selectedTemplates.Count} templates...");
+            Manager.LoadTemplates(_selectedTemplates.ToList());
+            _systemLogs.Add($"[SYSTEM] Successfully loaded {Manager.LoadedFilesCount} templates.");
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Failed to load templates: {ex.Message}");
+        }
+    }
+
+    private void IngestPayloads()
+    {
+        try
+        {
+            _systemLogs.Add($"[SYSTEM] Ingesting payloads (Repeat: {_ingestRepeat})...");
+            int count = Manager.IngestPayloads(_ingestRepeat);
+            _systemLogs.Add($"[SYSTEM] Ingestion complete. Ingested {count} messages.");
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Ingestion failed: {ex.Message}");
+        }
+    }
+
+    private void ResetQueues()
+    {
+        try
+        {
+            _systemLogs.Add("[SYSTEM] Resetting queues...");
+            Manager.ResetQueues();
+            _systemLogs.Add("[SYSTEM] Queues reset and purged successfully.");
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Reset queues failed: {ex.Message}");
+        }
+    }
+
+    private async Task StartService()
+    {
+        _isStarting = true;
+        _systemLogs.Add($"[SYSTEM] Starting Stress Test Listener on port {_listenPort} ({_transactionType})...");
+        StateHasChanged();
+
+        try
+        {
+            await Task.Run(() => Manager.StartService(
+                _transactionType,
+                _listenPort,
+                _sendInterval,
+                _repeatCount,
+                _interval,
+                _isWaitingSignOn,
+                _isAutoEcho
+            ));
+            _systemLogs.Add($"[SYSTEM] Stress Test Listener successfully started on port {_listenPort}.");
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Failed to start service: {ex.Message}");
+        }
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopService()
+    {
+        _isStopping = true;
+        _systemLogs.Add("[SYSTEM] Stopping Stress Test Listener...");
+        StateHasChanged();
+
+        try
+        {
+            await Task.Run(() => Manager.StopService());
+            _systemLogs.Add("[SYSTEM] Stress Test Listener stopped.");
+        }
+        catch (Exception ex)
+        {
+            _systemLogs.Add($"[ERROR] Failed to stop service: {ex.Message}");
+        }
+        finally
+        {
+            _isStopping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CloseApp()
+    {
+        try
+        {
+            Manager.StopService();
+            _systemLogs.Add("[SYSTEM] Closing WebStressSimulator process...");
+            StateHasChanged();
+        }
+        catch { }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                try {
+                    var style = document.createElement('style');
+                    style.innerHTML = '#components-reconnect-modal, .components-reconnect-show, .components-reconnect-failed, .components-reconnect-refused, .components-reconnect-cannot-connect, #blazor-error-ui, .blazor-error-ui, [reconnect-modal] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+                    document.head.appendChild(style);
+                } catch(e) {}
+
+                try {
+                    if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+                        window.Blazor.defaultReconnectionHandler._reconnectCallback = function() {};
+                        window.Blazor.defaultReconnectionHandler.onConnectionDown = function() {};
+                    }
+                } catch(e) {}
+
+                try { window.close(); } catch(e) {}
+                window.location.href = 'about:blank';
+            ");
+        }
+        catch { }
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        });
+    }
+
+    private void OnTransactionTypeChanged(string value)
+    {
+        _transactionType = value;
+        Manager.TransactionType = value;
+        
+        try
+        {
+            _templateFiles = Manager.GetTemplateFiles() ?? new List<string>();
+            _selectedTemplates.Clear();
+            _systemLogs.Add($"[SYSTEM] Switched transaction type to {_transactionType}. Loaded {_templateFiles.Count} templates.");
+        }
+        catch (Exception ex)
+        {
+            _templateFiles = new List<string>();
+            _selectedTemplates.Clear();
+            _systemLogs.Add($"[ERROR] Failed to fetch templates for {_transactionType}: {ex.Message}");
+        }
+        
+        StateHasChanged();
+    }
+
+    private void ClearLogs()
+    {
+        _systemLogs.Clear();
+        _udpLogs.Clear();
+        StateHasChanged();
+    }
+
+    private string GetLogStyle(string log)
+    {
+        if (log.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)) return "color: #ff1744;";
+        if (log.Contains("[SYSTEM]", StringComparison.OrdinalIgnoreCase)) return "color: #00e676;";
+        return "color: #f8fafc;";
+    }
+
+    public void Dispose()
+    {
+        StressLogBroadcaster.OnLogAdded -= OnLogAdded;
+        _clockTimer?.Dispose();
+    }
+}

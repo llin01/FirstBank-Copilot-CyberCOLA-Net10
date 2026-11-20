@@ -1,0 +1,103 @@
+@if (!Summary.HasStatistics)
+{
+    <div class="muted" style="font-size: 13px;">還沒有統計結果。</div>
+}
+else
+{
+    var baseline = Baselines.For(Summary.Network);
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+        <div class="stat"><span class="label">請求</span><span class="value">@Summary.TotalRequests</span></div>
+        <div class="stat">
+            <span class="label">成功率</span>
+            <span class="value @RateClass(baseline)">@(Summary.SuccessPercent?.ToString("0.0", CultureInfo.InvariantCulture))%</span>
+        </div>
+        <div class="stat"><span class="label">成功 / 失敗</span><span class="value">@Summary.Success / @Summary.Failed</span></div>
+        <div class="stat">
+            <span class="label">未回應</span>
+            <span class="value @(Summary.TotalUnanswered > 0 ? "bad" : "ok")">@Summary.TotalUnanswered</span>
+        </div>
+        @if (baseline is not null)
+        {
+            <div class="stat">
+                <span class="label">基準（@baseline.Date）</span>
+                <span class="value muted">@baseline.SuccessPercent.ToString("0.0", CultureInfo.InvariantCulture)%</span>
+                <span class="label">@baseline.Requests 筆；@baseline.Note</span>
+            </div>
+        }
+    </div>
+
+    @if (Summary.RequestMix is not null)
+    {
+        <div class="muted" style="font-size: 13px; margin-bottom: 8px;">請求組成：@Summary.RequestMix</div>
+    }
+
+    @if (Summary.MessagesSeenByGw is not null)
+    {
+        <table class="data" style="margin-bottom: 12px;">
+            <tr><th>GW 收到</th><th>產生回應</th><th>送回模擬器</th><th>Dropped</th><th>Auth 未回</th><th>無法解碼</th></tr>
+            <tr>
+                <td class="num">@Summary.MessagesSeenByGw</td>
+                <td class="num">@Summary.ResponsesProduced</td>
+                <td class="num">@Summary.Delivered</td>
+                <td class="num @(Summary.Dropped > 0 ? "bad" : "")">@Summary.Dropped</td>
+                <td class="num @(Summary.NoAnswerFromAuth > 0 ? "bad" : "")">@Summary.NoAnswerFromAuth</td>
+                <td class="num">@Summary.NotDecodable</td>
+            </tr>
+        </table>
+    }
+
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 320px;">
+            <table class="data">
+                <tr><th>回應碼</th><th class="num">筆數</th><th class="num">比例</th><th>結果</th><th>說明</th></tr>
+                @foreach (var rc in Summary.ResponseCodes)
+                {
+                    <tr>
+                        <td>@rc.Code</td>
+                        <td class="num">@rc.Count</td>
+                        <td class="num">@rc.Percent.ToString("0.0", CultureInfo.InvariantCulture)%</td>
+                        <td class="@(rc.Success ? "ok" : "bad")">@(rc.Success ? "成功" : "失敗")</td>
+                        <td>@rc.Description</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        @if (Summary.Mtis.Count > 0)
+        {
+            <div style="flex: 1; min-width: 220px;">
+                <table class="data">
+                    <tr><th>回應 MTI</th><th class="num">合計</th><th class="num">成功</th><th class="num">失敗</th></tr>
+                    @foreach (var m in Summary.Mtis)
+                    {
+                        <tr>
+                            <td>@m.Mti</td>
+                            <td class="num">@m.Total</td>
+                            <td class="num">@m.Success</td>
+                            <td class="num @(m.Failed > 0 ? "bad" : "")">@m.Failed</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+    </div>
+}
+
+@if (Summary.Notes.Count > 0)
+{
+    <ul style="margin: 12px 0 0 0; padding-left: 18px; font-size: 13px;" class="warn">
+        @foreach (var note in Summary.Notes)
+        {
+            <li>@note</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public AuthTestSummary Summary { get; set; } = new();
+
+    // More than 2 points under the baseline usually means used-up card credit (check code 062).
+    private string RateClass(Baseline? baseline) =>
+        baseline is null || Summary.SuccessPercent is null ? string.Empty
+        : Summary.SuccessPercent >= baseline.SuccessPercent - 2 ? "ok" : "bad";
+}

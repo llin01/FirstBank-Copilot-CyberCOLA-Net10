@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  HSM (SUIP) reply layouts per function, from "HSM 介面建議書 V2.5 (2023/6/28)",
+  section N.2 "Output Parameter description" of each function.
+
+  Format: each "x" is one character, "-" separates fields, "*" is a variable-length tail.
+  WpfServerSimulator / WebServerSimulator build a reply by replacing x with 0 and dropping "-".
+  WpfHSMSimulator / WebHSMSimulator do not read this file: their replies are built in
+  CommonLib/Network/Server/AsynTcpServer.cs.
+
+  Common prefix of every reply:
+    rtnCode  2  "00" = OK, otherwise a SUIP call error
+    rsnCode  8  Return Code (4) + Reason Code (4), e.g. 00008020:
+                Return Code 0000 Success, 0303 SUIP error, 0304 HSM error
+                Reason Code 0000 Success, 7000 Function access denied, 8000 Get key from key store fail,
+                            8001 Set key into key store fail, 8005 Key inappropriate for function,
+                            8020 Invalid input data, 9001 PIN/PVV/CVV/MAC/etc verify fail, 2999 Other error
+
+  The deployed vendor client DLL\SocketClient.dll (probed against a test listener) differs from V2.5 on the wire:
+    - rtnCode is one binary byte (0x00 = OK); the client turns it into the 2-character rtnCode
+      (an ASCII "00" reads as 0x30, i.e. return code 30)
+    - Function 01 cvv: it reads 3 characters, V2.5 gives 5
+    - Function 03 Pin_offset: it reads 6 characters, V2.5 gives 4
+  Functions 07, 13 and 21 were not probed.
+-->
+<HSMRespConfig>
+  <FuncList>
+    <!-- 01 GenerateCVV: cvv(5) -->
+    <SuipFunc Function-ID="01" RespCode="xx-xxxxxxxx-xxxxx" />
+    <!-- 02 VerifyCVV -->
+    <SuipFunc Function-ID="02" RespCode="xx-xxxxxxxx" />
+    <!-- 03 EncryptBankPin: encPINBlock(16), pvv(4), Pin_offset(4) -->
+    <SuipFunc Function-ID="03" RespCode="xx-xxxxxxxx-xxxxxxxxxxxxxxxx-xxxx-xxxx" />
+    <!-- 04 GenerateClearPin: clearPIN(6) -->
+    <SuipFunc Function-ID="04" RespCode="xx-xxxxxxxx-xxxxxx" />
+    <!-- 05 GeneratePVV: Pvv(4), Pvv_origin(4), Pin_offset(4) -->
+    <SuipFunc Function-ID="05" RespCode="xx-xxxxxxxx-xxxx-xxxx-xxxx" />
+    <!-- 06 GenerateARQC: removed in V2.5 (was arqcData(16)) -->
+    <!-- 07 VerifyARQC -->
+    <SuipFunc Function-ID="07" RespCode="xx-xxxxxxxx" />
+    <!-- 08 GenerateARPC: arpcData(16) -->
+    <SuipFunc Function-ID="08" RespCode="xx-xxxxxxxx-xxxxxxxxxxxxxxxx" />
+    <!-- 09 GenerateCAVV: cavv(3) -->
+    <SuipFunc Function-ID="09" RespCode="xx-xxxxxxxx-xxx" />
+    <!-- 10 VerifyCAVV -->
+    <SuipFunc Function-ID="10" RespCode="xx-xxxxxxxx" />
+    <!-- 11 ChangeSendingKey: keySync(4), encKey(32) -->
+    <SuipFunc Function-ID="11" RespCode="xx-xxxxxxxx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+    <!-- 12 ChangeReceivingKey -->
+    <SuipFunc Function-ID="12" RespCode="xx-xxxxxxxx" />
+    <!-- 13 NewKeyReplaceOldKey -->
+    <SuipFunc Function-ID="13" RespCode="xx-xxxxxxxx" />
+    <!-- 14 GenerateCVVPVV: pvv(4), clearPin(6), cvv1(3), cvv2(3), cvv3(3) -->
+    <SuipFunc Function-ID="14" RespCode="xx-xxxxxxxx-xxxx-xxxxxx-xxx-xxx-xxx" />
+    <!-- 15 GenerateESvcKey: Public Key(N) -->
+    <SuipFunc Function-ID="15" RespCode="xx-xxxxxxxx-*" />
+    <!-- 16 DecryptEncryptBySessionKey: FileSize(10), FileName Length(3), then FileName(N),
+         Encrypted Session Key Length(3), Encrypted Session Key(N), Check Value(6) -->
+    <SuipFunc Function-ID="16" RespCode="xx-xxxxxxxx-xxxxxxxxxx-xxx-*" />
+    <!-- 17 EncryptPin: encryptedPin(16) -->
+    <SuipFunc Function-ID="17" RespCode="xx-xxxxxxxx-xxxxxxxxxxxxxxxx" />
+    <!-- 18 EncryptDataExtend: encryptedData(n) -->
+    <SuipFunc Function-ID="18" RespCode="xx-xxxxxxxx-*" />
+    <!-- 19 3dsDecodeOtp: cardNo(19), OTP(10) -->
+    <SuipFunc Function-ID="19" RespCode="xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxx-xxxxxxxxxx" />
+    <!-- 20 ChangeSendingKeyKB: keySync(4), keyLength(3), encKey(n) -->
+    <SuipFunc Function-ID="20" RespCode="xx-xxxxxxxx-xxxx-xxx-*" />
+    <!-- 21 ChangeReceivingKeyKB -->
+    <SuipFunc Function-ID="21" RespCode="xx-xxxxxxxx" />
+    <!-- 22 DecryptEncryptByAes: result(n) -->
+    <SuipFunc Function-ID="22" RespCode="xx-xxxxxxxx-*" />
+    <!-- 23 GenerateMAC: result(16) -->
+    <SuipFunc Function-ID="23" RespCode="xx-xxxxxxxx-xxxxxxxxxxxxxxxx" />
+  </FuncList>
+</HSMRespConfig>

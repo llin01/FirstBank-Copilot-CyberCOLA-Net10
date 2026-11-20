@@ -1,0 +1,471 @@
+{
+  "FISC": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15435",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "FiscServiceConfig": {
+        "fisc-service-target-ip": "CFLin-NB-Test",
+        "fisc-service-target-ports": "8100,8100,8100,8100",
+        "fisc-service-local-ip": "CFLin-NB-Test",
+        "fisc-service-local-ports": "18100,18101,18102,18103",
+        "fisc-service-sessions": "4",
+        "fisc-service-reconnect-interval-ms": "10000",
+        "fisc-service-maintenance-local-ports": "",
+        "fisc-service-auto-start-flag": "true",
+        "fisc-service-auto-signon-flag": "true",
+        "fisc-service-auto-echo-flag": "true",
+        "fisc-service-maintenance-auto-echo-flag": "true"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10002",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "false"
+      }
+    },
+    "GWIDVerify": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15936",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "FiscServiceConfig": {
+        "fisc-service-target-ip": "CFLin-NB-Test",
+        "fisc-service-target-ports": "9100,9100,9100,9100",
+        "fisc-service-local-ip": "CFLin-NB-Test",
+        "fisc-service-local-ports": "19100,19101,19102,19103",
+        "fisc-service-sessions": "4",
+        "fisc-service-reconnect-interval-ms": "10000",
+        "fisc-service-maintenance-local-ports": "19103",
+        "fisc-service-auto-start-flag": "true",
+        "fisc-service-auto-signon-flag": "false",
+        "fisc-service-auto-echo-flag": "false",
+        "fisc-service-maintenance-auto-echo-flag": "false"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10008",
+        "client-monitor-service-auto-start-flag": "false",
+        "client-monitor-service-dummy-echo-flag": "false"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "15435",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "25100",
+        "cola-service-sessions": "64",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "FISC"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10012",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9913",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      },
+      "IDVerifyServerServiceConfig": {
+        "server-service-server-ip": "CFLin-NB-Test",
+        "server-service-listen-port": "9961",
+        "server-service-max-connection": "10",
+        "server-service-buffer-size": "2048",
+        "server-service-auto-start-flag": "true"
+      },
+      "IDVerifyClientConfig": {
+        "fisc-service-target-ip": "CFLin-NB-Test",
+        "fisc-service-target-port": "15936",
+        "fisc-service-local-ip": "CFLin-NB-Test",
+        "fisc-service-local-ports": "12100,12101",
+        "fisc-service-sessions": "2",
+        "fisc-service-auto-start-flag": "true",
+        "fisc-service-auto-echo-flag": "false",
+        "fisc-service-auto-signon-flag": "true",
+        "fisc-timeout-milliseconds": "5000",
+        "fisc-key-data-retain-minutes": "20"
+      }
+    }
+  },
+  "NCCC": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15335",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false",
+        "cola-service-assign-remote-port-list": "25000,25001,25002,25003"
+      },
+      "NcccServiceConfig": {
+        "nccc-service-target-ip": "CFLin-NB-Test",
+        "nccc-service-target-ports": "14801,14801,14801,14801",
+        "nccc-service-local-ip": "CFLin-NB-Test",
+        "nccc-service-local-ports": "24801,24803,24804,24805",
+        "nccc-service-sessions": "4",
+        "nccc-service-reconnect-interval-ms": "10000",
+        "nccc-service-maintenance-local-ports": "24802",
+        "nccc-service-auto-start-flag": "true",
+        "nccc-service-auto-signon-flag": "false",
+        "nccc-service-auto-echo-flag": "false",
+        "nccc-service-maintenance-auto-echo-flag": "true"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10001",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      }
+    },
+    "GWQRCode": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15935",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "NcccServiceConfig": {
+        "nccc-service-target-ip": "CFLin-NB-Test",
+        "nccc-service-target-ports": "14851,14851,14851,14851",
+        "nccc-service-local-ip": "CFLin-NB-Test",
+        "nccc-service-local-ports": "24851,24852,24853,24854",
+        "nccc-service-sessions": "4",
+        "nccc-service-reconnect-interval-ms": "10000",
+        "nccc-service-maintenance-local-ports": "24851",
+        "nccc-service-auto-start-flag": "true",
+        "nccc-service-auto-signon-flag": "false",
+        "nccc-service-auto-echo-flag": "false",
+        "nccc-service-maintenance-auto-echo-flag": "true"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10007",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "15335",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "25000",
+        "cola-service-sessions": "64",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "NCCC"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10011",
+        "client-monitor-service-auto-start-flag": "false",
+        "client-monitor-service-dummy-echo-flag": "false"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9903",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      },
+      "QRCodeServerServiceConfig": {
+        "server-service-server-ip": "CFLin-NB-Test",
+        "server-service-listen-port": "9951",
+        "server-service-max-connection": "10",
+        "server-service-buffer-size": "2048",
+        "server-service-auto-start-flag": "true"
+      },
+      "QRCodeClientConfig": {
+        "nccc-service-target-ip": "CFLin-NB-Test",
+        "nccc-service-target-port": "15935",
+        "nccc-service-local-ip": "CFLin-NB-Test",
+        "nccc-service-local-ports": "12000,12001",
+        "nccc-service-sessions": "2",
+        "nccc-service-auto-start-flag": "true",
+        "nccc-service-auto-echo-flag": "false",
+        "nccc-service-auto-signon-flag": "true",
+        "nccc-timeout-milliseconds": "5000",
+        "nccc-key-data-retain-minutes": "20"
+      }
+    }
+  },
+  "TWIN": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "10335",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "TwinServiceConfig": {
+        "twin-service-target-ip": "CFLin-NB-Test",
+        "twin-service-target-ports": "14801,14801,14801,14801",
+        "twin-service-local-ip": "CFLin-NB-Test",
+        "twin-service-local-ports": "24801,24802,24803,24804",
+        "twin-service-sessions": "4",
+        "twin-service-reconnect-interval-ms": "10000",
+        "twin-service-maintenance-local-ports": "24801",
+        "twin-service-auto-start-flag": "true",
+        "twin-service-auto-signon-flag": "false",
+        "twin-service-auto-echo-flag": "false",
+        "twin-service-maintenance-auto-echo-flag": "true"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10001",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "false"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "10335",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "1000",
+        "cola-service-sessions": "1",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "TWIN"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10011",
+        "client-monitor-service-auto-start-flag": "false",
+        "client-monitor-service-dummy-echo-flag": "false"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9903",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      }
+    }
+  },
+  "ICASH": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15735",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "ServerServiceConfig": {
+        "server-service-bind-ip": "0.0.0.0",
+        "server-service-bind-port": "6700",
+        "server-service-backlog": "10240",
+        "server-tpdu-serverid": "0007",
+        "server-allow-connection-remote-endpoints": "",
+        "server-service-auto-start-flag": "true",
+        "server-service-auto-signon-flag": "true",
+        "server-service-auto-echo-flag": "false"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10006",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "15735",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "25400",
+        "cola-service-tpdu-issuerid": "0007",
+        "cola-service-sessions": "64",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "ICASH"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10015",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9943",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      }
+    }
+  },
+  "IPASS": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15835",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "ServerServiceConfig": {
+        "server-service-bind-ip": "0.0.0.0",
+        "server-service-bind-port": "5504",
+        "server-service-backlog": "10240",
+        "server-tpdu-serverid": "0007",
+        "server-allow-connection-remote-endpoints": "",
+        "server-service-auto-start-flag": "true",
+        "server-service-auto-signon-flag": "true",
+        "server-service-auto-echo-flag": "false"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10006",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "15835",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "25500",
+        "cola-service-tpdu-issuerid": "0007",
+        "cola-service-sessions": "64",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "IPASS"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10016",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9953",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      }
+    }
+  },
+  "SVCS": {
+    "GW": {
+      "ColaServiceConfig": {
+        "cola-service-bind-ip": "0.0.0.0",
+        "cola-service-bind-port": "15635",
+        "cola-service-backlog": "10240",
+        "cola-service-idle-channel-wait-ms": "1000",
+        "cola-service-auto-start-flag": "true",
+        "cola-service-auto-echo-flag": "false"
+      },
+      "ServerServiceConfig": {
+        "server-service-bind-ip": "0.0.0.0",
+        "server-service-bind-port": "4500",
+        "server-service-backlog": "10240",
+        "server-tpdu-serverid": "0074",
+        "server-allow-connection-remote-endpoints": "",
+        "server-service-auto-start-flag": "true",
+        "server-service-auto-signon-flag": "true",
+        "server-service-auto-echo-flag": "false"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10004",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      }
+    },
+    "Auth": {
+      "ColaServiceConfig": {
+        "cola-service-target-ip": "CFLin-NB-Test",
+        "cola-service-target-port": "15635",
+        "cola-service-local-ip": "CFLin-NB-Test",
+        "cola-service-local-port-start": "25300",
+        "cola-service-tpdu-issuerid": "0074",
+        "cola-service-sessions": "64",
+        "cola-service-auto-start-flag": "true",
+        "cola-key-data-retain-minutes": "20",
+        "cola-service-return-flag": "false",
+        "cola-service-format-type": "SVCS"
+      },
+      "ClientMonitorConfig": {
+        "client-monitor-service-target-ip": "CFLin-NB-Test",
+        "client-monitor-service-target-port": "9901",
+        "client-monitor-service-local-hostname": "CFLin-NB-Test",
+        "client-monitor-service-local-ip": "CFLin-NB-Test",
+        "client-monitor-service-local-port": "10014",
+        "client-monitor-service-auto-start-flag": "true",
+        "client-monitor-service-dummy-echo-flag": "true"
+      },
+      "ClientAuthRouterConfig": {
+        "clientauth-router-service-local-ip": "CFLin-NB-Test",
+        "clientauth-router-service-listener-port": "9933",
+        "clientauth-router-service-auto-start-flag": "true",
+        "clientauth-router-service-backlog": "1024"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SMSServerInfo>
+  <SMSServers>
+    <SMSServer>
+      <ServerName>CFLin-NB-Test</ServerName>
+      <ListenerPort>10000</ListenerPort>
+      <ConnectionTimeoutMilliseconds>10000</ConnectionTimeoutMilliseconds>
+      <SendReceiveTimeoutMilliseconds>10000</SendReceiveTimeoutMilliseconds>
+      <WaitForCloseMilliseconds>100</WaitForCloseMilliseconds>
+    </SMSServer>
+    <SMSServer>
+      <ServerName>CFLin-NB-Test</ServerName>
+      <ListenerPort>10000</ListenerPort>
+      <ConnectionTimeoutMilliseconds>10000</ConnectionTimeoutMilliseconds>
+      <SendReceiveTimeoutMilliseconds>10000</SendReceiveTimeoutMilliseconds>
+      <WaitForCloseMilliseconds>100</WaitForCloseMilliseconds>
+    </SMSServer>
+  </SMSServers>
+  <AppDataInfo       ThreadSleepTimeByMiliSec="1000"
+  	             HaveNotice="false"
+  	             MaxProcessCount="100"
+  	             MaxParallelTaskCount="5"
+  	             StartKey="00000000000000"
+  	             HaveChangedStartKey="false"
+                     RetryCount="1">
+  </AppDataInfo>
+</SMSServerInfo>
