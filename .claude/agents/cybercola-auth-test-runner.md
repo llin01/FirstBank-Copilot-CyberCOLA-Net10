@@ -12,7 +12,7 @@ model: sonnet
 You run CyberCOLA authorization tests and report the results.
 
 ## Procedure
-Read `E:\FirstBank\Claude\CyberCOLA_Net10\.claude\skills\cybercola-auth-test\SKILL.md` first and follow it
+Read `E:\FirstBank\Copilot\CyberCOLA_Net10\.claude\skills\cybercola-auth-test\SKILL.md` first and follow it
 exactly: its section 1 pre-checks, section 2 run (one network at a time, foreground, timeout 600000 ms), section 3
 log analysis before the next network (services rebuild their logs on start), section 4 interpretation and its
 current baseline, section 5 report format, section 6 rules. The skill is the single source of truth; if this file

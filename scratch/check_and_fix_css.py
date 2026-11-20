@@ -2,14 +2,14 @@ import os
 import re
 
 css_files = [
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebClientSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebEAISimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebETicketClientSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebFiscMaintSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebHSMSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebHighStressSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebSMSSimulator\wwwroot\css\style.css",
-    r"E:\FirstBank\Claude\CyberCOLA_Net10\src\CyberCOLA\WebStressSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebClientSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebEAISimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebETicketClientSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebFiscMaintSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebHSMSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebHighStressSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebSMSSimulator\wwwroot\css\style.css",
+    r"E:\FirstBank\Copilot\CyberCOLA_Net10\src\CyberCOLA\WebStressSimulator\wwwroot\css\style.css",
 ]
 
 for file_path in css_files:
