@@ -51,7 +51,36 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers
                 return;
             }
 
-            TimeUtils.Sleep(this.interval);
+            // P0 Fix: Implement reconnection limit (max 3 attempts) with exponential backoff
+            var reconnectAttempts = service.GetChannelReconnectAttempts().AddOrUpdate(ctx.Channel, 1, (key, oldValue) => oldValue + 1);
+            
+            if (reconnectAttempts > 3)
+            {
+                this.Logger.Fatal($"Channel[{localEndPoint}] exceeded maximum reconnection attempts ({reconnectAttempts}). Stopping reconnection.");
+                service.GetChannelReconnectAttempts().TryRemove(ctx.Channel, out _);
+                return;
+            }
+
+            // For first reconnection attempt, use the configured interval.
+            // For subsequent retries (2+), apply exponential backoff: 5s, 10s, 30s
+            int delayMs;
+            if (reconnectAttempts == 1)
+            {
+                delayMs = this.interval;
+            }
+            else
+            {
+                delayMs = reconnectAttempts switch
+                {
+                    2 => 5000,   // 5 seconds for 2nd attempt
+                    3 => 10000,  // 10 seconds for 3rd attempt
+                    _ => 30000   // 30 seconds for beyond 3rd
+                };
+            }
+
+            this.Logger.Info($"Channel[{localEndPoint}] reconnection attempt {reconnectAttempts}/3, waiting {delayMs}ms before retry");
+            TimeUtils.Sleep(delayMs);
+
             if (ObjectUtils.IsNull(CyberGWFISCResource.CyberGWFISC))
             {
                 return;
@@ -70,10 +99,8 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers
             }
             this.Logger.Debug($"Free FiscEndPoint Remote[{freeFiscEndPoint.RemoteIp}:{freeFiscEndPoint.RemotePort}], Local[{freeFiscEndPoint.LocalIp}:{freeFiscEndPoint.LocalPort}]");
             this.Logger.Debug($"ChannelUnRegistered Remote[{remoteEndPoint}],Local[{localEndPoint}]");
-            //var channel = bootstrap.Connect(remoteEndPoint, localEndPoint).Sync().Channel();
             remoteEndPoint = new IPEndPoint(IPAddress.Parse(freeFiscEndPoint.RemoteIp), freeFiscEndPoint.RemotePort);
             localEndPoint = new IPEndPoint(IPAddress.Parse(freeFiscEndPoint.LocalIp), freeFiscEndPoint.LocalPort);
-            //var channel = bootstrap.Connect(remoteEndPoint, freeLocalEndPoint).Sync().Channel();
             var channel = bootstrap.Connect(remoteEndPoint, localEndPoint).Sync().Channel();
             if (channel.IsConnected() && !channel.IsClosed())
             {
@@ -83,6 +110,9 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers
                 channel.Carrier<ReadTransactionTimeKey>(DateTime.Now);
                 channel.Carrier<FiscChannelInfoKey>(new ChannelSessionInfo(localEndPoint.ToString(), remoteEndPoint.ToString()));
                 service.Release(channel);
+                // Reset reconnection counter on successful connection
+                service.GetChannelReconnectAttempts().TryRemove(ctx.Channel, out _);
+                this.Logger.Info($"Connection established for channel[{channel.LocalEndPoint()}], reset reconnection counter");
             }
         }
     }

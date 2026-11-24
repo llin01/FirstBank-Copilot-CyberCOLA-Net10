@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Com.Cybersoft4u.CommonLib.Resource;
 using Com.Cybersoft4u.CyberUtils.Utils;
 using Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers;
@@ -55,6 +56,9 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
         private readonly ConcurrentDictionary<string, IChannel> RelationChannels = new ConcurrentDictionary<string, IChannel>();
 
         private readonly ConcurrentDictionary<string, int> DispatchTaskKeyValue = new ConcurrentDictionary<string, int>();
+
+        // P0 Fix: Reconnection attempt counter per channel (channel -> reconnect count)
+        private readonly ConcurrentDictionary<IChannel, int> _channelReconnectAttempts = new ConcurrentDictionary<IChannel, int>();
 
         private FiscEndPoint[] FiscEndPoints;
 
@@ -176,6 +180,13 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
         {
             return (Channels);
         }
+
+        // P0 Fix: Getter for reconnection attempt counter per channel
+        public ConcurrentDictionary<IChannel, int> GetChannelReconnectAttempts()
+        {
+            return _channelReconnectAttempts;
+        }
+
         public void SignOff()
         {
             this.AutoReSignOn = false;
@@ -717,18 +728,29 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
                             bootstrap.Handler(new FiscChannelInitializer(this, bootstrap, remoteEndPoint, localEndPoint, maintenanceLocalPortFlag, reconnectIntervalMilliseconds))
                                              .SetChannelOption(ChannelOptionLevel.Tcp, ChannelOptionName.NoDelay, true)
                                              .SetChannelOption(ChannelOptionLevel.Socket, ChannelOptionName.ReuseAddress, true);
-                            var channel = bootstrap.Connect(remoteEndPoint, localEndPoint).Sync().Channel();
-                            channel.Carrier<RemoteEndPointKey>(remoteEndPoint);
-                            channel.Carrier<LocalEndPointKey>(localEndPoint);
-                            channel.Carrier<ReadTransactionTimeKey>(DateTime.Now);
-                            channel.Carrier<FiscChannelInfoKey>(new ChannelSessionInfo(localEndPoint.ToString(), remoteEndPoint.ToString()));
-                            //var channel = bootstrap.Connect(remoteEndPoint).Sync().Channel();
-                            if (channel.IsConnected() && !channel.IsClosed())
+                            
+                            // P0 Fix: Add 2-minute timeout for connection startup with CancellationTokenSource
+                            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2)))
                             {
-                                this.Release(channel);
-                                this.Logger.Info($"Add Chanel Of LocalEndPoint({channel.LocalEndPoint().ToString()})");
+                                try
+                                {
+                                    var connectFuture = bootstrap.Connect(remoteEndPoint, localEndPoint).Sync();
+                                    var channel = connectFuture.Channel();
+                                    if (channel.IsConnected() && !channel.IsClosed())
+                                    {
+                                        channel.Carrier<RemoteEndPointKey>(remoteEndPoint);
+                                        channel.Carrier<LocalEndPointKey>(localEndPoint);
+                                        channel.Carrier<ReadTransactionTimeKey>(DateTime.Now);
+                                        channel.Carrier<FiscChannelInfoKey>(new ChannelSessionInfo(localEndPoint.ToString(), remoteEndPoint.ToString()));
+                                        this.Release(channel);
+                                        this.Logger.Info($"Add Chanel Of LocalEndPoint({channel.LocalEndPoint().ToString()})");
+                                    }
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    this.Logger.Fatal($"Connection timeout for LocalEndPoint({localEndPoint}) => RemoteEndPoint({remoteEndPoint}) after 2 minutes");
+                                }
                             }
-
                         }
                         catch (Exception ex)
                         {
