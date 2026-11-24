@@ -19,6 +19,7 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers
 
     using Com.Cybersoft4u.CyberUtils.Utils;
     using Com.Cybersoft4u.ServiceProvider.Utils.CarrierKeys;
+    using Com.Cybersoft4u.ServiceProvider.EntryPoints.COLA;
     using Com.Cybersoft4u.Yetty.Channel;
     using Com.Cybersoft4u.Yetty.Context;
     using Com.Cybersoft4u.Yetty.Handler;
@@ -82,7 +83,25 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC.Handlers
                 channel.Carrier<LocalEndPointKey>(localEndPoint);
                 channel.Carrier<ReadTransactionTimeKey>(DateTime.Now);
                 channel.Carrier<FiscChannelInfoKey>(new ChannelSessionInfo(localEndPoint.ToString(), remoteEndPoint.ToString()));
+                
+                // Mark channel as revived and initialize its state with warm-up period
+                var channelState = new ChannelStateInfo 
+                { 
+                    RevivalTime = DateTime.Now,
+                    LastReleaseTime = DateTime.Now,
+                    ReleaseCount = 0,
+                    IsRevived = true
+                };
+                // Store state info for later verification
+                channel.Carrier<ChannelStateKey>(channelState);
+                
+                this.Logger.Info($"Channel revived successfully: Remote[{remoteEndPoint}], Local[{localEndPoint}], entering 1s warm-up period");
                 service.Release(channel);
+                this.Logger.Info($"Channel released back to idle pool after revival");
+            }
+            else
+            {
+                this.Logger.Error($"Failed to establish revived channel: Connected={channel?.IsConnected()}, Closed={channel?.IsClosed()}");
             }
         }
     }
