@@ -44,6 +44,10 @@ namespace Com.Cybersoft4u.ServiceProvider.ClientAuth
         private static readonly object GetFreeLocalEndPointLocker = new object();
         private static List<IPEndPoint> _localEndPoints = null;
         private static readonly object LockObject = new object();
+        // P0 Fix: Reconnection attempt counter per channel (channel -> reconnect count)
+        private static readonly ConcurrentDictionary<IChannel, int> _channelReconnectAttempts = new ConcurrentDictionary<IChannel, int>();
+        // P0 Fix: Inbound message processing concurrency limiter (max 100 concurrent tasks)
+        private static readonly SemaphoreSlim _inboundSemaphore = new SemaphoreSlim(100, 100);
         public CyberAuthNCCC()
         {
             try
@@ -1051,35 +1055,27 @@ namespace Com.Cybersoft4u.ServiceProvider.ClientAuth
                     Logger.Debug($"Go Hander: {GetType().FullName}");
                     // Stamped here so AuthTiming can report how long the read waited for a pool thread.
                     var queuedAt = AuthTiming.Start();
-                    Task.Factory.StartNew(() =>
-                    {
-                        try
-                        {
-                            AuthTiming.MarkDequeued(queuedAt);
-                            base.ChannelRead(ctx, msg);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Fatal($"InboundMultiWorkerHandler ChannelRead Exception : {ex.Message}");
-                        }
-                        finally
-                        {
-                            AuthTiming.ClearDequeued();
-                        }
-                    });
-                    //ThreadPool.QueueUserWorkItem(
-                    //state =>
-                    //    {
-                    //        try
-                    //        {
-                    //            base.ChannelRead(ctx, msg);
-                    //        }
-                    //        catch (Exception exception)
-                    //        {
-                    //            Logger.Fatal(exception);
-                    //        }
-                    //    });
+                    // P0 Fix: Use semaphore to limit concurrent inbound processing (max 100)
+                    _ = ProcessInboundAsync(ctx, msg, queuedAt);
+                }
 
+                private async Task ProcessInboundAsync(ChannelHandlerContext ctx, object msg, long queuedAt)
+                {
+                    await _inboundSemaphore.WaitAsync();
+                    try
+                    {
+                        AuthTiming.MarkDequeued(queuedAt);
+                        base.ChannelRead(ctx, msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Fatal($"InboundMultiWorkerHandler ChannelRead Exception : {ex.Message}");
+                    }
+                    finally
+                    {
+                        AuthTiming.ClearDequeued();
+                        _inboundSemaphore.Release();
+                    }
                 }
 
                 public override void ChannelReadCompleted(ChannelHandlerContext ctx)
@@ -1118,7 +1114,26 @@ namespace Com.Cybersoft4u.ServiceProvider.ClientAuth
                                 ? $"Remove Channel[{ctx.Channel.LocalEndPoint()}] Successful"
                                 : $"No Remove Channel");
 
-                    TimeUtils.Sleep(interval);
+                    // P0 Fix: Implement reconnection limit (max 3 attempts) with exponential backoff
+                    int reconnectAttempts = _channelReconnectAttempts.AddOrUpdate(ctx.Channel, 1, (key, oldValue) => oldValue + 1);
+                    
+                    if (reconnectAttempts > 3)
+                    {
+                        Logger.Fatal($"Channel[{ctx.Channel.LocalEndPoint()}] exceeded maximum reconnection attempts ({reconnectAttempts}). Stopping reconnection.");
+                        _channelReconnectAttempts.TryRemove(ctx.Channel, out _);
+                        return;
+                    }
+
+                    // Calculate exponential backoff: 5s, 10s, 30s
+                    int backoffDelayMs = reconnectAttempts switch
+                    {
+                        1 => 5000,   // 5 seconds
+                        2 => 10000,  // 10 seconds
+                        _ => 30000   // 30 seconds for attempt 3
+                    };
+
+                    Logger.Info($"Channel[{ctx.Channel.LocalEndPoint()}] reconnection attempt {reconnectAttempts}/3, waiting {backoffDelayMs}ms before retry");
+                    TimeUtils.Sleep(backoffDelayMs);
 
                     //if (!ctx.Channel.Carrier<DisconnectKey, bool>())
                     //{
@@ -1132,7 +1147,9 @@ namespace Com.Cybersoft4u.ServiceProvider.ClientAuth
                     {
                         if (!_clientChannels.TryAdd(channel, channel.LocalEndPoint().ToString()))
                             Logger.Info($"Add Channel[{channel.LocalEndPoint()}] Failed");
-                        Logger.Info("Connection");
+                        // Reset reconnection counter on successful connection
+                        _channelReconnectAttempts.TryRemove(channel, out _);
+                        Logger.Info($"Connection established for channel[{channel.LocalEndPoint()}], reset reconnection counter");
                     }
                 }
             }

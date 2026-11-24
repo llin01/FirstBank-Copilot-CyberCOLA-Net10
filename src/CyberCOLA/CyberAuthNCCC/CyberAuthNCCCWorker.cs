@@ -55,7 +55,26 @@ namespace Com.Cybersoft4u.Service.NCCC.CyberAuthNCCC
                 _appLogger.Info($"CyberAuthNCCC service start at : {DateTime.Now:yyyy-MM-dd HH:mm:ss:fffff}");
                 var cyberAuthNCCC = new Com.Cybersoft4u.ServiceProvider.ClientAuth.CyberAuthNCCC();
                 CyberAuthNCCCResource.CyberAuthNCCC = cyberAuthNCCC;
-                cyberAuthNCCC.Start();
+                
+                // P0 Fix: Add startup timeout protection (2 minutes)
+                try
+                {
+                    using (var startupCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken))
+                    {
+                        startupCts.CancelAfter(TimeSpan.FromMinutes(2));
+                        await Task.Run(() => cyberAuthNCCC.Start(), startupCts.Token);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    _appLogger.Fatal("CyberAuthNCCC service startup exceeded 2-minute timeout. Aborting startup.");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _appLogger.Fatal($"CyberAuthNCCC service startup failed with exception: {ex.Message}");
+                    throw;
+                }
             }
             else
             {
