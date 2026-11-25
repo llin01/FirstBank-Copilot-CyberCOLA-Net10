@@ -66,6 +66,12 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
 
         private int DispatchTaskLimitCounter = 1000;
 
+        private ManualResetEvent channelsConnectedEvent = new ManualResetEvent(false);
+
+        private int expectedChannelCount = 0;
+
+        private object channelCounterLocker = new object();
+
         public void Remove(IChannel item)
         {
             Monitor.Enter(this.ChannelLocker);
@@ -91,6 +97,14 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
             this.Channels.Add(item);
             this.ChannelCount = this.Channels.Count;
             Monitor.Exit(this.ChannelLocker);
+
+            lock (this.channelCounterLocker)
+            {
+                if (this.ChannelCount >= this.expectedChannelCount && this.expectedChannelCount > 0)
+                {
+                    this.channelsConnectedEvent.Set();
+                }
+            }
         }
 
         // Parallel walks run on a copy taken under the lock: Remove()/Release() change the list meanwhile, and
@@ -621,19 +635,40 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
                     return true;
                 }
 
-                this.Round++;
-                var index = (int)this.Round % this.ChannelCount;
-                while (true)
+                lock (this.ChannelLocker)
                 {
-                    try
+                    int channelCount = this.Channels.Count;
+                    if (channelCount == 0)
                     {
-                        channel = this.Channels[index];
-                        this.Logger.Info($"2. CyberGWFISC DispatchTask Get channel: {channel?.LocalEndPoint()} => {channel?.RemoteEndPoint()}, MTI[{item.Mti()}], Channel RelationId[{relationId}], Item RelationId[{itemRelationId}]");
-                        break;
+                        this.Logger.Error($"No online channels, returning to retry queue: MTI[{item.Mti()}], Channel RelationId[{relationId}]");
+                        return false;
                     }
-                    catch (Exception)
+                    this.Round++;
+                    var index = (int)this.Round % channelCount;
+                    while (true)
                     {
-                        index = (int)this.Round % this.ChannelCount;
+                        try
+                        {
+                            channel = this.Channels[index];
+                            this.Logger.Info($"2. CyberGWFISC DispatchTask Get channel: {channel?.LocalEndPoint()} => {channel?.RemoteEndPoint()}, MTI[{item.Mti()}], Channel RelationId[{relationId}], Item RelationId[{itemRelationId}]");
+                            break;
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            // Channel list has shrunk, recalculate with current snapshot
+                            channelCount = this.Channels.Count;
+                            if (channelCount == 0)
+                            {
+                                this.Logger.Warn($"All channels removed during dispatch, retrying: MTI[{item.Mti()}], Channel RelationId[{relationId}]");
+                                return false;
+                            }
+                            index = (int)this.Round % channelCount;
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Logger.Error($"Unexpected error selecting channel: {ex.Message}");
+                            return false;
+                        }
                     }
                 }
             }
@@ -736,6 +771,23 @@ namespace Com.Cybersoft4u.ServiceProvider.EntryPoints.FISC
                         }
                     });
                 Thread.Sleep(100);
+            }
+
+            // Set expected channel count and wait for all channels to connect
+            lock (this.channelCounterLocker)
+            {
+                this.expectedChannelCount = sessions;
+                // Reset event in case PreStartTask is called multiple times
+                this.channelsConnectedEvent.Reset();
+            }
+
+            // Wait for all channels to connect (with 30-second timeout)
+            bool allChannelsConnected = this.channelsConnectedEvent.WaitOne(TimeSpan.FromSeconds(30));
+            lock (this.ChannelLocker)
+            {
+                this.Logger.Info($"PreStartTask completed: Expected {sessions} channels, " +
+                    $"connected {this.ChannelCount} channels, " +
+                    $"all connected within timeout: {allChannelsConnected}");
             }
         }
     }
